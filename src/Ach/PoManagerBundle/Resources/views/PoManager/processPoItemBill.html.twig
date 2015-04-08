@@ -1,0 +1,77 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Po items pending{% endblock %}
+
+{% block body %}
+<h2>{{ billingManager.name }}, these are the shipped items to invoice:</h2>
+<p>
+	<form id="form" action="{{ path('ach_po_manager_create_invoice') }}" method="post" enctype="multipart/form-data">
+		<table id="sortable" class="table table-bordered table-hover tablesorter">
+			<thead>
+				<tr>
+					<th></th>
+					<th>Po #</th>
+					<th>Release #</th>
+					<th>Line #</th>
+					<th>VITEC P/N</th>
+					<th>Customer P/N</th>
+					<th>Description</th>
+					<th>Quantity shipped</th>
+					<th>Unit Price</th>
+					<th>Amount</th>
+					<th>Currency</th>
+					<th>Due date</th>
+					<th>Tracking Number</th>
+					<th>Ship. depart. date</th>
+					<th>Comments</th>
+					<th>PO file</th>
+					<!-- <th>Invoice #</th> -->
+					<!-- <th>Validate invoice</th> -->
+				</tr>
+			</thead>
+			<tbody>
+			{% for item in shipmentItems %}
+				<tr id="row-id-{{ item.id }}">
+					<td id="shipmentItem-id-{{ item.id }}"><input type="checkbox" class = "{{ item.shipment.trackingNum }}" name="shipmentItem_{{ item.id }}" value="{{ item.id }}">
+					<td id="po-id-{{ item.id }}">{{ item.poitem.po.num }}</td>
+					<td id="rel-id-{{ item.id }}">{{ item.poitem.po.relNum }}</td>
+					<td id="line-id-{{ item.id }}">{{ item.poitem.lineNum }}</td>
+					<td id="pn-id-{{ item.id }}">{{ item.poitem.revision.product.pn }}</td>
+					<td>{{ item.poitem.revision.product.custPn }}</td>
+					<td>{{ item.poitem.description }}</td>
+					<td id="qty-id-{{ item.id }}">{{ item.qty }} / {{ item.poitem.qty }}</td>
+					<td>{{ item.poitem.price.price|number_format(2, '.', ',') }}</td>
+					<td>{{ (item.poitem.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
+					<td id="currency-id-{{ item.id }}">{{ item.poitem.price.currency.tla }}</td>
+					<td id="date-id-{{ item.id }}">{{ item.poitem.dueDate|date('Y-m-d') }}</td>
+					<td id="tracking-id-{{ item.id }}" class="{{ item.shipment.trackingNum }}" >{% if item.shipment.trackingNum == "none" %}N/A{% else %}<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">{{ item.shipment.trackingNum }}</a>{% endif %}</td>
+					<td>{{ item.shipment.shippingDate|date('Y-m-d') }}</td>
+					<td>{{ item.poitem.revision.product.comment }}</td>
+					<td><a href="{{ po_files_path }}/{{ item.poitem.po.filePath }}">{{ item.poitem.po.filePath }}</a></td>
+					<!-- <td><input type="text"  id="invoice-id-{{ item.id }}" name="invoice-id-{{ item.id }}" placeholder="Enter Invoice # here"></td> -->
+					<!-- <td><button id="invoice-{{item.id}}" type="button" class="btn btn-success">Invoice item!</button></td> -->
+				</tr>
+				{% else %}
+				<tr>
+					Currently item to invoice!
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<div class="form-inline" role="form">
+			<!-- <input class="form-control" type="text" id="invoice-id-global" placeholder="Enter invoice # here"> -->
+			<!-- <input class="form-control" type="text" id="invoiceDate-id-global" placeholder="Enter invoice date here"> -->
+			<!-- <input id="bill-id-global" type="button" value="Invoice selected item(s)" class="btn btn-success"> -->
+			<input class="form-control" type="file" name="invoiceFile" id="invoiceFile" />
+			<input class="form-control" type="text" name= "invoiceComment" id="invoiceComment" placeholder="Enter additional comment here">
+			<input class="form-control btn btn-success" type="submit" value="Invoice selected item(s)">
+		</div>
+	</form>
+</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap-datepicker.js') }}"></script>
+<script src="{{ asset('js/processPoItemBill.js') }}"></script>
+
+{% endblock %}

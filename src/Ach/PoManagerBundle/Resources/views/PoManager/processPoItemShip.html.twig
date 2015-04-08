@@ -1,0 +1,71 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Po items pending{% endblock %}
+
+{% block body %}
+<h2>{{ salesAdmin.name }}, these are the approved items to ship:</h2>
+	<p>
+		<form action="{{ path('ach_po_manager_generate_xls_poItem_recap') }}" method="get">
+			<table id="sortable" class="table table-bordered table-hover tablesorter">
+				<thead>
+					<tr>
+						<th id="select-all"></th>
+						<th>Po #</th>
+						<th>Release #</th>
+						<th>Line #</th>
+						<th>VITEC P/N</th>
+						<th>Customer P/N</th>
+						<th>Description</th>
+						<th>Quantity</th>
+						<th>Unit Price</th>
+						<th>Amount</th>
+						<th>Currency</th>
+						<th>Due date</th>
+						<th>Comments</th>
+						<th>PO file</th>
+						<!-- <th>Tracking #</th> -->
+						<!-- <th>Validate shipment</th> -->
+					</tr>
+				</thead>
+				<tbody>
+					{% for item in poItems %}
+					<tr id="row-id-{{ item.id }}">
+						<td id="excel-id-{{ item.id }}"><input type="checkbox" class = "{{ item.dueDate|date('Y-m-d') }}" name="excel_recap_{{ item.id }}" value="{{ item.id }}"></td>
+						<td id="po-id-{{ item.id }}">{{ item.po.num }}</td>
+						<td id="rel-id-{{ item.id }}">{{ item.po.relNum }}</td>
+						<td id="line-id-{{ item.id }}">{{ item.lineNum }}</td>
+						<td id="pn-id-{{ item.id }}">{{ item.revision.product.pn }}</td>
+						<td>{{ item.revision.product.custPn }}</td>
+						<td>{{ item.description }}</td>
+						<td id="qty-id-{{ item.id }}"><input type="hidden" id="origin-qty-id-{{ item.id }}" value="{{item.qty - item.shippedQty}}"><select name="qty_id_{{ item.id }}">{% for i in (item.qty - item.shippedQty)..1 %}<option value="{{ i }}">{{ i }}</option>{% endfor %}</select> / {{item.qty}}</td>
+						<td>{{ item.price.price }}</td>
+						<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
+						<td>{{ item.price.currency.tla }}</td>
+						<td id="date-id-{{ item.id }}" class = "{{ item.dueDate|date('Y-m-d') }}">{{ item.dueDate|date('M d, Y') }}</td>
+						<td>{{ item.revision.product.comment }}</td>
+						<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{ item.po.filePath }}</a></td>
+						<!-- <td><input type="text" id="tracking-id-{{ item.id }}" name="tracking-id-{{ item.id }}" placeholder="Enter tracking # here"></td> -->
+						<!-- <td><button id="ship-{{item.id}}" type="button" class="btn btn-success">Ship item!</button></td> -->
+					</tr>
+					{% else %}
+					Currently no pending orders!
+					{% endfor %}
+				</tbody>
+			</table>
+			<input type="submit" value="Generate Excel recap for selected item(s)" class="btn btn-primary">
+		</form>
+		<br />
+		<div class="form-inline" role="form">
+			<input class="form-control" type="text" id="tracking-id-global" placeholder="Enter tracking # here">
+			<input class="form-control" type="text" id="shippingDate-id-global" placeholder="Enter depart. date here">
+			<select id="carrier-id-global" class="form-control">{% for carrier in carriers %}<option value="{{carrier.id}}">{{carrier.name}}</option>{% endfor %}
+			<input id="ship-id-global" type="button" value="Ship selected item(s)" class="btn btn-success">
+		</div>
+	</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap-datepicker.js') }}"></script>
+<script src="{{ asset('js/processPoItemShip.js') }}"></script>
+
+{% endblock %}

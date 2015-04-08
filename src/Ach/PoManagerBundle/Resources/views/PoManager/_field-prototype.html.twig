@@ -1,0 +1,184 @@
+{% block collection_widget %}
+{% spaceless %}
+{% if prototype is defined %}
+  {% set attr = attr|merge({'data-prototype': block('collection_item_widget') }) %}
+{% endif %}
+<div {{ block('widget_container_attributes') }}>
+  {% for row in form %}
+  <br />
+  <div class="form-group" id="Po-item-{{ loop.index - 1 }}">
+    <div class="row">
+      <div class="col-lg-1">
+	{{ form_label(row.lineNum, "Line number ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-3">
+	{{ form_label(row.description, "Description on PO", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-2">
+	{{ form_label(row.dueDate, "Due date ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_label(row.pnF, "P/N ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_label(row.custPnF, "Cust. P/N ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_label(row.revisionF, "Cust. rev. ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_label(row.priceF, "Price  ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_label(row.qty, "Quantity ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_label(row.totalPriceF, "Item Total ", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-1">
+	{{ form_errors(row.lineNum) }}
+	{{ form_widget(row.lineNum, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-3">
+	{{ form_errors(row.description) }}
+	{{ form_widget(row.description, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-2">
+	{{ form_errors(row.dueDate) }}
+	{{ form_widget(row.dueDate, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_errors(row.pnF) }}
+	{{ form_widget(row.pnF, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_errors(row.custPnF) }}
+	{{ form_widget(row.custPnF, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_errors(row.revisionF) }}
+	{{ form_widget(row.revisionF, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_errors(row.priceF) }}
+	{{ form_widget(row.priceF, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_errors(row.qty) }}
+	{{ form_widget(row.qty, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-1">
+	{{ form_errors(row.totalPriceF) }}
+	{{ form_widget(row.totalPriceF, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-4">
+	{{ form_label(row.comment, "Item comment (optional)", {'attr': {'class': 'control-label'}}) }}
+	{{ form_errors(row.comment) }}
+	{{ form_widget(row.comment, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-6">
+	{{ form_label(row.historyF, "History", {'attr': {'class': 'control-label'}}) }}
+	{{ form_errors(row.historyF) }}
+	{{ form_widget(row.historyF, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+
+{% endspaceless %}
+{% endblock collection_widget %}
+
+{% block collection_item_widget %}
+{% spaceless %}
+<br />
+<div class="form-group" id="Po-item-__name__">
+  <div class="row">
+    <div class="col-lg-1">
+      {{ form_label(prototype.lineNum, "Line number ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-3">
+      {{ form_label(prototype.description, "Description on PO", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-2">
+      {{ form_label(prototype.dueDate, "Due date ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_label(prototype.pnF, "P/N ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_label(prototype.custPnF, "Cust. P/N ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_label(prototype.revisionF, "Cust. rev. ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_label(prototype.priceF, "Price  ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_label(prototype.qty, "Quantity ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_label(prototype.totalPriceF, "Item Total ", {'attr': {'class': 'control-label'}}) }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-1">
+      {{ form_errors(prototype.lineNum) }}
+      {{ form_widget(prototype.lineNum, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-3">
+      {{ form_errors(prototype.description) }}
+      {{ form_widget(prototype.description, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-2">
+      {{ form_errors(prototype.dueDate) }}
+      {{ form_widget(prototype.dueDate, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_errors(prototype.pnF) }}
+      {{ form_widget(prototype.pnF, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_errors(prototype.custPnF) }}
+      {{ form_widget(prototype.custPnF, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_errors(prototype.revisionF) }}
+      {{ form_widget(prototype.revisionF, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_errors(prototype.priceF) }}
+      {{ form_widget(prototype.priceF, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_errors(prototype.qty) }}
+      {{ form_widget(prototype.qty, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-1">
+      {{ form_errors(prototype.totalPriceF) }}
+      {{ form_widget(prototype.totalPriceF, {'attr': {'class': 'form-control'}}) }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-4">
+      {{ form_label(prototype.comment, "Item comment (optional)", {'attr': {'class': 'control-label'}}) }}
+      {{ form_errors(prototype.comment) }}
+      {{ form_widget(prototype.comment, {'attr': {'class': 'form-control'}}) }}
+    </div>
+    <div class="col-lg-6">
+      {{ form_label(prototype.historyF, "History", {'attr': {'class': 'control-label'}}) }}
+      {{ form_errors(prototype.historyF) }}
+      {{ form_widget(prototype.historyF, {'attr': {'class': 'form-control'}}) }}
+    </div>
+
+  </div>
+</div>
+
+{% endspaceless %}
+{% endblock collection_item_widget %}

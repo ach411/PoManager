@@ -1,0 +1,63 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - PO Item Query View{% endblock %}
+
+{% block body %}
+
+<h2>List of PO item(s) matching request:</h2>
+	<p>
+		<table id="sortable" class="table table-bordered table-hover tablesorter">
+			<thead>
+				<tr>
+					<th>{{ po_num_header }}</th>
+					<th>{{ rel_num_header }}</th>
+					<th>{{ line_num_header }}</th>
+					<th>{{ pn_header }}</th>
+					<th>{{ cust_pn_header }}</th>
+					<th>{{ desc_header }}</th>
+					<th>{{ price_header }}</th>
+					<th>Qty shipped</th>
+					<th>{{ total_item_header }}</th>
+					<th>{{ currency_header }}</th>
+					<th>{{ due_date_header }}</th>
+					<th>{{ comment_header }}</th>
+					<th>Status</th>
+					<th>{{ po_file_header }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in poItems %}
+				<tr>
+					<td>{{ item.po.getNum() }}</td>
+					<td>{{ item.po.getRelNum() }}</td>
+					<td>{{ item.getLineNum() }}</td>
+					<td>{{ item.revision.product.pn }}</td>
+					<td>{{ item.revision.product.custPn }}</td>
+					<!-- <td>{{ item.revision.product.description }}</td> -->
+					<td>{{ item.description }}</td>
+					<td>{{ item.price.price }}</td>
+					<td>{{ item.shippedQty }} / {{ item.qty }}</td>
+					<td>{{ (item.qty*item.price.price)|number_format(2, '.', ',') }}</td>
+					<td>{{ item.price.currency.tla }}</td>
+					<!-- <td>{{ item.dueDate|date('D-d-M-Y') }}</td> -->
+					<td>{{ item.dueDate|date('Y-m-d') }}</td>
+					<td>{{ item.comment }}</td>
+					<!-- <td>{{ item.status.name }}{% if (item.status.name == "SHIPPED" or item.status.name == "PARTIALLY SHIPPED") %}<br /><a href="{{ path('ach_po_manager_search_shipmentitem_poitemid', {'id': item.id} ) }}">(view)</a>{% endif %}</td> -->
+					<td>{{ item.status.name }}{% if (item.shippedQty > 0) %}<br /><a href="{{ path('ach_po_manager_search_shipmentitem_poitemid', {'id': item.id} ) }}">(view)</a>{% else %}<br /><a href="{{ path('ach_po_manager_modify_po', {'id': item.po.id} ) }}">(modify PO)</a>{% endif %}</td>
+					<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{item.po.filePath}}</a></td>
+				</tr>
+				{% else %}
+				<tr>
+					No match!
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %}
+	</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/enablesorting.js') }}"></script>
+
+{% endblock %}

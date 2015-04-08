@@ -1,0 +1,87 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Create Po{% endblock %}
+
+{% block body %}
+
+{% form_theme formPo 'AchPoManagerBundle:PoManager:_field-prototype.html.twig' %}
+
+<h2>{{ createOrModif }} PO:</h2>
+
+<div class="well">
+  <form class="form-horizontal" method="post" {{ form_enctype(formPo) }} role="form">
+    <div class="form-group">
+      <div class="row">
+	<div class="col-lg-2">
+	  {{ form_label(formPo.num, "PO number ", {'attr': {'class': 'control-label'}}) }}
+	</div>
+	<div class="col-lg-1">
+	  {{ form_label(formPo.isBpo, "is BPO? ", {'attr': {'class': 'control-label'}}) }}
+	</div>
+	<div class="col-lg-1">
+	  {{ form_label(formPo.relNum, "Release number ", {'attr': {'class': 'control-label'}}) }}
+	</div>
+	<div class="col-lg-4">
+	  {{ form_label(formPo.buyerEmail, "Buyer's email ", {'attr': {'class': 'control-label'}}) }}
+	</div>
+	<div class="col-lg-3">
+	  {{ form_label(formPo.buyerEmail, "PO comment (optional)", {'attr': {'class': 'control-label'}}) }}
+	</div>
+      </div>
+      <div class="row">
+	<div class="col-lg-2">
+	  {{ form_errors(formPo.num) }}
+	  {{ form_widget(formPo.num, {'attr': {'class': 'form-control'}}) }}
+	</div>
+	<div class="col-lg-1">
+	  {{ form_errors(formPo.isBpo) }}
+	  {{ form_widget(formPo.isBpo) }}
+	</div>
+	<div class="col-lg-1">
+	  {{ form_errors(formPo.relNum) }}
+	  {{ form_widget(formPo.relNum, {'attr': {'class': 'form-control'}}) }}
+	</div>
+	<div class="col-lg-3">
+	  {{ form_errors(formPo.buyerEmail) }}
+	  {{ form_widget(formPo.buyerEmail, {'attr': {'class': 'form-control'}}) }}
+	</div>
+	<div class="col-lg-3 col-lg-offset-1">
+	  {{ form_errors(formPo.comment) }}
+	  {{ form_widget(formPo.comment, {'attr': {'class': 'form-control'}}) }}
+	</div>
+      </div>
+    </div>
+    <br />
+    <div id="number_item">
+      {{ form_label(formPo.poItems, "PO includes %s following item(s):"|format( formPo.poItems|length )) }}
+    </div>
+    <div id="items_section">
+      {{ form_errors(formPo.poItems) }}
+      {{ form_widget(formPo.poItems) }}
+    </div>
+
+    <br />
+    <br />
+    <div class="form-group">
+      <div class="row">
+	<div class="col-lg-2">
+	  {{ form_label(formPo.file, "Confirm your file once again: ", {'attr': {'class': 'control-label'}}) }}
+	  {{ form_errors(formPo.file) }}
+	  {{ form_widget(formPo.file, {'attr': {'class': 'form-control'}}) }}
+	</div>
+	<div class="col-lg-2 col-lg-offset-8">
+	  {{ form_label(formPo.totalAmount, "Total amount :"|format( poCurrency ), {'attr': {'class': 'control-label'}}) }}
+	  {{ form_errors(formPo.totalAmount) }}
+	  {{ form_widget(formPo.totalAmount, {'attr': {'class': 'form-control'}}) }}
+	</div>
+      </div>
+    </div>
+    {{ form_rest(formPo) }}
+  <input type="submit" class="btn btn-primary" />
+  </form>
+</div>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/createPo.js') }}"></script>
+
+{% endblock %}

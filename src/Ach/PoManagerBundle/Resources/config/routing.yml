@@ -1,0 +1,212 @@
+# Index Section
+
+ach_po_manager_index:
+    pattern:  /index
+    defaults: { _controller: AchPoManagerBundle:PoManager:index }
+
+
+# Search Product Section
+
+ach_po_manager_search_product_pn:
+    pattern:  /search/product/pn/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchProduct:searchProductPn }
+    
+
+ach_po_manager_search_product_pn_po_modif:
+    pattern:  /modify/search/product/pn/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchProduct:searchProductPn }
+
+ach_po_manager_search_product_custpn:
+    pattern:  /search/product/custpn/{custPn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchProduct:searchProductCustpn }
+
+ach_po_manager_search_product_custpn_po_modif:
+    pattern:  /modify/search/product/custpn/{custPn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchProduct:searchProductCustpn }
+
+ach_po_manager_search_product_desc:
+    pattern:  /search/product/desc/{desc}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchProduct:searchProductDesc }
+
+
+# Search Revision Section
+
+ach_po_manager_search_revision_pn:
+    pattern:  /search/revision/product/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchRevision:searchRevisionPn }
+    
+ach_po_manager_search_revision_custpn:
+    pattern:  /search/revision/custpn/{custPn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchRevision:searchRevisionCustpn }
+
+ach_po_manager_search_revision_desc:
+    pattern:  /search/revision/desc/{desc}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchRevision:searchRevisionDesc }
+
+
+# Search Po Item Section
+
+ach_po_manager_search_poitem_number:
+    pattern:  /search/poitem/number/{poNum}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchPoItem:searchPoItemNumber, minDate: -1y, maxDate: +1y }
+    
+ach_po_manager_search_poitem_pn:
+    pattern:  /search/poitem/pn/{pn}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchPoItem:searchPoItemPn, minDate: -1y, maxDate: +1y }
+    
+ach_po_manager_search_poitem_custpn:
+    pattern:  /search/poitem/custpn/{custPn}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchPoItem:searchPoItemCustPn, minDate: -1y, maxDate: +1y }
+
+ach_po_manager_search_poitem_desc:
+    pattern:  /search/poitem/desc/{desc}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchPoItem:searchPoItemDesc, minDate: -1y, maxDate: +1y }
+
+
+# Search Shipment Item Section
+
+ach_po_manager_search_shipmentitem_ponumber:
+    pattern:  /search/shipmentitem/ponumber/{poNum}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemPoNumber, minDate: -1y, maxDate: +1y }
+    
+ach_po_manager_search_shipmentitem_pn:
+    pattern:  /search/shipmentitem/pn/{pn}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemPn, minDate: -1y, maxDate: +1y }
+    
+ach_po_manager_search_shipmentitem_custpn:
+    pattern:  /search/shipmentitem/custpn/{custPn}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemCustPn, minDate: -1y, maxDate: +1y }
+
+ach_po_manager_search_shipmentitem_desc:
+    pattern:  /search/shipmentitem/desc/{desc}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemDesc, minDate: -1y, maxDate: +1y }
+
+ach_po_manager_search_shipmentitem_date:
+    pattern:  /search/shipmentitem/date/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemDate, maxDate: +0d }
+
+ach_po_manager_search_shipmentitem_tracking:
+    pattern:  /search/shipmentitem/tracking/{tracking}/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemTracking, minDate: -1y, maxDate: +1y }
+
+ach_po_manager_search_shipmentitem_poitemid:
+    pattern:  /search/shipmentitem/poitem/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemPoItem }
+
+ach_po_manager_search_shipmentitem_invoicenum:
+    pattern:  /search/shipmentitem/invoice/{num}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemInvoice }
+
+ach_po_manager_search_shipmentitem_invoicedate:
+    pattern:  /search/shipmentitem/invoicedate/{minDate}/{maxDate}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemInvoiceDate, maxDate: +0d }
+
+
+# Search BPO Section
+ach_po_manager_search_bpo_all:
+    pattern:  /search/bpo/all
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchBpo:searchBpo}
+
+ach_po_manager_search_bpo_ponum:
+    pattern:  /search/bpo/number/{bpoNum}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchBpo:searchBpoNumber}
+
+ach_po_manager_search_bpo_pn_num:
+    pattern:  /search/bpo/pn/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchBpo:searchBpoPn}
+
+ach_po_manager_search_bpo_custpn:
+    pattern:  /search/bpo/custpn/{custPn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchBpo:searchBpoCustPn}
+
+ach_po_manager_search_bpo_desc:
+    pattern:  /search/bpo/desc/{desc}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchBpo:searchBpoDesc}
+
+# Create Entry Section
+
+ach_po_manager_create_po:
+    pattern:  /create/po
+    defaults: { _controller: AchPoManagerBundle:PoManagerCreateEntry:createPo }
+
+ach_po_manager_modify_po:
+    pattern:  /modify/po/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManagerCreateEntry:modifyPo }
+
+ach_po_manager_create_invoice:
+    pattern:  /create/invoice
+    defaults: { _controller: AchPoManagerBundle:PoManagerCreateEntry:createInvoice }
+
+ach_po_manager_create_bpo:
+    pattern:  /create/bpo/revision/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManagerCreateEntry:createBpo }
+
+# Process Item Section
+
+ach_po_manager_process_poitem_prod:
+    pattern:  /process/poitem/prod/{prodManagerId}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemProd }
+
+ach_po_manager_process_poitem_ship:
+    pattern:  /process/poitem/ship/{shippingManagerId}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemShip }
+
+ach_po_manager_generate_xls_poItem_recap:
+    pattern: /process/poitem/generateXlsShipRecap
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemGenerateXlsShipRecap }
+
+ach_po_manager_process_poitem_approve:
+    pattern: /process/poitem/approve/{poItemId}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemApprove }
+
+ach_po_manager_process_poitem_reject:
+    pattern: /process/poitem/reject/{poItemId}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemReject }
+
+ach_po_manager_process_poitem_tracking:
+    pattern: /process/poitem/tracking/{shippingDate}/{carrier}/{tracking}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemTracking, tracking: none }
+    requirements:
+        carrier: \d+
+
+ach_po_manager_process_poitem_bill:
+    pattern:  /process/poitem/bill/{billingManagerId}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemBill }
+
+# Others Section
+
+ach_po_manager_json_return_latest_active_rev:
+    pattern:  /json/latestactiverev/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManager:jsonReturnLatestActiveRev }
+
+ach_po_manager_send_notification:
+    pattern: /sendnotification
+    defaults: { _controller: AchPoManagerBundle:PoManager:sendNotification }
+
+ach_po_manager_kill_po:
+    pattern: /killpo
+    defaults: { _controller: AchPoManagerBundle:PoManager:killPo }
+
+#ach_po_manager_search_po_review:
+#    pattern: /search/po/review/{coordinatorId}
+#    defaults: { _controller: AchPoManagerBundle:PoManager:review }
+
+#ach_po_manager_search_po_pending:
+#    pattern: /search/po/pending/{salesAdminId}
+#    defaults: { _controller: AchPoManagerBundle:PoManager:pending }
+
+#ach_po_manager_approve_po_item:
+#    pattern: approve/poItem/{poItemId}
+#    defaults: { _controller: AchPoManagerBundle:PoManager:approvePoItem }
+
+ach_po_manager_status_pending:
+    pattern: ship/poItem/{poItemId}
+    defaults: { _controller: AchPoManagerBundle:PoManager:shipPoItem }
+
+ach_po_manager_test_xls:
+    pattern: testxls/{index}
+    defaults: { _controller: AchPoManagerBundle:PoManager:testxls }
+
+ach_po_manager_convert_bpo:
+    pattern: convertbpo/
+    defaults: { _controller: AchPoManagerBundle:PoManager:convertBpo }

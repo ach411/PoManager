@@ -1,0 +1,59 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - BPO Item Query View{% endblock %}
+
+{% block body %}
+
+<h2>List of BPO matching request:</h2>
+	<p>
+		<table id="sortable" class="table table-bordered table-hover tablesorter">
+			<thead>
+				<tr>
+					<th>{{ bpo_num_header }}</th>
+					<th>{{ pn_header }}</th>
+					<th>{{ cust_pn_header }}</th>
+					<th>{{ desc_header }}</th>
+					<th>{{ price_header }}</th>
+					<th>{{ released_over_total_qty_header }}</th>
+					<th>{{ remaining_qty_header }}</th>
+					<th>{{ total_item_header }}</th>
+					<th>{{ currency_header }}</th>
+					<th>{{ start_date_header }}</th>
+					<th>{{ end_date_header }}</th>
+					<th>{{ comment_header }}</th>
+					<th>{{ bpo_files_header }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in bpos %}
+				<tr>
+					<td><a href="{{ path('ach_po_manager_search_poitem_number', {'poNum': item.num} ) }}">{{ item.num }}</a></td>
+					<td>{{ item.revision.product.pn }}</td>
+					<td>{{ item.revision.product.custPn }}</td>
+					<td>{{ item.revision.product.description }}</td>
+					<td>{{ item.price.price|number_format(2, '.', ',') }}</td>
+					<!-- <td>{{ item.qty }} / {{ item.qty }}</td> -->
+					<td>{{ item.releasedQty }} / {{ item.qty }}</td>
+					<td>{{ item.qty - item.releasedQty }}</td>
+					<td>{{ (item.qty * item.price.price)|number_format(2, '.', ',') }}</td>
+					<td>{{ item.price.currency.tla }}</td>
+					<td>{{ item.startDate is empty ? "" : item.startDate|date('Y-m-d') }}</td>
+					<td>{{ item.endDate is empty ? "" : item.endDate|date('Y-m-d')}} </td>
+					<td>{{ item.comment }}</td>
+					<td><a href="{{ bpo_files_path }}/{{ item.filePath }}">{{item.filePath}}</a></td>
+				</tr>
+				{% else %}
+				<tr>
+					No match!
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %}
+	</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/enablesorting.js') }}"></script>
+
+{% endblock %}

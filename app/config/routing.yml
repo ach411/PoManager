@@ -1,0 +1,3 @@
+ach_po_manager:
+    resource: "@AchPoManagerBundle/Resources/config/routing.yml"
+    prefix:   /

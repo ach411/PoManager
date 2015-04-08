@@ -1,0 +1,69 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Shipment Item Query View{% endblock %}
+
+{% block body %}
+
+<h2>List of shipment item(s) matching request:</h2>
+	<p>
+		<table id="sortable" class="table table-bordered table-hover tablesorter">
+			<thead>
+				<tr>
+					<th>{{ po_num_header }}</th>
+					<th>{{ rel_num_header }}</th>
+					<th>{{ line_num_header }}</th>
+					<th>{{ pn_header }}</th>
+					<th>{{ cust_pn_header }}</th>
+					<th>{{ desc_header }}</th>
+					<th>{{ price_header }}</th>
+					<th>Qty on Shipment</th>
+					<th>{{ total_item_header }}</th>
+					<th>{{ currency_header }}</th>
+					<th>{{ due_date_header }}</th>
+					<th>{{ comment_header }}</th>
+					<th>{{ po_file_header }}</th>
+					<th>Tracking number</th>
+					<th>Ship. Depart. Date</th>
+					<th>Invoice</th>
+					<th>Invoice Date</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in shipmentItems %}
+				<tr>
+					<td>{{ item.poItem.po.num }}</td>
+					<td>{{ item.poItem.po.relNum() }}</td>
+					<td>{{ item.poItem.lineNum }}</td>
+					<td>{{ item.poItem.revision.product.pn }}</td>
+					<td>{{ item.poItem.revision.product.custPn }}</td>
+					<!-- <td>{{ item.poItem.revision.product.description }}</td> -->
+					<td>{{ item.poItem.description }}</td>
+					<td>{{ item.poItem.price.price }}</td>
+					<td>{{ item.qty }} / {{ item.poItem.qty }}</td>
+					<td>{{(item.qty*item.poItem.price.price)|number_format(2, '.', ',') }}</td>
+					<td>{{ item.poItem.price.currency.tla }}</td>
+					<!-- <td>{{ item.poItem.dueDate|date('D-d-M-Y') }}</td> -->
+					<td>{{ item.poItem.dueDate|date('M d, Y') }}</td>
+					<td>{{ item.poItem.comment }}</td>
+					<td><a href="{{ po_files_path }}/{{ item.poItem.po.filePath }}">{{item.poItem.po.filePath}}</a></td>
+					<td>{% if item.shipment.trackingNum == "none" %}N/A{% else %}<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">{{ item.shipment.trackingNum }}</a>{% endif %}</td>
+					<!-- <td>{{ item.shipment.shippingDate|date('Y-m-d') }}</td> -->
+					<td>{{ item.shipment.shippingDate|date('M d, Y') }}</td>
+					<td>{% if item.invoice is empty %}Not invoiced{% else %}<a href="{{ invoice_files_path }}/{{ item.invoice.filePath }}">{{item.invoice.num}}</a>{% endif %}</td>
+					<td>{% if item.invoice is empty %}Not invoiced{% else %}{{ item.invoice.invoiceDate|date('M d, Y') }}{% endif %}</td>
+				</tr>
+				{% else %}
+				<tr>
+					No match!
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %}
+	</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/enablesorting.js') }}"></script>
+					
+{% endblock %}

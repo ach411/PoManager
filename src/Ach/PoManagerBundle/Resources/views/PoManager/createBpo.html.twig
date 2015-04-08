@@ -1,0 +1,16 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Create Bpo{% endblock %}
+
+{% block body %}
+
+<h2>Create Bpo:</h2>
+
+<div class="well">
+  <form  method="post" {{ form_enctype(formBpo) }}>
+    {{ form_widget(formBpo) }}
+  <input type="submit" class="btn btn-primary" />
+  </form>
+</div>
+
+{% endblock %}

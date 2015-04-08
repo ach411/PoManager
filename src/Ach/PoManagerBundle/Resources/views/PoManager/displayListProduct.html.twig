@@ -1,0 +1,50 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Product Query View{% endblock %}
+
+{% block body %}
+
+<h2>List of product(s) matching request:</h2>
+	<p>
+		<table id="sortable" class="table table-bordered table-hover tablesorter">
+			<thead>
+				<tr>
+					<th>{{ pn_header }}</th>
+					<th>{{ cust_pn_header }}</th>
+					<th>{{ desc_header }}</th>
+					<th>{{ price_header}}</th>
+					<th>{{ currency_header}}</th>
+					<th>{{ moq_header}}</th>
+					<th>{{ comment_header}}</th>
+					<th>{{ prod_manager_header}}</th>
+					<th>{{ billing_manager_header}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in products %}
+				<tr>
+					<td>{{ item.pn }}</td>
+					<td>{{ item.custPn }}</td>
+					<td>{{ item.description }}</td>
+					<td>{{ item.price.price }}</td>
+					<td>{{ item.price.currency.tla }}</td>
+					<td>{{ item.moq }}</td>
+					<td>{{ item.comment }}</td>
+					<td>{{ item.prodManager.email }}</td>
+					<td>{{ item.BillingManager.email }}</td>
+				</tr>
+				{% else %}
+				<tr>
+					No match!
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		{% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %}
+	</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/enablesorting.js') }}"></script>
+
+{% endblock %}

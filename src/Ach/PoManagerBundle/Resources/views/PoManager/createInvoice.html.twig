@@ -1,0 +1,99 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Create Invoice{% endblock %}
+
+{% block body %}
+
+{# form_theme formInvoice 'AchPoManagerBundle:PoManager:_field-prototype.html.twig' #}
+
+<h2>Invoice created:</h2>
+
+<form class="form-horizontal" method="post" {{ form_enctype(formInvoice) }} role="form">
+	<div class="well">
+		<div class="form-group">
+			<div class="row">
+				<div class="col-lg-2">
+					{{ form_label(formInvoice.num, "Invoice number ", {'attr': {'class': 'control-label'}}) }}
+				</div>
+				<div class="col-lg-2">
+				{{ form_label(formInvoice.invoiceDateF, "Invoice date ", {'attr': {'class': 'control-label'}}) }}
+				</div>
+				<div class="col-lg-4 col-lg-offset-1">
+				{{ form_label(formInvoice.comment, "Invoice comment", {'attr': {'class': 'control-label'}}) }}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-2">
+					{{ form_errors(formInvoice.num) }}
+					{{ form_widget(formInvoice.num, {'attr': {'class': 'form-control'}}) }}
+				</div>
+				<div class="col-lg-2">
+					{{ form_errors(formInvoice.invoiceDateF) }}
+					{{ form_widget(formInvoice.invoiceDateF, {'attr': {'class': 'form-control'}}) }}
+				</div>
+				<div class="col-lg-4 col-lg-offset-1">
+					{{ form_errors(formInvoice.comment) }}
+					{{ form_widget(formInvoice.comment, {'attr': {'class': 'form-control'}}) }}
+				</div>
+			</div>
+		</div>
+		<br />
+		{{ form_rest(formInvoice) }}
+	</div>
+	
+	<H3>List of item included in Invoice entry of Po Manager:</H3>
+	
+	<table id="sortable" class="table table-bordered table-hover tablesorter">
+		<thead>
+			<tr>
+				<th>Po #</th>
+				<th>Release #</th>
+				<th>Line #</th>
+				<th>VITEC P/N</th>
+				<th>Customer P/N</th>
+				<th>Description</th>
+				<th>Qty shipped</th>
+				<th>Unit Price</th>
+				<th>Amount</th>
+				<th>Currency</th>
+				<th>Due date</th>
+				<th>Tracking Number</th>
+				<th>Ship. depart. date</th>
+				<th>Comments</th>
+				<th>PO file</th>
+			</tr>
+		</thead>
+		<tbody>
+		{% for item in shipmentItems %}
+			<tr id="row-id-{{ item.id }}">
+				<td id="po-id-{{ item.id }}">{{ item.poitem.po.num }}</td>
+				<td id="rel-id-{{ item.id }}">{{ item.poitem.po.relNum }}</td>
+				<td id="line-id-{{ item.id }}">{{ item.poitem.lineNum }}</td>
+				<td id="pn-id-{{ item.id }}">{{ item.poitem.revision.product.pn }}</td>
+				<td>{{ item.poitem.revision.product.custPn }}</td>
+				<td>{{ item.poitem.description }}</td>
+				<td id="qty-id-{{ item.id }}">{{ item.qty }} / {{ item.poitem.qty }}</td>
+				<td>{{ item.poitem.price.price|number_format(2, '.', ',') }}</td>
+				<td>{{ (item.poitem.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
+				<td>{{ item.poitem.price.currency.tla }}</td>
+				<td id="date-id-{{ item.id }}">{{ item.poitem.dueDate|date('Y-m-d') }}</td>
+				<td id="tracking-id-{{ item.id }}" class="{{ item.shipment.trackingNum }}" >{% if item.shipment.trackingNum == "none" %}N/A{% else %}<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">{{ item.shipment.trackingNum }}</a>{% endif %}</td>
+				<td>{{ item.shipment.shippingDate|date('Y-m-d') }}</td>
+				<td>{{ item.poitem.revision.product.comment }}</td>
+				<td><a href="{{ po_files_path }}/{{ item.poitem.po.filePath }}">{{ item.poitem.po.filePath }}</a></td>
+			</tr>
+			{% else %}
+			<tr>
+				No item on this invoice?!
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<!-- <input type="submit" class="btn btn-primary" value="confirm & send email" /> -->
+</form>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/createInvoice.js') }}"></script>
+
+{% endblock %}

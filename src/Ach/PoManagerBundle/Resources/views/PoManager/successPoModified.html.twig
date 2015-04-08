@@ -1,0 +1,11 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - PO created!{% endblock %}
+
+{% block body %}
+
+<div class="alert alert-success" role="alert">
+  <a href="{{ path('ach_po_manager_search_poitem_number', {'poNum': po.num} ) }}" class="alert-link">New PO {{po.num}} entry modified successfully in the database</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+parameters:
+#    ach_po_manager.example.class: Ach\PoManagerBundle\Example
+    po_files_path:		/po_files
+    bpo_files_path:		/bpo_files
+    invoice_files_path:		/invoice_files
+
+#services:
+#    ach_po_manager.example:
+#        class: %ach_po_manager.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
+
+services:
+    ach_po_manager.variable_substitution:
+        class: Ach\PoManagerBundle\VariableSubstitute\AchVariableSubstitute
+    ach_po_manager.send_notification:
+        class: Ach\PoManagerBundle\SendNotification\AchSendNotification
+        arguments: [@mailer, @router, @templating, %po_files_path%, %bpo_files_path%, %invoice_files_path%]
+#        scope: request
+    ach_po_manager.generate_xls_response:
+        class: Ach\PoManagerBundle\GenerateXlsResponse\AchGenerateXlsResponse
+        arguments: [@phpexcel]
+    ach_po_manager.notification_creator:
+        class: Ach\PoManagerBundle\NotificationCreator\AchNotificationCreator
+        arguments: [@doctrine.orm.entity_manager]
