@@ -13,6 +13,11 @@ from multiple customers.
 PoManager is a PHP Symfony Project.
 It interfaces to a SQL database using [Doctrine][1] ORM, sends email using [Swiftmailer][2] and parse PDF using [PDF parser][3].
 
+This version is tested with:
+- Apache/2.2.22 (Ubuntu)
+- PHP version 5.3.10-1ubuntu3.14
+- MySQL server version 5.5.29-0ubuntu0.12.04.1 (Ubuntu)
+
 
 To install PoManager development environment
 --------------------------------
@@ -31,7 +36,7 @@ Set the ACL for cache and logs folders
 
     sudo setfacl -R -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
 
-Create and configure your parameter file and saved it under `app/config/parameters.yml`
+Create your parameter file and saved it under `app/config/parameters.yml`
 
     parameters:
         database_driver:   pdo_mysql
@@ -39,11 +44,11 @@ Create and configure your parameter file and saved it under `app/config/paramete
         database_port:     ~
         database_name:     po_manager
         database_user:     root
-        database_password: chatillon92320
+        database_password: password
     
         mailer_transport:  smtp
         mailer_host:       127.0.0.1
-        mailer_port:       51000
+        mailer_port:       25
         mailer_user:       ~
         mailer_password:   ~
     
@@ -51,7 +56,7 @@ Create and configure your parameter file and saved it under `app/config/paramete
         secret:            ThisTokenIsNotSoSecretChangeIt
     
         #Product Table Headers
-        pn_header:                  VITEC P/N
+        pn_header:                  P/N
         cust_pn_header:             Customer P/N
         desc_header:                Description
         price_header:               Unit Price
@@ -83,6 +88,13 @@ Create and configure your parameter file and saved it under `app/config/paramete
         bpo_files_path:             /bpo_files
         invoice_files_path:         /invoice_files
 
+Create the database
+
+    php app/console doctrine:database:create
+
+Create the tables
+
+    php app/console doctrine:schema:update --force
 
 Enjoy!
 
