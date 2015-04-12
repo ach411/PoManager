@@ -26,16 +26,6 @@ Use git to clone the project:
 
     git clone https://github.com/ach411/PoManager.git
 
-Run composer to download and install the vendor depencies
-
-    php composer.phar install
-
-Set the ACL for cache and logs folders
-
-    sudo setfacl -R -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
-
-    sudo setfacl -R -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
-
 Create your parameter file and saved it under `app/config/parameters.yml`
 
     parameters:
@@ -87,6 +77,16 @@ Create your parameter file and saved it under `app/config/parameters.yml`
         po_files_path:              /po_files
         bpo_files_path:             /bpo_files
         invoice_files_path:         /invoice_files
+
+Run composer to download and install the vendor depencies
+
+    php composer.phar install
+
+Set the ACL for cache and logs folders
+
+    sudo setfacl -R -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
+
+    sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx app/cache app/logs
 
 Create the database
 
