@@ -42,7 +42,7 @@ class Product
     private $custPn;
 
     /**
-     * @ORM\OneToOne(targetEntity="Ach\PoManagerBundle\Entity\Price")
+     * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Price")
      * @ORM\JoinColumn(nullable=false)
      */
     private $price;

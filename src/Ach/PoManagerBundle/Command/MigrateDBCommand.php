@@ -34,7 +34,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	// connect to old database
 	try
 	{
-            $bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'user', 'pass');
+            $bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'vitec', 'chatillon92320');
 	}
 	catch(Exception $e)
 	{
@@ -65,6 +65,35 @@ class MigrateDBCommand extends ContainerAwareCommand
 		    ->getRepository('AchPoManagerBundle:Unit');
 	    $unitInstance = $repositoryUnit->find(1);
 
+	    $repositoryCustomer = $this->getContainer()->get('doctrine')
+		    ->getManager()
+		    ->getRepository('AchPoManagerBundle:Customer');
+	    $customerInstance = $repositoryCustomer->find(1);
+		
+		$repositoryProdManager = $this->getContainer()->get('doctrine')
+                    ->getManager()
+                    ->getRepository('AchPoManagerBundle:ProdManager');
+		
+		$repositoryShippingManager = $this->getContainer()->get('doctrine')
+                    ->getManager()
+                    ->getRepository('AchPoManagerBundle:ShippingManager');
+		
+		if(stripos($data['description'], 'AMPSK'))
+		{
+			$prodManagerInstance = $repositoryProdManager->find(2);
+			$shippingManagerInstance = $repositoryShippingManager->find(2);
+		}
+		else
+		{
+			$prodManagerInstance = $repositoryProdManager->find(1);
+			$shippingManagerInstance = $repositoryShippingManager->find(1);
+		}
+
+	    $repositoryBillingManager = $this->getContainer()->get('doctrine')
+                    ->getManager()
+                    ->getRepository('AchPoManagerBundle:BillingManager');
+        $billingManagerInstance = $repositoryBillingManager->find(1);
+
 	    $productInstance->setCustPn($custPn);
 	    $productInstance->setPn($data['vitec_index']);
 	    $productInstance->setDescription($data['description']);
@@ -72,6 +101,11 @@ class MigrateDBCommand extends ContainerAwareCommand
 	    $productInstance->setMoq($data['moq']);
 	    $productInstance->setComment($data['comments']);
 	    $productInstance->setActive($data['active'] == 'Y' ? true : false);
+	    $productInstance->setCustomer($customerInstance);
+	    $productInstance->setBillingManager($billingManagerInstance);
+	    $productInstance->setProdManager($prodManagerInstance);
+	    $productInstance->setShippingManager($shippingManagerInstance);
+
 	    
 
 	    $prices = $this->checkPrice($data['price1'], $data['active_price_index'] == 1, $data['currency'], $productInstance, $em);
@@ -80,14 +114,18 @@ class MigrateDBCommand extends ContainerAwareCommand
 	    $prices = $this->checkPrice($data['price4'], $data['active_price_index'] == 4, $data['currency'], $productInstance, $em);
 	    $prices = $this->checkPrice($data['price5'], $data['active_price_index'] == 5, $data['currency'], $productInstance, $em);
 
-	    $output->writeln($productInstance->getPn());
-	    $output->writeln($productInstance->getCustPn());
-	    $output->writeln($productInstance->getDescription());
-	    $output->writeln($productInstance->getPrice()->getPrice() . ' ' . $productInstance->getPrice()->getCurrency()->getTla());
-	    $output->writeln($productInstance->getUnit()->getName());
-	    $output->writeln($productInstance->getMoq());
-	    $output->writeln($productInstance->getComment());
-	    $output->writeln('====================');
+	    $em->persist($productInstance);
+
+	    //$output->writeln($productInstance->getPn());
+	    //$output->writeln($productInstance->getCustPn());
+	    //$output->writeln($productInstance->getDescription());
+	    //$output->writeln($productInstance->getPrice()->getPrice() . ' ' . $productInstance->getPrice()->getCurrency()->getTla());
+	    //$output->writeln($productInstance->getUnit()->getName());
+	    //$output->writeln($productInstance->getMoq());
+	    //$output->writeln($productInstance->getComment());
+	    //$output->writeln('====================');
+
+	    $output->write('.');
 
 //	    $output->writeln($data['sk_product_num'] . '->' . $skpn . 'VITEC P/N: ' . $data['vitec_index'] . ' price 1: ' . $price1 . ' price 2: ' . $price2 . ' price 3: ' . $price3);
 //	    $output->writeln($data['description']);
@@ -105,7 +143,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	//    $em->remove($notification);
 	//}
 
-	//$em->flush();
+	$em->flush();
 
 	
         $output->writeln('Migration executed: ' . $log);
@@ -114,6 +152,9 @@ class MigrateDBCommand extends ContainerAwareCommand
     // check if price already exists in database 
     private function checkPrice($price, $active_price, $currency, $productInstance, $em)
     {
+	if(is_null($price))
+	    return;
+
 	$repositoryPrice = $this->getContainer()->get('doctrine')
 		    ->getManager()
 		    ->getRepository('AchPoManagerBundle:Price');
