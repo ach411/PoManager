@@ -9,6 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use Ach\PoManagerBundle\Entity\Product;
+use Ach\PoManagerBundle\Entity\Price;
 
 class MigrateDBCommand extends ContainerAwareCommand
 {
@@ -33,7 +34,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	// connect to old database
 	try
 	{
-            $bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'db_login', 'db_password');
+            $bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'user', 'pass');
 	}
 	catch(Exception $e)
 	{
@@ -45,46 +46,55 @@ class MigrateDBCommand extends ContainerAwareCommand
 
 	$log = null;
 
+	$em = $this->getContainer()->get('doctrine')->getManager();
+
+
 	while($data = $req->fetch())
 	{
+	    // create the product instance
+	    $productInstance = new Product();
+
 	    $skpn = $data['sk_product_num'];
 	    $skpn = preg_replace("/(\d{3})-(\d{3})-(\d{3})/", "0$1$2$3", $skpn);
 	    $skpn = preg_replace("/^(\d{4})-(\d{3})-(\d{3})/", "$1$2$3", $skpn);
 	    $skpn = preg_replace("/^(\d{9})\z/", "0$1", $skpn);
-	    $skpn = preg_replace("/\(not a production\)/", "N/A", $skpn);
+	    $custPn = preg_replace("/\(not a production\)/", "N/A", $skpn);
 
-	    if(!is_null($data['price1']))
-	    {
-		$price1 = $data['price1'];
-	    }
+	    $repositoryUnit = $this->getContainer()->get('doctrine')
+		    ->getManager()
+		    ->getRepository('AchPoManagerBundle:Unit');
+	    $unitInstance = $repositoryUnit->find(1);
 
-	    if(!is_null($data['price2']))
-	    {
-		$price2 = $data['price2'];
-	    }
+	    $productInstance->setCustPn($custPn);
+	    $productInstance->setPn($data['vitec_index']);
+	    $productInstance->setDescription($data['description']);
+	    $productInstance->setUnit($unitInstance);
+	    $productInstance->setMoq($data['moq']);
+	    $productInstance->setComment($data['comments']);
+	    $productInstance->setActive($data['active'] == 'Y' ? true : false);
+	    
 
-	    if(!is_null($data['price3']))
-	    {
-		$price3 = $data['price3'];
-	    }
+	    $prices = $this->checkPrice($data['price1'], $data['active_price_index'] == 1, $data['currency'], $productInstance, $em);
+	    $prices = $this->checkPrice($data['price2'], $data['active_price_index'] == 2, $data['currency'], $productInstance, $em);
+	    $prices = $this->checkPrice($data['price3'], $data['active_price_index'] == 3, $data['currency'], $productInstance, $em);
+	    $prices = $this->checkPrice($data['price4'], $data['active_price_index'] == 4, $data['currency'], $productInstance, $em);
+	    $prices = $this->checkPrice($data['price5'], $data['active_price_index'] == 5, $data['currency'], $productInstance, $em);
 
-	    $output->writeln($data['sk_product_num'] . '->' . $skpn . 'VITEC P/N: ' . $data['vitec_index'] . ' price 1: ' . $price1 . ' price 2: ' . $price2 . ' price 3: ' . $price3);
+	    $output->writeln($productInstance->getPn());
+	    $output->writeln($productInstance->getCustPn());
+	    $output->writeln($productInstance->getDescription());
+	    $output->writeln($productInstance->getPrice()->getPrice() . ' ' . $productInstance->getPrice()->getCurrency()->getTla());
+	    $output->writeln($productInstance->getUnit()->getName());
+	    $output->writeln($productInstance->getMoq());
+	    $output->writeln($productInstance->getComment());
+	    $output->writeln('====================');
+
+//	    $output->writeln($data['sk_product_num'] . '->' . $skpn . 'VITEC P/N: ' . $data['vitec_index'] . ' price 1: ' . $price1 . ' price 2: ' . $price2 . ' price 3: ' . $price3);
 //	    $output->writeln($data['description']);
 	}
-
-		
-	$repositoryNotification = $this->getContainer()->get('doctrine')
-		    ->getManager()
-		    ->getRepository('AchPoManagerBundle:Notification');
-
-	$listNotifications = $repositoryNotification->findAll();
-
-	$em = $this->getContainer()->get('doctrine')->getManager();
 	
 
 	//$log .= $input->getArgument('message');
-
-	$product = new Product();
 
 	
 
@@ -100,4 +110,42 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
         $output->writeln('Migration executed: ' . $log);
     }
+
+    // check if price already exists in database 
+    private function checkPrice($price, $active_price, $currency, $productInstance, $em)
+    {
+	$repositoryPrice = $this->getContainer()->get('doctrine')
+		    ->getManager()
+		    ->getRepository('AchPoManagerBundle:Price');
+
+	$priceInstance = $repositoryPrice->findOneByPrice($price);
+	
+	// create the price if it does exist yet
+	if(is_null($priceInstance) or ($priceInstance->getCurrency()->getTla() == 'USD' and $currency == 'eur') or ($priceInstance->getCurrency()->getTla() == 'EUR' and $currency == 'dol'))
+	{
+	    $repositoryCurrency = $this->getContainer()->get('doctrine')
+		    ->getManager()
+		    ->getRepository('AchPoManagerBundle:Currency');
+	    
+	    if($currency == 'dol')
+	        $instanceCurrency = $repositoryCurrency->findOneByTla('USD');
+
+	    if($currency == 'eur')
+	        $instanceCurrency = $repositoryCurrency->findOneByTla('EUR');
+
+	    $priceInstance = new Price();
+	    $priceInstance->setPrice($price);
+	    $priceInstance->setCurrency($instanceCurrency);
+
+	    $em->persist($priceInstance);
+	    
+	}
+	
+	if($active_price)
+	{
+	    $productInstance->setPrice($priceInstance);
+	}
+	
+    }
+
 }
