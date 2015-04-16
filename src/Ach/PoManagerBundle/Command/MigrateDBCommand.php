@@ -85,7 +85,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	$productInstanceEUR->setCustPn('NoneEUR');
 	$productInstanceEUR->setMoq(1);
 	$productInstanceEUR->setActive(true);
-	$this->registerPrice(0, true, 'dol', $productInstanceEUR, $em);
+	$this->registerPrice(0, true, 'eur', $productInstanceEUR, $em);
 	$productInstanceEUR->setUnit($unitInstance);
 	$productInstanceEUR->setCustomer($customerInstance);
 	$productInstanceEUR->setdescription('NON-PROD ITEM. PLEASE PROVIDE DESCRIPTION IN COMMENT FIELD.');
@@ -138,7 +138,7 @@ class MigrateDBCommand extends ContainerAwareCommand
                     ->getManager()
                     ->getRepository('AchPoManagerBundle:Category');
 		
-		if(stripos($data['spare_part'], 'Y'))
+		if($data['spare_part'] == 'Y' or $data['spare_part'] == 'y')
 		{
 			$categoryInstance1 = $repositoryCategory->findOneByName('Spare Part');
 		}
@@ -147,7 +147,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$categoryInstance1 = $repositoryCategory->findOneByName('Finished Good');
 		}
 		
-		if(stripos($data['hw_sw'], 'h'))
+		if($data['hw_sw'] == 'h' or $data['hw_sw'] == 'H')
 		{
 			$categoryInstance2 = $repositoryCategory->findOneByName('Hardware');
 		}
@@ -179,6 +179,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 
 	    $em->persist($productInstance);
 
+	    $em->flush();
+
 	    //$output->writeln($productInstance->getPn());
 	    //$output->writeln($productInstance->getCustPn());
 	    //$output->writeln($productInstance->getDescription());
@@ -196,9 +198,6 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 
 	//$log .= $input->getArgument('message');
-	
-
-	$em->flush();
 
 	
         $output->writeln('Migration executed: ' . $log);
@@ -242,7 +241,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	    $productInstance->setPrice($priceInstance);
 	}
 	
-	return $productInstance;
+	//return $productInstance;
 	
     }
 
