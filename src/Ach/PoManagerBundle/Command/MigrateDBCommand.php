@@ -31,6 +31,70 @@ class MigrateDBCommand extends ContainerAwareCommand
 //        $context->setScheme('http');
 //        $context->setBaseUrl($input->getArgument('baseUrl'));
 
+	// get the entity manager
+	$em = $this->getContainer()->get('doctrine')->getManager();
+	
+	// get the Unit instance which will remain the same all along
+	$repositoryUnit = $this->getContainer()->get('doctrine')
+		    ->getManager()
+		    ->getRepository('AchPoManagerBundle:Unit');
+	$unitInstance = $repositoryUnit->find(1);
+	
+	// get the customer instance which will remain the same all along
+	$repositoryCustomer = $this->getContainer()->get('doctrine')
+		    ->getManager()
+		    ->getRepository('AchPoManagerBundle:Customer');
+	$customerInstance = $repositoryCustomer->find(1);
+	
+	// get the billing manager instance which will remain the same all along
+	$repositoryBillingManager = $this->getContainer()->get('doctrine')
+                    ->getManager()
+                    ->getRepository('AchPoManagerBundle:BillingManager');
+    $billingManagerInstance = $repositoryBillingManager->find(1);
+	
+	// get the prod and the shipping manager repo
+	$repositoryProdManager = $this->getContainer()->get('doctrine')
+                    ->getManager()
+                    ->getRepository('AchPoManagerBundle:ProdManager');
+		
+	$repositoryShippingManager = $this->getContainer()->get('doctrine')
+                    ->getManager()
+                    ->getRepository('AchPoManagerBundle:ShippingManager');
+					
+	
+	
+	
+	// to begin, create 2 dummy products in the new database
+	$productInstanceUSD = new Product();
+	$productInstanceUSD->setPn('NoneUSD');
+	$productInstanceUSD->setCustPn('NoneUSD');
+	$productInstanceUSD->setMoq(1);
+	$productInstanceUSD->setActive(true);
+	$this->registerPrice(0, true, 'dol', $productInstanceUSD, $em);
+	$productInstanceUSD->setUnit($unitInstance);
+	$productInstanceUSD->setCustomer($customerInstance);
+	$productInstanceUSD->setdescription('NON-PROD ITEM. PLEASE PROVIDE DESCRIPTION IN COMMENT FIELD.');
+	$productInstanceUSD->setBillingManager($billingManagerInstance);
+	$productInstanceUSD->setProdManager($repositoryProdManager->find(3));
+	$productInstanceUSD->setShippingManager($repositoryShippingManager->find(3));
+	
+	$em->persist($productInstanceUSD);
+	
+	$productInstanceEUR = new Product();
+	$productInstanceEUR->setPn('NoneEUR');
+	$productInstanceEUR->setCustPn('NoneEUR');
+	$productInstanceEUR->setMoq(1);
+	$productInstanceEUR->setActive(true);
+	$this->registerPrice(0, true, 'dol', $productInstanceEUR, $em);
+	$productInstanceEUR->setUnit($unitInstance);
+	$productInstanceEUR->setCustomer($customerInstance);
+	$productInstanceEUR->setdescription('NON-PROD ITEM. PLEASE PROVIDE DESCRIPTION IN COMMENT FIELD.');
+	$productInstanceEUR->setBillingManager($billingManagerInstance);
+	$productInstanceEUR->setProdManager($repositoryProdManager->find(3));
+	$productInstanceEUR->setShippingManager($repositoryShippingManager->find(3));
+	
+	$em->persist($productInstanceEUR);
+	
 	// connect to old database
 	try
 	{
@@ -41,12 +105,10 @@ class MigrateDBCommand extends ContainerAwareCommand
 	    die('Erreur : '.$e->getMessage());
 	}
 
-	$req = $bdd->prepare('SELECT vitec_index, sk_product_num, description, price1, price2, price3, price4, price5, currency, moq, active_price_index, comments, active FROM product');
+	$req = $bdd->prepare('SELECT vitec_index, sk_product_num, description, price1, price2, price3, price4, price5, currency, moq, active_price_index, comments, active, spare_part, hw_sw FROM product');
 	$req->execute();
 
 	$log = null;
-
-	$em = $this->getContainer()->get('doctrine')->getManager();
 
 
 	while($data = $req->fetch())
@@ -59,24 +121,6 @@ class MigrateDBCommand extends ContainerAwareCommand
 	    $skpn = preg_replace("/^(\d{4})-(\d{3})-(\d{3})/", "$1$2$3", $skpn);
 	    $skpn = preg_replace("/^(\d{9})\z/", "0$1", $skpn);
 	    $custPn = preg_replace("/\(not a production\)/", "N/A", $skpn);
-
-	    $repositoryUnit = $this->getContainer()->get('doctrine')
-		    ->getManager()
-		    ->getRepository('AchPoManagerBundle:Unit');
-	    $unitInstance = $repositoryUnit->find(1);
-
-	    $repositoryCustomer = $this->getContainer()->get('doctrine')
-		    ->getManager()
-		    ->getRepository('AchPoManagerBundle:Customer');
-	    $customerInstance = $repositoryCustomer->find(1);
-		
-		$repositoryProdManager = $this->getContainer()->get('doctrine')
-                    ->getManager()
-                    ->getRepository('AchPoManagerBundle:ProdManager');
-		
-		$repositoryShippingManager = $this->getContainer()->get('doctrine')
-                    ->getManager()
-                    ->getRepository('AchPoManagerBundle:ShippingManager');
 		
 		if(stripos($data['description'], 'AMPSK'))
 		{
@@ -89,10 +133,28 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$shippingManagerInstance = $repositoryShippingManager->find(1);
 		}
 
-	    $repositoryBillingManager = $this->getContainer()->get('doctrine')
+		
+		$repositoryCategory = $this->getContainer()->get('doctrine')
                     ->getManager()
-                    ->getRepository('AchPoManagerBundle:BillingManager');
-        $billingManagerInstance = $repositoryBillingManager->find(1);
+                    ->getRepository('AchPoManagerBundle:Category');
+		
+		if(stripos($data['spare_part'], 'Y'))
+		{
+			$categoryInstance1 = $repositoryCategory->findOneByName('Spare Part');
+		}
+		else
+		{
+			$categoryInstance1 = $repositoryCategory->findOneByName('Finished Good');
+		}
+		
+		if(stripos($data['hw_sw'], 'h'))
+		{
+			$categoryInstance2 = $repositoryCategory->findOneByName('Hardware');
+		}
+		else
+		{
+			$categoryInstance2 = $repositoryCategory->findOneByName('Software');
+		}
 
 	    $productInstance->setCustPn($custPn);
 	    $productInstance->setPn($data['vitec_index']);
@@ -105,14 +167,15 @@ class MigrateDBCommand extends ContainerAwareCommand
 	    $productInstance->setBillingManager($billingManagerInstance);
 	    $productInstance->setProdManager($prodManagerInstance);
 	    $productInstance->setShippingManager($shippingManagerInstance);
-
+	    $productInstance->addCategory($categoryInstance1);
+		$productInstance->addCategory($categoryInstance2);
 	    
 
-	    $prices = $this->checkPrice($data['price1'], $data['active_price_index'] == 1, $data['currency'], $productInstance, $em);
-	    $prices = $this->checkPrice($data['price2'], $data['active_price_index'] == 2, $data['currency'], $productInstance, $em);
-	    $prices = $this->checkPrice($data['price3'], $data['active_price_index'] == 3, $data['currency'], $productInstance, $em);
-	    $prices = $this->checkPrice($data['price4'], $data['active_price_index'] == 4, $data['currency'], $productInstance, $em);
-	    $prices = $this->checkPrice($data['price5'], $data['active_price_index'] == 5, $data['currency'], $productInstance, $em);
+	    $this->registerPrice($data['price1'], $data['active_price_index'] == 1, $data['currency'], $productInstance, $em);
+	    $this->registerPrice($data['price2'], $data['active_price_index'] == 2, $data['currency'], $productInstance, $em);
+	    $this->registerPrice($data['price3'], $data['active_price_index'] == 3, $data['currency'], $productInstance, $em);
+	    $this->registerPrice($data['price4'], $data['active_price_index'] == 4, $data['currency'], $productInstance, $em);
+	    $this->registerPrice($data['price5'], $data['active_price_index'] == 5, $data['currency'], $productInstance, $em);
 
 	    $em->persist($productInstance);
 
@@ -133,15 +196,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 
 	//$log .= $input->getArgument('message');
-
 	
-
-	// scan all the pending notification of the table and send message for each
-	//foreach($listNotifications as $notification)
-	//{
-	//    $log = $log.$this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification);
-	//    $em->remove($notification);
-	//}
 
 	$em->flush();
 
@@ -150,7 +205,7 @@ class MigrateDBCommand extends ContainerAwareCommand
     }
 
     // check if price already exists in database 
-    private function checkPrice($price, $active_price, $currency, $productInstance, $em)
+    private function registerPrice($price, $active_price, $currency, $productInstance, $em)
     {
 	if(is_null($price))
 	    return;
@@ -186,6 +241,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 	{
 	    $productInstance->setPrice($priceInstance);
 	}
+	
+	return $productInstance;
 	
     }
 
