@@ -295,12 +295,12 @@ class MigrateDBCommand extends ContainerAwareCommand
 						$revisionInstance->setActive(false);
 					$revisionInstance->setRevisionCust($rev);
 					$revisionInstance->setRevision('unknown');
-					$revisionInstance->setComment($cells[$index]);
+					$revisionInstance->setComment(iconv("Windows-1252","UTF-8",$cells[$index]));
 					$revisionInstance->setDrawingPath($productInstance->getCustPn() . $rev);
 					$output->write($revisionInstance->getDrawingPath() . ' ');
 					$rev = $this->incrementRev($rev);
 					$output->write($revisionInstance->getProduct()->getDescription() . ($revisionInstance->getActive()? '*' : '%') . ' - ');
-					em->persist($revisionInstance);
+					$em->persist($revisionInstance);
 					
 				}
 				
@@ -312,7 +312,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$output->writeln('');
 		}
 		fclose($myfile);
-		em->flush();
+		$em->flush();
 		//$output->writeln(getcwd());
 	}
 	
