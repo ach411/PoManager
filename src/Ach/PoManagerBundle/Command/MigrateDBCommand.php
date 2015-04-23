@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
+use Ach\PoManagerBundle\Entity\Revision;
 use Ach\PoManagerBundle\Entity\Product;
 use Ach\PoManagerBundle\Entity\Price;
 
@@ -105,7 +106,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 		// connect to old database
 		try
 		{
-				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'vitec', 'chatillon92320');
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'user', 'password');
 		}
 		catch(Exception $e)
 		{
@@ -174,14 +175,19 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$productInstance->addCategory($categoryInstance1);
 			$productInstance->addCategory($categoryInstance2);
 			
-	
 			$this->registerPrice($data['price1'], $data['active_price_index'] == 1, $data['currency'], $productInstance, $em);
 			$this->registerPrice($data['price2'], $data['active_price_index'] == 2, $data['currency'], $productInstance, $em);
 			$this->registerPrice($data['price3'], $data['active_price_index'] == 3, $data['currency'], $productInstance, $em);
 			$this->registerPrice($data['price4'], $data['active_price_index'] == 4, $data['currency'], $productInstance, $em);
 			$this->registerPrice($data['price5'], $data['active_price_index'] == 5, $data['currency'], $productInstance, $em);
-	
+			
+			$revisionInstance = new Revision();
+			$revisionInstance->setRevision('unknown');
+			$revisionInstance->setRevisionCust('unknown');
+			$revisionInstance->setProduct($productInstance);
+			
 			$em->persist($productInstance);
+			$em->persist($revisionInstance);
 	
 			$em->flush();
 	
@@ -246,15 +252,81 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function migrateRevisions(InputInterface $input, OutputInterface $output)
 	{
-		$myfile = fopen("../../PoManager/revision_table3.txt", "r");
-		$file_string = "";
+		
+		$em = $this->getContainer()->get('doctrine')->getManager();
+		
+		// get the Unit instance which will remain the same all along
+		$repositoryProduct = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Product');
+		
+		$myfile = fopen("../../PoManager/revision_table.txt", "r");
+		// for each line
 		while(!feof($myfile))
 		{
-			$file_line = fgets($myfile);
-			$output->writeln($file_line);
+			//$file_line = fgets($myfile);
+			//$cells = explode(';', $file_line);
+			$cells = fgetcsv($myfile,1000,';');
+			$index = 0;
+			$rev = 'A';
+			
+			//remove empty string from the array
+			//echo count($cells);
+			$cells = array_filter($cells);
+			//echo count($cells);
+			
+			while(isset($cells[$index]))
+			{
+				if($index == 0)
+				{
+					$output->write('P/N: '. $cells[$index]);
+					$pn = $cells[$index];
+					$productInstance = $repositoryProduct->findOneByPn($pn);
+					$output->write(' ' . $productInstance->getDescription());
+				}
+				else
+				{
+					$output->write(iconv("Windows-1252","UTF-8",' - Revisions ' . $rev . ': ' . $cells[$index] . ' Drawing: '));
+					$revisionInstance = new Revision();
+					$revisionInstance->setProduct($productInstance);
+					if($index == (count($cells)-1))
+						$revisionInstance->setActive(true);
+					else
+						$revisionInstance->setActive(false);
+					$revisionInstance->setRevisionCust($rev);
+					$revisionInstance->setRevision('unknown');
+					$revisionInstance->setComment($cells[$index]);
+					$revisionInstance->setDrawingPath($productInstance->getCustPn() . $rev);
+					$output->write($revisionInstance->getDrawingPath() . ' ');
+					$rev = $this->incrementRev($rev);
+					$output->write($revisionInstance->getProduct()->getDescription() . ($revisionInstance->getActive()? '*' : '%') . ' - ');
+					em->persist($revisionInstance);
+					
+				}
+				
+				
+				$index++;
+			}
+			$output->writeln('');
+			$output->writeln('=============================================');
+			$output->writeln('');
 		}
 		fclose($myfile);
-		$output->writeln(getcwd());
+		em->flush();
+		//$output->writeln(getcwd());
+	}
+	
+	private function incrementRev($revision)
+	{
+		if($revision == 'N')
+			return 'P';
+		if($revision == 'P')
+			return 'R';
+		if($revision == 'R')
+			return 'T';
+		
+		return ++$revision;
+		
 	}
 
 }

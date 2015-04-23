@@ -195,6 +195,29 @@ class Revision
     }
 
     /**
+     * Set comment
+     *
+     * @param string $comment
+     * @return Revision
+     */
+    public function setComment($comment)
+    {
+        $this->comment = $comment;
+    
+        return $this;
+    }
+
+    /**
+     * Get comment
+     *
+     * @return string 
+     */
+    public function getComment()
+    {
+        return $this->comment;
+    }
+
+    /**
      * Set product
      *
      * @param \Ach\PoManagerBundle\Entity\Product $product
