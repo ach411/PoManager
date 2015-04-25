@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Ach\PoManagerBundle\Entity\Revision;
 use Ach\PoManagerBundle\Entity\Product;
 use Ach\PoManagerBundle\Entity\Price;
+use Ach\PoManagerBundle\Entity\Bpo;
 
 class MigrateDBCommand extends ContainerAwareCommand
 {
@@ -35,6 +36,12 @@ class MigrateDBCommand extends ContainerAwareCommand
 		{
 			$output->writeln("Migrate Revisions");
 			$this->migrateRevisions($input, $output);
+		}
+		
+		if($input->getArgument('message') == "Bpos")
+		{
+			$output->writeln("Migrate Bpos");
+			$this->migrateBpo($input, $output);
 		}
 		
 		$output->writeln('Migration executed');
@@ -72,7 +79,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 						->getManager()
 						->getRepository('AchPoManagerBundle:ShippingManager');
 		
-		// to begin, create 2 dummy products in the new database
+		// to begin, create 2 dummy products in the new database for Non Prod PO without P/N
 		$productInstanceUSD = new Product();
 		$productInstanceUSD->setPn('NoneUSD');
 		$productInstanceUSD->setCustPn('NoneUSD');
@@ -259,6 +266,37 @@ class MigrateDBCommand extends ContainerAwareCommand
 		$repositoryProduct = $this->getContainer()->get('doctrine')
 				->getManager()
 				->getRepository('AchPoManagerBundle:Product');
+				
+		//first create an N/A revision for non-prod product instance USD and EUR
+		$noneUSDProductInstance = $repositoryProduct->findOneByPn('NoneUSD');
+		$noneEURProductInstance = $repositoryProduct->findOneByPn('NoneEUR');
+		$revisionNoneUSDInstance = new Revision();
+		$revisionNoneEURInstance = new Revision();
+		$revisionNoneUSDInstance->setProduct($noneUSDProductInstance);
+		$revisionNoneEURInstance->setProduct($noneEURProductInstance);
+		$revisionNoneUSDInstance->setActive(true);
+		$revisionNoneEURInstance->setActive(true);
+		$revisionNoneUSDInstance->setRevisionCust('N/A');
+		$revisionNoneEURInstance->setRevisionCust('N/A');
+		$revisionNoneUSDInstance->setRevision('N/A');
+		$revisionNoneEURInstance->setRevision('N/A');
+		
+		// for each product P/N create a default 'unknown' revision
+		// on which PO with unknown revision of product item will point to
+		$allProductInstances = $repositoryProduct->findAll();
+		
+		foreach($allProductInstances as $productInstance)
+		{
+			$revisionInstance = new Revision();
+			
+			$revisionInstance->setProduct($productInstance);
+			$revisionInstance->setActive(false);
+			$revisionInstance->setRevision('unknown');
+			$revisionInstance->setRevisionCust('unknown');
+			$revisionInstance->setComment('this dummy revision is made PO item we do not know the revision');
+			
+			$em->persist($revisionInstance);
+		}
 		
 		$myfile = fopen("../../PoManager/revision_table.txt", "r");
 		// for each line
@@ -327,6 +365,116 @@ class MigrateDBCommand extends ContainerAwareCommand
 		
 		return ++$revision;
 		
+	}
+	
+	
+	private function migrateBpo(InputInterface $input, OutputInterface $output)
+	{
+		$em = $this->getContainer()->get('doctrine')->getManager();
+		
+		//open table BPO in old database and get entries
+		
+		// connect to old database
+		try
+		{
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'vitec', 'chatillon92320');
+		}
+		catch(Exception $e)
+		{
+			die('Erreur : '.$e->getMessage());
+		}
+		
+		$req = $bdd->prepare('SELECT bpo.bpo_num, bpo.vitec_index, bpo.price_index, bpo.total_qty, bpo.effective_end_date, bpo.paired_bpo_num, bpo.pdf_path, bpo.comments, product.price1, product.price2, product.price3, product.price4, product.price5, product.currency FROM bpo inner join product on bpo.vitec_index = product.vitec_index');
+		$req->execute();
+		
+		while($data = $req->fetch())
+		{
+			// create new instance of BPO for each entry in table BPO in old DB
+			$bpoInstance = new Bpo();
+			
+			// set number
+			$bpoInstance->setNum($data['bpo_num']);
+			
+			// set revision
+			$repositoryRevision = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Revision');
+			
+			$repositoryProduct = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Product');
+				
+			$instanceProduct = $repositoryProduct->findOneByPn($data['vitec_index']);
+			$instanceRevision = $repositoryRevision->findOneBy(array('product' => $instanceProduct, 'revisionCust' => 'unknown'));
+			
+			$bpoInstance->setRevision($instanceRevision);
+			
+			// set price
+			$repositoryPrice = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Price');
+			
+			$repositoryCurrency = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Currency');
+			
+			if($data['currency'] == 'dol')
+				$currencyInstance = $repositoryCurrency->findOneByTla('USD');
+			elseif($data['currency'] == 'eur')
+				$currencyInstance = $repositoryCurrency->findOneByTla('EUR');
+			
+			switch($data['price_index']){
+				case 1:
+					$bpoInstance->setPrice($repositoryPrice->findOneBy(array('currency' => $currencyInstance, 'price' => $data['price1'])));
+					break;
+				case 2:
+					$bpoInstance->setPrice($repositoryPrice->findOneBy(array('currency' => $currencyInstance, 'price' => $data['price2'])));
+					break;
+				case 3:
+					$bpoInstance->setPrice($repositoryPrice->findOneBy(array('currency' => $currencyInstance, 'price' => $data['price3'])));
+					break;
+				case 4:
+					$bpoInstance->setPrice($repositoryPrice->findOneBy(array('currency' => $currencyInstance, 'price' => $data['price4'])));
+					break;
+				case 5:
+					$bpoInstance->setPrice($repositoryPrice->findOneBy(array('currency' => $currencyInstance, 'price' => $data['price5'])));
+					break;
+			}
+			
+			//set Quantity
+			$bpoInstance->setQty($data['total_qty']);
+			
+			//set end date
+			$bpoInstance->setEndDate($data['effective_end_date']);
+			
+			//set file path
+			$bpoInstance->setFilePath(str_replace('bpo_files/', '', $data['pdf_path']));
+			
+			//set comment
+			$bpoInstance->setComment($data['comments']);
+			
+			$em->persist($bpoInstance);
+		}
+		
+		//$em->flush();
+		
+		// all bpo created, taking care of the pairing now
+		
+		$req2 = $bdd->prepare('SELECT * FROM bpo WHERE paired_bpo_num IS NOT NULL and paired_bpo_num != 0');
+		$req2->execute();
+		
+		while($data = $req2->fetch())
+		{
+			$repositoryBpo = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Bpo');
+				
+			$instanceBpo1 = $repositoryBpo->findOneByNum($data['bpo_num']);
+			$instanceBpo2 = $repositoryBpo->findOneByNum($data['paired_bpo_num']);
+			$instanceBpo1->setPairedBpo($instanceBpo2);
+			
+			//$em->flush();
+		}
 	}
 
 }

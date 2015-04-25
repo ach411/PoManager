@@ -96,7 +96,7 @@ Create the tables
 
     php app/console doctrine:schema:update --force
 
-Enjoy!
+Make sure that php5-intl is installed
 
 [1]:  http://www.doctrine-project.org/
 [2]:  http://swiftmailer.org/
