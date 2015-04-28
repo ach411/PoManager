@@ -252,7 +252,7 @@ class Bpo
      */
     public function setFilePath($filePath)
     {
-		echo 'Set file path';
+		//echo 'Set file path';
         $this->filePath = $filePath;
     
         return $this;
@@ -299,7 +299,7 @@ class Bpo
      */
     public function setFile(UploadedFile $file = null)
     {
-		echo '-- SET FILE --';
+		//echo '-- SET FILE --';
         $this->file = $file;
     
 		// if a file already existed
@@ -327,7 +327,7 @@ class Bpo
 	*/
 	public function preUploadFile()
 	{
-		echo 'preupload';
+		//echo 'preupload';
 		// if no file has been set
 		if($this->file === null)
 		{
@@ -338,7 +338,7 @@ class Bpo
 		$filename = 'BPO_' . ($this->getNum()) . '.pdf';
 		$this->setFilePath($filename);
 		
-		echo $this->getFilePath();
+		//echo $this->getFilePath();
 		
 	}
 	
@@ -348,7 +348,7 @@ class Bpo
 	*/
 	public function uploadFile()
     {
-		echo 'upload';
+		//echo 'upload';
 		// if no file has been set
 		if($this->file === null)
 		{
@@ -370,7 +370,7 @@ class Bpo
 		// $this->file->move($this->rootPath, $filename);
 		// $this->setFilePath($filename);
 		
-		echo $this->rootPath;
+		//echo $this->rootPath;
 		
 		$this->file->move($this->rootPath, $this->filePath);
     }

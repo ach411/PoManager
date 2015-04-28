@@ -113,7 +113,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 		// connect to old database
 		try
 		{
-				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'user', 'password');
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', '', '');
 		}
 		catch(Exception $e)
 		{
@@ -192,6 +192,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$revisionInstance->setRevision('unknown');
 			$revisionInstance->setRevisionCust('unknown');
 			$revisionInstance->setProduct($productInstance);
+			$revisionInstance->setActive(false);
 			
 			$em->persist($productInstance);
 			$em->persist($revisionInstance);
@@ -280,6 +281,9 @@ class MigrateDBCommand extends ContainerAwareCommand
 		$revisionNoneEURInstance->setRevisionCust('N/A');
 		$revisionNoneUSDInstance->setRevision('N/A');
 		$revisionNoneEURInstance->setRevision('N/A');
+		
+		$em->persist($revisionNoneUSDInstance);
+		$em->persist($revisionNoneEURInstance);
 		
 		// for each product P/N create a default 'unknown' revision
 		// on which PO with unknown revision of product item will point to
@@ -377,7 +381,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 		// connect to old database
 		try
 		{
-				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', 'vitec', 'chatillon92320');
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', '', '');
 		}
 		catch(Exception $e)
 		{
@@ -394,6 +398,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			
 			// set number
 			$bpoInstance->setNum($data['bpo_num']);
+			$output->writeln('Start processing BPO ' . $data['bpo_num'] . ' ...');
 			
 			// set revision
 			$repositoryRevision = $this->getContainer()->get('doctrine')
@@ -445,10 +450,16 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$bpoInstance->setQty($data['total_qty']);
 			
 			//set end date
-			$bpoInstance->setEndDate($data['effective_end_date']);
+			if(isset($data['effective_end_date']))
+			{
+			    $date = new \DateTime($data['effective_end_date']);
+			    $bpoInstance->setEndDate($date);
+			    //$output->write(gettype($data['effective_end_date']));
+			}
 			
 			//set file path
-			$bpoInstance->setFilePath(str_replace('bpo_files/', '', $data['pdf_path']));
+			if(isset($data['pdf_path']))
+			    $bpoInstance->setFilePath(str_replace('bpo_files/', '', $data['pdf_path']));
 			
 			//set comment
 			$bpoInstance->setComment($data['comments']);
@@ -456,7 +467,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$em->persist($bpoInstance);
 		}
 		
-		//$em->flush();
+		$em->flush();
 		
 		// all bpo created, taking care of the pairing now
 		
@@ -473,7 +484,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$instanceBpo2 = $repositoryBpo->findOneByNum($data['paired_bpo_num']);
 			$instanceBpo1->setPairedBpo($instanceBpo2);
 			
-			//$em->flush();
+			$em->flush();
 		}
 	}
 
