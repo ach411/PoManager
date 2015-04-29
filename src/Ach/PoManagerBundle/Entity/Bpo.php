@@ -331,7 +331,7 @@ class Bpo
 		// if no file has been set
 		if($this->file === null)
 		{
-			echo '---NO FILE---';
+			//echo '---NO FILE---';
 			return;
 		}
 		

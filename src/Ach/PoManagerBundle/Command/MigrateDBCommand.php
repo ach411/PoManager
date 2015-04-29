@@ -20,12 +20,20 @@ class MigrateDBCommand extends ContainerAwareCommand
 		$this
 			->setName('MigrateDB')
 			->addArgument('message')
+			->addArgument('db_user', InputArgument::OPTIONAL)
+			->addArgument('db_pass', InputArgument::OPTIONAL)
 			->setDescription('Migrate old DB to new DB')
 		;
 	}
 
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		if($input->getArgument('message') == "erase")
+		{
+			$output->writeln("Erase Tables");
+			$this->eraseData($input, $output);
+		}
+		
 		if($input->getArgument('message') == "products")
 		{
 			$output->writeln("Migrate Products");
@@ -44,7 +52,83 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$this->migrateBpo($input, $output);
 		}
 		
+		if($input->getArgument('message') == "All")
+		{
+			$output->writeln("Migrate All");
+			$this->migrateProducts($input, $output);
+			$this->migrateRevisions($input, $output);
+			$this->migrateBpo($input, $output);
+		}
+		
 		$output->writeln('Migration executed');
+	}
+	
+	private function eraseData(InputInterface $input, OutputInterface $output)
+	{
+		// connect to old database
+		try
+		{
+				$bdd = new \PDO('mysql:host=localhost;dbname=po_manager', $input->getArgument('db_user'), $input->getArgument('db_pass'));
+		}
+		catch(Exception $e)
+		{
+			die('Erreur : '.$e->getMessage());
+		}
+		
+		$req = $bdd->prepare('DELETE FROM ShipmentItem where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Shipment where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM PoItem where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Po where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Bpo where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Invoice where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Revision where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Product where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Price where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE ShipmentItem AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Shipment AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE PoItem AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Po AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Bpo AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Invoice AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Revision AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Product AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Price AUTO_INCREMENT = 1;');
+		$req->execute();
+		
 	}
 	
 	private function migrateProducts(InputInterface $input, OutputInterface $output)
@@ -113,7 +197,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 		// connect to old database
 		try
 		{
-				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', '', '');
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', $input->getArgument('db_user'), $input->getArgument('db_pass'));
 		}
 		catch(Exception $e)
 		{
@@ -381,7 +465,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 		// connect to old database
 		try
 		{
-				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', '', '');
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', $input->getArgument('db_user'), $input->getArgument('db_pass'));
 		}
 		catch(Exception $e)
 		{
