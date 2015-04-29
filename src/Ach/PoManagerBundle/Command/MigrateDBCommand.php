@@ -12,6 +12,8 @@ use Ach\PoManagerBundle\Entity\Revision;
 use Ach\PoManagerBundle\Entity\Product;
 use Ach\PoManagerBundle\Entity\Price;
 use Ach\PoManagerBundle\Entity\Bpo;
+use Ach\PoManagerBundle\Entity\Po;
+use Ach\PoManagerBundle\Entity\PoItem;
 
 class MigrateDBCommand extends ContainerAwareCommand
 {
@@ -50,6 +52,12 @@ class MigrateDBCommand extends ContainerAwareCommand
 		{
 			$output->writeln("Migrate Bpos");
 			$this->migrateBpo($input, $output);
+		}
+		
+		if($input->getArgument('message') == "Pos")
+		{
+			$output->writeln("Migrate Pos");
+			$this->migratePo($input, $output);
 		}
 		
 		if($input->getArgument('message') == "All")
@@ -570,6 +578,151 @@ class MigrateDBCommand extends ContainerAwareCommand
 			
 			$em->flush();
 		}
+	}
+	
+	
+	private function migratePo(InputInterface $input, OutputInterface $output)
+	{
+		$em = $this->getContainer()->get('doctrine')->getManager();
+		
+		//open table BPO in old database and get entries
+		
+		// connect to old database
+		try
+		{
+				$bdd = new \PDO('mysql:host=localhost;dbname=stryker_po', $input->getArgument('db_user'), $input->getArgument('db_pass'));
+		}
+		catch(Exception $e)
+		{
+			die('Erreur : '.$e->getMessage());
+		}
+		
+		$req = $bdd->prepare('SELECT * FROM po inner join product on po.vitec_index = product.vitec_index');
+		$req->execute();
+		
+		while($data = $req->fetch())
+		{
+			if($data['under_bpo'] == 'Y' or $data['under_bpo'] == 'y')
+			{
+				$repositoryBpo = $this->getContainer()->get('doctrine')
+					->getManager()
+					->getRepository('AchPoManagerBundle:Bpo');
+					
+				$bpoInstance = $repositoryBpo->findOneByNum($data['po_num']);
+				
+				$output->writeln('PO ' . $data['po_num'] . ' - release ' . $data['rel_num']);
+				
+				// if no BPO is recorded for this PO release then discard it
+				if(empty($bpoInstance))
+					$output->writeln('Error BPO not found');
+				else
+				{
+					// create the Po entry if not created yet
+					$repositoryPo = $this->getContainer()->get('doctrine')
+						->getManager()
+						->getRepository('AchPoManagerBundle:Po');
+					$poInstance = $repositoryPo->findOneByNum($data['po_num']);
+					if(empty($poInstance))
+					{
+						$poInstance = new Po();
+						$poInstance->setNum($data['po_num']);
+						$poInstance->setRelNum($data['rel_num']);
+						$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
+						$poInstance->setBpo($bpoInstance);
+						$em->persist($poInstance);
+					}
+					
+					// $bpoInstance = $repositoryBpo->findOneByNum($data['po_num']);
+					
+					// create the PoItem
+					$poItemInstance = new PoItem();
+					
+					// set the revision to unknown
+					$repositoryRevision = $this->getContainer()->get('doctrine')
+						->getManager()
+						->getRepository('AchPoManagerBundle:Revision');
+					$poItemInstance->setRevision($repositoryRevision->findByPnUnknownRevision($data['vitec_index']));
+					
+					// set the Po
+					$poItemInstance->setPo($poInstance);
+					
+					// set the Qty
+					$poItemInstance->setQty($data['qty']);
+					
+					// set the price
+					$repositoryPrice = $this->getContainer()->get('doctrine')
+						->getManager()
+						->getRepository('AchPoManagerBundle:Price');
+					switch($data['price_index'])
+					{
+						case 1:
+							$priceInstance = $repositoryPrice->findOneByPrice($data['price1']);
+							break;
+						case 2:
+							$priceInstance = $repositoryPrice->findOneByPrice($data['price2']);
+							break;
+						case 3:
+							$priceInstance = $repositoryPrice->findOneByPrice($data['price3']);
+							break;
+						case 4:
+							$priceInstance = $repositoryPrice->findOneByPrice($data['price4']);
+							break;
+						case 5:
+							$priceInstance = $repositoryPrice->findOneByPrice($data['price5']);
+							break;
+					}
+					$poItemInstance->setPrice($priceInstance);
+					
+					// set the Shipped quantity
+					$repositoryStatus = $this->getContainer()->get('doctrine')
+							->getManager()
+							->getRepository('AchPoManagerBundle:Status');
+					if($data['shipped'] == 'Y')
+					{
+						$poItemInstance->setStatus($repositoryStatus->findOneByName('SHIPPED'));
+						$poItemInstance->setShippedQty($data['qty']);
+					}
+					else
+					{
+						$poItemInstance->setStatus($repositoryStatus->findOneByName('APPROVED'));
+						$poItemInstance->setShippedQty(0);
+					}
+					
+					// set the due date
+					$date = new \DateTime($data['need_by_date']);
+					$poItemInstance->setDueDate($date);
+					
+					// set the comment
+					if(!empty($data['comments']))
+						$poItemInstance->setComment($data['comments']);
+					
+					// set approved flag
+					$poItemInstance->setApproved(true);
+				}
+			}
+			else
+			{
+				$output->writeln('PO ' . $data['po_num'] . ' - line ' . $data['rel_num']);
+			}
+			
+			// create the Po entry if not created yet
+			/*$repositoryPo = $this->getContainer()->get('doctrine')
+					->getManager()
+					->getRepository('AchPoManagerBundle:Po');
+			
+			$poInstance = $repositoryPo->findOneByNum($data['po_num'])
+			
+			if(empty($poInstance))
+			{
+				$poInstance = new Po();
+				$poInstance->setNum($data['po_num']);
+				if($underBpo)
+				$poInstance->setNum();
+			}*/
+			$em->persist($poItemInstance);
+		}
+		
+		$em->flush();
 	}
 
 }
