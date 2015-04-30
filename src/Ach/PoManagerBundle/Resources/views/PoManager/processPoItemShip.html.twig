@@ -42,7 +42,7 @@
 						<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
 						<td>{{ item.price.currency.tla }}</td>
 						<td id="date-id-{{ item.id }}" class = "{{ item.dueDate|date('Y-m-d') }}">{{ item.dueDate|date('M d, Y') }}</td>
-						<td>{{ item.revision.product.comment }}</td>
+						<td>{{ item.comment }}</td>
 						<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{ item.po.filePath }}</a></td>
 						<!-- <td><input type="text" id="tracking-id-{{ item.id }}" name="tracking-id-{{ item.id }}" placeholder="Enter tracking # here"></td> -->
 						<!-- <td><button id="ship-{{item.id}}" type="button" class="btn btn-success">Ship item!</button></td> -->

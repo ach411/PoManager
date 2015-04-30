@@ -32,40 +32,37 @@ class MigrateDBCommand extends ContainerAwareCommand
 	{
 		if($input->getArgument('message') == "erase")
 		{
-			$output->writeln("Erase Tables");
 			$this->eraseData($input, $output);
 		}
 		
 		if($input->getArgument('message') == "products")
 		{
-			$output->writeln("Migrate Products");
 			$this->migrateProducts($input, $output);
 		}
 		
 		if($input->getArgument('message') == "revisions")
 		{
-			$output->writeln("Migrate Revisions");
 			$this->migrateRevisions($input, $output);
 		}
 		
 		if($input->getArgument('message') == "Bpos")
 		{
-			$output->writeln("Migrate Bpos");
 			$this->migrateBpo($input, $output);
 		}
 		
 		if($input->getArgument('message') == "Pos")
 		{
-			$output->writeln("Migrate Pos");
 			$this->migratePo($input, $output);
 		}
 		
 		if($input->getArgument('message') == "All")
 		{
 			$output->writeln("Migrate All");
+			$output->writeln("===========");
 			$this->migrateProducts($input, $output);
 			$this->migrateRevisions($input, $output);
 			$this->migrateBpo($input, $output);
+			$this->migratePo($input, $output);
 		}
 		
 		$output->writeln('Migration executed');
@@ -73,6 +70,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function eraseData(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln("Erase Tables");
+		
 		// connect to old database
 		try
 		{
@@ -82,6 +81,12 @@ class MigrateDBCommand extends ContainerAwareCommand
 		{
 			die('Erreur : '.$e->getMessage());
 		}
+		
+		$req = $bdd->prepare('DELETE FROM PoItem where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('DELETE FROM Po where 1;');
+		$req->execute();
 		
 		$req = $bdd->prepare('DELETE FROM ShipmentItem where 1;');
 		$req->execute();
@@ -108,6 +113,12 @@ class MigrateDBCommand extends ContainerAwareCommand
 		$req->execute();
 		
 		$req = $bdd->prepare('DELETE FROM Price where 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE PoItem AUTO_INCREMENT = 1;');
+		$req->execute();
+		
+		$req = $bdd->prepare('ALTER TABLE Po AUTO_INCREMENT = 1;');
 		$req->execute();
 		
 		$req = $bdd->prepare('ALTER TABLE ShipmentItem AUTO_INCREMENT = 1;');
@@ -141,6 +152,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function migrateProducts(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln("Migrate Products");
+		
 		// get the entity manager
 		$em = $this->getContainer()->get('doctrine')->getManager();
 		
@@ -352,6 +365,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function migrateRevisions(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln("Migrate Revisions");
 		
 		$em = $this->getContainer()->get('doctrine')->getManager();
 		
@@ -466,6 +480,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function migrateBpo(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln("Migrate Bpos");
+		
 		$em = $this->getContainer()->get('doctrine')->getManager();
 		
 		//open table BPO in old database and get entries
@@ -583,6 +599,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function migratePo(InputInterface $input, OutputInterface $output)
 	{
+		$output->writeln("Migrate Pos");
+		
 		$em = $this->getContainer()->get('doctrine')->getManager();
 		
 		//open table BPO in old database and get entries
@@ -597,7 +615,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			die('Erreur : '.$e->getMessage());
 		}
 		
-		$req = $bdd->prepare('SELECT * FROM po inner join product on po.vitec_index = product.vitec_index');
+		$req = $bdd->prepare('SELECT po.under_bpo, po.po_num, po.rel_num, po.pdf_path, po.vitec_index, po.qty, po.price_index, product.price1, product.price2, product.price3, product.price4, product.price5, po.shipped, po.need_by_date, po.comments, product.description FROM po inner join product on po.vitec_index = product.vitec_index');
 		$req->execute();
 		
 		while($data = $req->fetch())
@@ -617,25 +635,19 @@ class MigrateDBCommand extends ContainerAwareCommand
 					$output->writeln('Error BPO not found');
 				else
 				{
-					// create the Po entry if not created yet
-					$repositoryPo = $this->getContainer()->get('doctrine')
-						->getManager()
-						->getRepository('AchPoManagerBundle:Po');
-					$poInstance = $repositoryPo->findOneByNum($data['po_num']);
-					if(empty($poInstance))
-					{
-						$poInstance = new Po();
-						$poInstance->setNum($data['po_num']);
-						$poInstance->setRelNum($data['rel_num']);
-						$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
-						$poInstance->setBpo($bpoInstance);
-						$em->persist($poInstance);
-					}
-					
-					// $bpoInstance = $repositoryBpo->findOneByNum($data['po_num']);
+					// create the Po entry
+					$poInstance = new Po();
+					$poInstance->setNum($data['po_num']);
+					$poInstance->setRelNum($data['rel_num']);
+					$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
+					$poInstance->setBpo($bpoInstance);
+					$em->persist($poInstance);
 					
 					// create the PoItem
 					$poItemInstance = new PoItem();
+					
+					// set the description
+					$poItemInstance->setDescription($data['description']);
 					
 					// set the revision to unknown
 					$repositoryRevision = $this->getContainer()->get('doctrine')
@@ -698,31 +710,105 @@ class MigrateDBCommand extends ContainerAwareCommand
 					
 					// set approved flag
 					$poItemInstance->setApproved(true);
+					
+					$em->persist($poItemInstance);
 				}
+				
 			}
 			else
 			{
 				$output->writeln('PO ' . $data['po_num'] . ' - line ' . $data['rel_num']);
-			}
-			
-			// create the Po entry if not created yet
-			/*$repositoryPo = $this->getContainer()->get('doctrine')
+				
+				// create the Po entry if not created yet
+				$repositoryPo = $this->getContainer()->get('doctrine')
 					->getManager()
 					->getRepository('AchPoManagerBundle:Po');
+				$poInstance = $repositoryPo->findOneByNum($data['po_num']);
+				if(empty($poInstance))
+				{
+					$poInstance = new Po();
+					$poInstance->setNum($data['po_num']);
+					$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
+					$em->persist($poInstance);
+				}
+				
+				// create the PoItem
+				$poItemInstance = new PoItem();
+				
+				// set the description
+				$poItemInstance->setDescription($data['description']);
+				
+				// set the revision to unknown
+				$repositoryRevision = $this->getContainer()->get('doctrine')
+					->getManager()
+					->getRepository('AchPoManagerBundle:Revision');
+				$poItemInstance->setRevision($repositoryRevision->findByPnUnknownRevision($data['vitec_index']));
+				
+				// set the Po
+				$poItemInstance->setPo($poInstance);
+				
+				// set the line
+				$poItemInstance->setLineNum($data['rel_num']);
+				
+				// set the Qty
+				$poItemInstance->setQty($data['qty']);
+				
+				// set the price
+				$repositoryPrice = $this->getContainer()->get('doctrine')
+					->getManager()
+					->getRepository('AchPoManagerBundle:Price');
+				switch($data['price_index'])
+				{
+					case 1:
+						$priceInstance = $repositoryPrice->findOneByPrice($data['price1']);
+						break;
+					case 2:
+						$priceInstance = $repositoryPrice->findOneByPrice($data['price2']);
+						break;
+					case 3:
+						$priceInstance = $repositoryPrice->findOneByPrice($data['price3']);
+						break;
+					case 4:
+						$priceInstance = $repositoryPrice->findOneByPrice($data['price4']);
+						break;
+					case 5:
+						$priceInstance = $repositoryPrice->findOneByPrice($data['price5']);
+						break;
+				}
+				$poItemInstance->setPrice($priceInstance);
+				
+				// set the Shipped quantity
+				$repositoryStatus = $this->getContainer()->get('doctrine')
+						->getManager()
+						->getRepository('AchPoManagerBundle:Status');
+				if($data['shipped'] == 'Y')
+				{
+					$poItemInstance->setStatus($repositoryStatus->findOneByName('SHIPPED'));
+					$poItemInstance->setShippedQty($data['qty']);
+				}
+				else
+				{
+					$poItemInstance->setStatus($repositoryStatus->findOneByName('APPROVED'));
+					$poItemInstance->setShippedQty(0);
+				}
+				
+				// set the due date
+				$date = new \DateTime($data['need_by_date']);
+				$poItemInstance->setDueDate($date);
+				
+				// set the comment
+				if(!empty($data['comments']))
+					$poItemInstance->setComment($data['comments']);
+				
+				// set approved flag
+				$poItemInstance->setApproved(true);
+				
+				$em->persist($poItemInstance);
+			}
 			
-			$poInstance = $repositoryPo->findOneByNum($data['po_num'])
-			
-			if(empty($poInstance))
-			{
-				$poInstance = new Po();
-				$poInstance->setNum($data['po_num']);
-				if($underBpo)
-				$poInstance->setNum();
-			}*/
-			$em->persist($poItemInstance);
+			$em->flush();
 		}
 		
-		$em->flush();
 	}
 
 }

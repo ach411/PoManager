@@ -98,6 +98,11 @@ Create the tables
 
 Make sure that php5-intl is installed
 
+To have the notification sent automatically, configure crontab to run:
+
+    php www/PoManager/app/console SendNotification <server_ip_address>
+
+
 [1]:  http://www.doctrine-project.org/
 [2]:  http://swiftmailer.org/
 [3]:  http://www.pdfparser.org/

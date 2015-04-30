@@ -33,7 +33,7 @@ class Bpo
 
     /**
      * @ORM\OneToOne(targetEntity="Ach\PoManagerBundle\Entity\Bpo")
-     *
+     * @ORM\JoinColumn(onDelete="SET NULL")
      */
     private $pairedBpo;
 	
