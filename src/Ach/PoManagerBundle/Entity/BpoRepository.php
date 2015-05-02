@@ -34,7 +34,6 @@ class BpoRepository extends EntityRepository
 	
 	public function findByBpoNum($bpoNum, $exact)
 	{
-		echo 'oudin';
 		$query = $this->_em->createQuery(self::SELECT_ALL . ' WHERE b.num like :num');
 		
 		if($exact)

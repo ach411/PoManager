@@ -164,7 +164,7 @@ class PoManagerController extends Controller
 		$formBpoNum->bind($request);
 	    if($formBpoNum->isValid())
 	    {
-			return $this->redirect($this->generateUrl('ach_po_manager_search_bpo_ponum', array('bpoNum' => $po->getNum())) );
+			return $this->redirect($this->generateUrl('ach_po_manager_search_bpo_ponum', array('bpoNum' => $bpo->getNum())) );
 	    }
 
 	    $formBpoPn->bind($request);

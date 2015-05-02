@@ -96,12 +96,46 @@ Create the tables
 
     php app/console doctrine:schema:update --force
 
-Make sure that php5-intl is installed
+Make sure that php5-intl is installed.
+To install php5-intl extension
+
+    sudo apt-get install php5-intl
+    sudo service apache2 restart
 
 To have the notification sent automatically, configure crontab to run:
 
     php www/PoManager/app/console SendNotification <server_ip_address>
 
+Quick Symfony memo
+--------------------------------
+
+To clear cache in dev mode:
+
+    php app/console cache:clear
+
+To clear cache in prod mode:
+
+    php app/console cache:clear --env=prod
+
+To view database diff with latest Entity config (doctrine):
+
+    php app/console doctrine:schema:update --dump-sql
+
+To update database with latest Entity config (doctrine):
+
+    php app/console doctrine:schema:update --force
+
+To generate an entity (doctrine):
+
+    php app/console generate:doctrine:doctrine:entity
+
+To modify an entity (doctrine):
+
+    php app/console doctrine:generate:entities
+
+To generate a form:
+
+    php app/console doctrine:generate:form AchPoManagerBundle:<EntityName>
 
 [1]:  http://www.doctrine-project.org/
 [2]:  http://swiftmailer.org/
