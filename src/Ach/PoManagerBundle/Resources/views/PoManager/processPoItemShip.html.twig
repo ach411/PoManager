@@ -42,7 +42,15 @@
 						<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
 						<td>{{ item.price.currency.tla }}</td>
 						<td id="date-id-{{ item.id }}" class = "{{ item.dueDate|date('Y-m-d') }}">{{ item.dueDate|date('M d, Y') }}</td>
-						<td>{{ item.comment }}</td>
+						<!-- <td><div class="form-inline"><div class="form-group"><input type="text" class="form-control" value="{{ item.comment }}"><button class="btn btn-default" type="button">Update</button></div></div></td> -->
+						<td class="input-group col-lg-2"><div class="input-group">
+							<input type="text" class="form-control" value="{{ item.comment }}">
+								<span class="input-group-btn">
+									<button class="btn btn-default " type="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+								</span>
+							</div>
+						</td>
+						
 						<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{ item.po.filePath }}</a></td>
 						<!-- <td><input type="text" id="tracking-id-{{ item.id }}" name="tracking-id-{{ item.id }}" placeholder="Enter tracking # here"></td> -->
 						<!-- <td><button id="ship-{{item.id}}" type="button" class="btn btn-success">Ship item!</button></td> -->
