@@ -173,6 +173,10 @@ ach_po_manager_process_poitem_bill:
     pattern:  /process/poitem/bill/{billingManagerId}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemBill }
 
+ach_po_manager_process_poitem_update_comment:
+    pattern: /process/update/poitem/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemUpdateComment }
+
 # Others Section
 
 ach_po_manager_json_return_latest_active_rev:

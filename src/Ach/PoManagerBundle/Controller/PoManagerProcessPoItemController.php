@@ -11,6 +11,7 @@ use Ach\PoManagerBundle\Entity\HistoryStatus;
 use Ach\PoManagerBundle\Entity\Notification;
 use Ach\PoManagerBundle\Entity\Shipment;
 use Ach\PoManagerBundle\Entity\ShipmentItem;
+use Ach\PoManagerBundle\Entity\PoItem;
 
 class PoManagerProcessPoItemController extends Controller
 {
@@ -406,4 +407,16 @@ class PoManagerProcessPoItemController extends Controller
 		return $this->render('AchPoManagerBundle:PoManager:processPoItemBill.html.twig', array('shipmentItems' => $shipmentItems, 'billingManager' => $billingManager));
 	}
 
+	/* Update the comment for PoItem*/
+	public function processPoItemUpdateCommentAction(PoItem $poItem)
+	{
+		$request = $this->get('request');
+		$comment = $request->request->get("comment");
+		
+		$poItem->setComment($comment);
+		$em = $this->getDoctrine()->getManager();
+		$em->flush();
+		
+		return new Response('Comment updated: ' . $comment);
+	}
 }
