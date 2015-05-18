@@ -40,7 +40,14 @@
 					<td>{{ item.price.currency.tla }}</td>
 					<!-- <td id="date-id-{{ item.id }}">{{ item.dueDate|date('D-d-M-Y') }}</td> -->
 					<td id="date-id-{{ item.id }}">{{ item.dueDate|date('Y-m-d') }}</td>
-					<td>{{ item.comment }}</td>
+					<!-- <td>{{ item.comment }}</td> -->
+					<td class="input-group col-lg-2"><div class="input-group">
+						<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}">
+							<span class="input-group-btn">
+								<button id="update-comment-id-{{ item.id }}" class="btn btn-default " type="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+							</span>
+						</div>
+					</td>
 					<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{ item.po.filePath }}</a></td>
 					<td>
 						<button id="approval-{{item.id}}" type="button" class="btn btn-success">Approve!</button>
