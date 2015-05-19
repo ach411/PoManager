@@ -15,7 +15,7 @@ class EditPoType extends PoType
 		
 		$builder
 			->add('num',		'text', array('read_only' => true))
-			->add('isBpo',		'checkbox', array('required' => false, 'read_only' => true) )
+			->add('isBpo',		'checkbox', array('required' => false, 'read_only' => true, 'disabled' => true) )
 			->add('relNum',		'text', array('required' => false, 'read_only' => true) )
 			->add('comment',		'text', array('required' => false, 'read_only' => true) )
 			->add('buyerEmail',		'email', array('required' => false, 'read_only' => true) )

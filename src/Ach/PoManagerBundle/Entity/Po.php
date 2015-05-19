@@ -322,7 +322,22 @@ class Po
      */
     public function getIsBpo()
     {
-        return $this->isBpo;
+        //return $this->isBpo;
+		if(isset($this->isBpo))
+		{
+			return $this->isBpo;
+		}
+		else
+        {
+			if(empty($this->bpo))
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
     }
 	
     /**
