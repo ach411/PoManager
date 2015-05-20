@@ -101,9 +101,11 @@ class ShipmentItemRepository extends EntityRepository
 	
 	public function findByTracking($tracking, $filterDate)
 	{
-		$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_SHIPMENT . 'WHERE h.trackingNum like :tracking AND ' . self::DATE_FILTER_ORDER);
+		//$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_SHIPMENT . 'WHERE h.trackingNum like :tracking AND ' . self::DATE_FILTER_ORDER);
+		// just ignore the filter date in this case
+		$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_SHIPMENT . 'WHERE h.trackingNum like :tracking');
 		
-		$this->setParameterWithFilter('tracking', $tracking, $query, $filterDate);
+		$query->setParameter('tracking', $tracking);
 		
 		return $query->getResult();
 	}

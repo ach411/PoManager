@@ -204,7 +204,10 @@ class PoManagerSearchShipmentItemController extends Controller
 		$data[$key][$this->container->getParameter('due_date_header')] = $shipmentItem->getPoItem()->getDueDate()->format("d-M-Y");
 		$data[$key][$this->container->getParameter('comment_header')] = $shipmentItem->getPoItem()->getComment();
 		$data[$key]['tracking Number'] = $shipmentItem->getShipment()->getTrackingNum();
-		$data[$key]['Ship. Depart. Date.'] = $shipmentItem->getShipment()->getShippingDate()->format("d-M-Y");
+		if(is_null($shipmentItem->getShipment()->getShippingDate()))
+			$data[$key]['Ship. Depart. Date.'] = 'date unknown';
+		else
+			$data[$key]['Ship. Depart. Date.'] = $shipmentItem->getShipment()->getShippingDate()->format("d-M-Y");
 		if(is_null($shipmentItem->getInvoice()))
 			$data[$key]['Invoice Number'] = 'Not invoiced';
 		else

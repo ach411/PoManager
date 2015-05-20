@@ -48,9 +48,9 @@
 					<td><a href="{{ po_files_path }}/{{ item.poItem.po.filePath }}">{{item.poItem.po.filePath}}</a></td>
 					<td>{% if item.shipment.trackingNum == "none" %}N/A{% else %}<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">{{ item.shipment.trackingNum }}</a>{% endif %}</td>
 					<!-- <td>{{ item.shipment.shippingDate|date('Y-m-d') }}</td> -->
-					<td>{{ item.shipment.shippingDate|date('M d, Y') }}</td>
+					<td>{% if item.shipment.shippingDate is empty %}date unknown{% else %}{{ item.shipment.shippingDate|date('M d, Y') }}{% endif %}</td>
 					<td>{% if item.invoice is empty %}Not invoiced{% else %}<a href="{{ invoice_files_path }}/{{ item.invoice.filePath }}">{{item.invoice.num}}</a>{% endif %}</td>
-					<td>{% if item.invoice is empty %}Not invoiced{% else %}{{ item.invoice.invoiceDate|date('M d, Y') }}{% endif %}</td>
+					<td>{% if item.invoice is empty or item.invoice.invoiceDate is empty %}date unknown{% else %}{{ item.invoice.invoiceDate|date('M d, Y') }}{% endif %}</td>
 				</tr>
 				{% else %}
 				<tr>

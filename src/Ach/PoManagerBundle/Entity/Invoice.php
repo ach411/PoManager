@@ -51,7 +51,7 @@ class Invoice
 	/**
 	 * @var \DateTime
 	 *
-	 * @ORM\Column(name="invoiceDate", type="date")
+	 * @ORM\Column(name="invoiceDate", type="date", nullable=true)
 	 */
 	private $invoiceDate;
 

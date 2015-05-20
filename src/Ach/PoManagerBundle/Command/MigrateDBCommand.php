@@ -14,6 +14,10 @@ use Ach\PoManagerBundle\Entity\Price;
 use Ach\PoManagerBundle\Entity\Bpo;
 use Ach\PoManagerBundle\Entity\Po;
 use Ach\PoManagerBundle\Entity\PoItem;
+use Ach\PoManagerBundle\Entity\Shipment;
+use Ach\PoManagerBundle\Entity\ShipmentItem;
+use Ach\PoManagerBundle\Entity\Invoice;
+use Ach\PoManagerBundle\Entity\Carrier;
 
 class MigrateDBCommand extends ContainerAwareCommand
 {
@@ -82,12 +86,6 @@ class MigrateDBCommand extends ContainerAwareCommand
 			die('Erreur : '.$e->getMessage());
 		}
 		
-		$req = $bdd->prepare('DELETE FROM PoItem where 1;');
-		$req->execute();
-		
-		$req = $bdd->prepare('DELETE FROM Po where 1;');
-		$req->execute();
-		
 		$req = $bdd->prepare('DELETE FROM ShipmentItem where 1;');
 		$req->execute();
 		
@@ -113,12 +111,6 @@ class MigrateDBCommand extends ContainerAwareCommand
 		$req->execute();
 		
 		$req = $bdd->prepare('DELETE FROM Price where 1;');
-		$req->execute();
-		
-		$req = $bdd->prepare('ALTER TABLE PoItem AUTO_INCREMENT = 1;');
-		$req->execute();
-		
-		$req = $bdd->prepare('ALTER TABLE Po AUTO_INCREMENT = 1;');
 		$req->execute();
 		
 		$req = $bdd->prepare('ALTER TABLE ShipmentItem AUTO_INCREMENT = 1;');
@@ -615,7 +607,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 			die('Erreur : '.$e->getMessage());
 		}
 		
-		$req = $bdd->prepare('SELECT po.under_bpo, po.po_num, po.rel_num, po.pdf_path, po.vitec_index, po.qty, po.price_index, product.price1, product.price2, product.price3, product.price4, product.price5, po.shipped, po.need_by_date, po.comments, product.description FROM po inner join product on po.vitec_index = product.vitec_index');
+		$req = $bdd->prepare('SELECT po.under_bpo, po.po_num, po.rel_num, po.pdf_path, po.vitec_index, po.qty, po.price_index, product.price1, product.price2, product.price3, product.price4, product.price5, po.shipped, po.need_by_date, po.comments, product.description, po.tracking_num, po.invoice_num FROM po inner join product on po.vitec_index = product.vitec_index');
 		$req->execute();
 		
 		while($data = $req->fetch())
@@ -693,6 +685,13 @@ class MigrateDBCommand extends ContainerAwareCommand
 					{
 						$poItemInstance->setStatus($repositoryStatus->findOneByName('SHIPPED'));
 						$poItemInstance->setShippedQty($data['qty']);
+						
+						// if tracking number has been recorded in old db, then create entry in Shipment and ShipmentItem tables
+						if(!empty($data['tracking_num']))
+						{
+							$output->writeln('create new shipment record for this PO item');
+							$this->createShipment($em, $poItemInstance, $data);
+						}
 					}
 					else
 					{
@@ -728,6 +727,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 				{
 					$poInstance = new Po();
 					$poInstance->setNum($data['po_num']);
+					$poInstance->setRelNum('N/A');
 					$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
 					$em->persist($poInstance);
 				}
@@ -785,6 +785,13 @@ class MigrateDBCommand extends ContainerAwareCommand
 				{
 					$poItemInstance->setStatus($repositoryStatus->findOneByName('SHIPPED'));
 					$poItemInstance->setShippedQty($data['qty']);
+					
+					// if tracking number has been recorded in old db, then create entry in Shipment and ShipmentItem tables
+					if(!empty($data['tracking_num']))
+					{
+						$output->writeln('create new shipment record for this PO item');
+						$this->createShipment($em, $poItemInstance, $data);
+					}
 				}
 				else
 				{
@@ -809,6 +816,71 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$em->flush();
 		}
 		
+	}
+	
+	private function createShipment($em, $poItemInstance, $data)
+	{
+		// check if Shipment entry already created
+		$repositoryShipment = $this->getContainer()->get('doctrine')
+				->getManager()
+				->getRepository('AchPoManagerBundle:Shipment');
+		$shipmentInstance = $repositoryShipment->findOneByTrackingNum(trim($data['tracking_num']));
+		
+		// if does not exist, then create it
+		if(empty($shipmentInstance))
+		{
+			$shipmentInstance = new Shipment(trim($data['tracking_num']));
+			
+			//UPS is the carrier
+			if(strlen(trim($data['tracking_num'])) == 10)
+			{
+				$repositoryCarrier = $this->getContainer()->get('doctrine')
+						->getManager()
+						->getRepository('AchPoManagerBundle:Carrier');
+				$carrierInstance = $repositoryCarrier->find(2);
+				
+				$shipmentInstance->setCarrier($carrierInstance);
+			}
+			
+			//Fedex is the carrier
+			if(strlen(trim($data['tracking_num'])) == 12)
+			{
+				$repositoryCarrier = $this->getContainer()->get('doctrine')
+						->getManager()
+						->getRepository('AchPoManagerBundle:Carrier');
+				$carrierInstance = $repositoryCarrier->find(1);
+				
+				$shipmentInstance->setCarrier($carrierInstance);
+			}
+			
+			$em->persist($shipmentInstance);
+		}
+		
+		$shipmentItemInstance = new ShipmentItem($shipmentInstance, $poItemInstance, $data['qty']);
+		
+		// if invoice num was recorded in old db, then create entry in new db
+		if(!empty($data['invoice_num']))
+		{
+			// check if Invoice entry already created
+			$repositoryInvoice = $this->getContainer()->get('doctrine')
+					->getManager()
+					->getRepository('AchPoManagerBundle:Invoice');
+			$invoiceInstance = $repositoryInvoice->findOneByNum(trim($data['invoice_num']));
+			
+			// if does not exist, then create it
+			if(empty($invoiceInstance))
+			{
+				$invoiceInstance = new Invoice();
+				$invoiceInstance->setNum(trim($data['invoice_num']));
+				
+				$em->persist($invoiceInstance);
+			}
+			
+			// link invoice entry to shipmentItem
+			$shipmentItemInstance->setInvoice($invoiceInstance);
+		}
+		
+		$em->persist($shipmentItemInstance);
 	}
 
 }
