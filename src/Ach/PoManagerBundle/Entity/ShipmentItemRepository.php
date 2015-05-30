@@ -23,6 +23,8 @@ class ShipmentItemRepository extends EntityRepository
 	const DATE_FILTER_ORDER = 'h.shippingDate >= :earliest AND h.shippingDate <= :latest ORDER BY h.shippingDate DESC';
 	const INVOICE_DATE_FILTER_ORDER = 'v.invoiceDate >= :earliest AND v.invoiceDate <= :latest ORDER BY v.invoiceDate DESC';
 	
+	const ORDER_BY_SHIPPING_DATE = 'ORDER BY h.shippingDate';
+	
 	
 	private function setParameterWithFilter($paramKey, $paramValue, $query, $filterDate, $exact = false)
 	{
@@ -48,7 +50,7 @@ class ShipmentItemRepository extends EntityRepository
 
 	public function findNotInvoicedByBillingManager($billingManagerId)
 	{
-		$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_POITEM_REV_PRODUCT . 'JOIN p.billingManager b WHERE b.id = :billingManagerId AND s.invoice is null');
+		$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_POITEM_REV_PRODUCT_SHIPMENT . 'JOIN p.billingManager b WHERE b.id = :billingManagerId AND s.invoice is null ' . self::ORDER_BY_SHIPPING_DATE);
 		$query->setParameter('billingManagerId', $billingManagerId);
 		return $query->getResult();
 	}

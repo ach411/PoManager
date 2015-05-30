@@ -570,17 +570,38 @@ class PoManagerCreateEntryController extends Controller
 			$poIt->setPrice($revision->getProduct()->getPrice());
 		}
 		
-		// set item in review stage
-		$repositoryStatus = $this->getDoctrine()
-			->getManager()
-			->getRepository('AchPoManagerBundle:Status');
-		$poIt->setStatus($repositoryStatus->findOneByName('IN REVIEW'));
-		
-		// create a new notification with category "NEW ORDER NOTIFICATION"
-		$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "NEW ORDER NOTIFICATION");
-		
-		$em->persist($notification);
-		
+		// if item Product Manager ID is 1, then follow complete workflow for notification and status
+		if($poIt->getRevision()->getProduct()->getProdManager()->getId() == 1)
+		{
+			
+			// set item in review stage
+			$repositoryStatus = $this->getDoctrine()
+				->getManager()
+				->getRepository('AchPoManagerBundle:Status');
+			$poIt->setStatus($repositoryStatus->findOneByName('IN REVIEW'));
+			
+			// create a new notification with category "NEW ORDER NOTIFICATION"
+			$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "NEW ORDER NOTIFICATION");
+			
+			$em->persist($notification);
+		}
+		else
+		{
+			// set item in approved stage
+			$repositoryStatus = $this->getDoctrine()
+				->getManager()
+				->getRepository('AchPoManagerBundle:Status');
+			$poIt->setStatus($repositoryStatus->findOneByName('APPROVED'));
+			$poIt->setApproved(true);
+			
+			// create a new notification with category "TEAM ORDER NOTIFICATION"
+			$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "TEAM ORDER NOTIFICATION");
+			$em->persist($notification);
+			
+			// create a new notification with category "CONFIRM ORDER NOTIFICATION"
+			$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "CONFIRM ORDER NOTIFICATION");
+			$em->persist($notification);
+		}
 		return false;
 	}
 

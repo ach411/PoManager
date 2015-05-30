@@ -33,16 +33,16 @@
 					<td>{{ item.getLineNum() }}</td>
 					<td>{{ item.revision.product.pn }}</td>
 					<td>{{ item.revision.product.custPn }}</td>
-					<!-- <td>{{ item.revision.product.description }}</td> -->
+					{# <td>{{ item.revision.product.description }}</td> #}
 					<td>{{ item.description }}</td>
 					<td>{{ item.price.price }}</td>
 					<td>{{ item.shippedQty }} / {{ item.qty }}</td>
 					<td>{{ (item.qty*item.price.price)|number_format(2, '.', ',') }}</td>
 					<td>{{ item.price.currency.tla }}</td>
-					<!-- <td>{{ item.dueDate|date('D-d-M-Y') }}</td> -->
-					<td>{{ item.dueDate|date('Y-m-d') }}</td>
+					{# <td>{{ item.dueDate|date('D-d-M-Y') }}</td> #}
+					<td>{{ item.dueDate is empty ? "unknown" : item.dueDate|date('Y-m-d') }}</td>
 					<td>{{ item.comment }}</td>
-					<!-- <td>{{ item.status.name }}{% if (item.status.name == "SHIPPED" or item.status.name == "PARTIALLY SHIPPED") %}<br /><a href="{{ path('ach_po_manager_search_shipmentitem_poitemid', {'id': item.id} ) }}">(view)</a>{% endif %}</td> -->
+					{# <td>{{ item.status.name }}{% if (item.status.name == "SHIPPED" or item.status.name == "PARTIALLY SHIPPED") %}<br /><a href="{{ path('ach_po_manager_search_shipmentitem_poitemid', {'id': item.id} ) }}">(view)</a>{% endif %}</td> #}
 					<td>{{ item.status.name }}{% if (item.shippedQty > 0) %}<br /><a href="{{ path('ach_po_manager_search_shipmentitem_poitemid', {'id': item.id} ) }}">(view)</a>{% else %}<br /><a href="{{ path('ach_po_manager_modify_po', {'id': item.po.id} ) }}">(modify PO)</a>{% endif %}</td>
 					<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{item.po.filePath}}</a></td>
 				</tr>

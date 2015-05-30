@@ -9,6 +9,7 @@
 		<table id="sortable" class="table table-bordered table-hover tablesorter">
 			<thead>
 				<tr>
+					<th></th>
 					<th>Po #</th>
 					<th>Release #</th>
 					<th>Line #</th>
@@ -28,6 +29,10 @@
 			<tbody>
 			{% for item in poItems %}
 				<tr id="row-id-{{ item.id }}">
+					<td id="excel-id-{{ item.id }}"
+							{% if date(item.dueDate) < date() %} class = "color_background_emergency" {% elseif date(item.dueDate) < date('+15days') %} class = "color_background_warning" {% else %} class = "color_background_normal" {% endif %}>
+							<input type="checkbox" class = "{{ item.dueDate|date('Y-m-d') }}" name="excel_recap_{{ item.id }}" value="{{ item.id }}">
+					</td>
 					<td id="po-id-{{ item.id }}">{{ item.po.num }}</td>
 					<td id="rel-id-{{ item.id }}">{{ item.po.relNum }}</td>
 					<td id="line-id-{{ item.id }}">{{ item.lineNum }}</td>
@@ -38,8 +43,7 @@
 					<td>{{ item.price.price }}</td>
 					<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
 					<td>{{ item.price.currency.tla }}</td>
-					<!-- <td id="date-id-{{ item.id }}">{{ item.dueDate|date('D-d-M-Y') }}</td> -->
-					<td id="date-id-{{ item.id }}">{{ item.dueDate|date('Y-m-d') }}</td>
+					<td id="date-id-{{ item.id }}">{{ item.dueDate is empty ? "unknown" : item.dueDate|date('Y-m-d') }}</td>
 					<!-- <td>{{ item.comment }}</td> -->
 					<td class="input-group col-lg-2"><div class="input-group">
 						<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}">

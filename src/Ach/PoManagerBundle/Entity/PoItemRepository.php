@@ -83,7 +83,7 @@ class PoItemRepository extends EntityRepository
 
 	public function findPoItemByProdManager($prodManagerId, $statusName = "%")
 	{
-		$query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:PoItem p JOIN p.status s JOIN p.revision r JOIN r.product d JOIN d.prodManager c WHERE s.name like :statusName AND c.id = :prodManagerId');
+		$query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:PoItem p JOIN p.status s JOIN p.revision r JOIN r.product d JOIN d.prodManager c WHERE s.name like :statusName AND c.id = :prodManagerId ORDER BY p.dueDate');
 		$query->setParameter('prodManagerId', $prodManagerId);
 		$query->setParameter('statusName', $statusName);
 		return $query->getResult();
@@ -91,7 +91,7 @@ class PoItemRepository extends EntityRepository
 
 	public function findPoItemByStatusShippingManager($shippingManagerId, $statusName = "%")
 	{
-	$query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:PoItem p JOIN p.status s JOIN p.revision r JOIN r.product d JOIN d.shippingManager a WHERE s.name = :statusName AND a.id = :shippingManagerId');
+	$query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:PoItem p JOIN p.status s JOIN p.revision r JOIN r.product d JOIN d.shippingManager a WHERE s.name = :statusName AND a.id = :shippingManagerId ORDER BY p.dueDate');
 	$query->setParameter('statusName', $statusName);
 	$query->setParameter('shippingManagerId', $shippingManagerId);
 	return $query->getResult();

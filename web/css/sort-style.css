@@ -41,3 +41,15 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 background-color: #8dbdd8;
 /* background-color: #c0e0ff; */
 }
+.color_background_emergency
+{
+	background-color: #d9534f;
+}
+.color_background_warning
+{
+	background-color: #f0ad4e;
+}
+.color_background_normal
+{
+	background-color: #5cb85c;
+}

@@ -1,7 +1,7 @@
 $(function() {
 	
 	// enable sorting to the exception of first column
-	$("#sortable").tablesorter({ headers: {13: {sorter: false}}});
+	$("#sortable").tablesorter({ headers: {0: {sorter: false}}});
 	
 	// handle approval
 	$('[id*="approval"]').click(function(event) {

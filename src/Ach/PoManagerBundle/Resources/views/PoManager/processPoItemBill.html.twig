@@ -43,9 +43,9 @@
 					<td>{{ item.poitem.price.price|number_format(2, '.', ',') }}</td>
 					<td>{{ (item.poitem.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
 					<td id="currency-id-{{ item.id }}">{{ item.poitem.price.currency.tla }}</td>
-					<td id="date-id-{{ item.id }}">{{ item.poitem.dueDate|date('Y-m-d') }}</td>
+					<td id="date-id-{{ item.id }}">{{ item.poitem.dueDate is empty ? "unknown" : item.poitem.dueDate|date('Y-m-d') }}</td>
 					<td id="tracking-id-{{ item.id }}" class="{{ item.shipment.trackingNum }}" >{% if item.shipment.trackingNum == "none" %}N/A{% else %}<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">{{ item.shipment.trackingNum }}</a>{% endif %}</td>
-					<td>{{ item.shipment.shippingDate|date('Y-m-d') }}</td>
+					<td>{{ item.shipment.shippingDate is empty ? "unknown" : item.shipment.shippingDate|date('Y-m-d') }}</td>
 					<td>{{ item.poitem.comment }}</td>
 					<td><a href="{{ po_files_path }}/{{ item.poitem.po.filePath }}">{{ item.poitem.po.filePath }}</a></td>
 					<!-- <td><input type="text"  id="invoice-id-{{ item.id }}" name="invoice-id-{{ item.id }}" placeholder="Enter Invoice # here"></td> -->
