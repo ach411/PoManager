@@ -458,6 +458,8 @@ class MigrateDBCommand extends ContainerAwareCommand
 	
 	private function incrementRev($revision)
 	{
+		if($revision == 'H')
+			return 'J';
 		if($revision == 'N')
 			return 'P';
 		if($revision == 'P')
@@ -497,8 +499,16 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$bpoInstance = new Bpo();
 			
 			// set number
-			$bpoInstance->setNum($data['bpo_num']);
-			$output->writeln('Start processing BPO ' . $data['bpo_num'] . ' ...');
+			if($data['bpo_num'] == 58901 or $data['bpo_num'] == 58902 or $data['bpo_num'] == 58903 or $data['bpo_num'] == 58904 or $data['bpo_num'] == 58905)
+			{
+				$bpoInstance->setNum($data['bpo_num'] . 'A');
+				$output->writeln('Start processing BPO ' . $data['bpo_num'] . 'A ...');
+			}
+			else
+			{
+				$bpoInstance->setNum($data['bpo_num']);
+				$output->writeln('Start processing BPO ' . $data['bpo_num'] . ' ...');
+			}
 			
 			// set revision
 			$repositoryRevision = $this->getContainer()->get('doctrine')
@@ -612,15 +622,20 @@ class MigrateDBCommand extends ContainerAwareCommand
 		
 		while($data = $req->fetch())
 		{
+			if($data['po_num'] == 58901 or $data['po_num'] == 58902 or $data['po_num'] == 58903 or $data['po_num'] == 58904 or $data['po_num'] == 58905)
+				$po_num = $data['po_num'] . 'A';
+			else
+				$po_num = $data['po_num'];
+			
 			if($data['under_bpo'] == 'Y' or $data['under_bpo'] == 'y')
 			{
 				$repositoryBpo = $this->getContainer()->get('doctrine')
 					->getManager()
 					->getRepository('AchPoManagerBundle:Bpo');
 					
-				$bpoInstance = $repositoryBpo->findOneByNum($data['po_num']);
+				$bpoInstance = $repositoryBpo->findOneByNum($po_num);
 				
-				$output->writeln('PO ' . $data['po_num'] . ' - release ' . $data['rel_num']);
+				$output->writeln('PO ' . $po_num . ' - release ' . $data['rel_num']);
 				
 				// if no BPO is recorded for this PO release then discard it
 				if(empty($bpoInstance))
@@ -629,7 +644,7 @@ class MigrateDBCommand extends ContainerAwareCommand
 				{
 					// create the Po entry
 					$poInstance = new Po();
-					$poInstance->setNum($data['po_num']);
+					$poInstance->setNum($po_num);
 					$poInstance->setRelNum($data['rel_num']);
 					$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
 					$poInstance->setBpo($bpoInstance);
@@ -716,17 +731,17 @@ class MigrateDBCommand extends ContainerAwareCommand
 			}
 			else
 			{
-				$output->writeln('PO ' . $data['po_num'] . ' - line ' . $data['rel_num']);
+				$output->writeln('PO ' . $po_num . ' - line ' . $data['rel_num']);
 				
 				// create the Po entry if not created yet
 				$repositoryPo = $this->getContainer()->get('doctrine')
 					->getManager()
 					->getRepository('AchPoManagerBundle:Po');
-				$poInstance = $repositoryPo->findOneByNum($data['po_num']);
+				$poInstance = $repositoryPo->findOneByNum($po_num);
 				if(empty($poInstance))
 				{
 					$poInstance = new Po();
-					$poInstance->setNum($data['po_num']);
+					$poInstance->setNum($po_num);
 					$poInstance->setRelNum('N/A');
 					$poInstance->setFilePath(str_replace('po_files/', '', $data['pdf_path']));
 					$em->persist($poInstance);
