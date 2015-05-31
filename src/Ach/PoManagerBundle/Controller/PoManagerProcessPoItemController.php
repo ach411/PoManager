@@ -314,6 +314,8 @@ class PoManagerProcessPoItemController extends Controller
 		
 		$em = $this->getDoctrine()->getManager();
 		
+		$notificationRequired = false;
+		
 		foreach($poItems as $parameter => $poItem)
 		{
 			//get the qty shipped from the GET request
@@ -357,6 +359,9 @@ class PoManagerProcessPoItemController extends Controller
 				}
 			}
 			
+			if($poItem->getRevision()->getProduct()->getShippingManager()->getId() != 2)
+				$notificationRequired = true;
+			
 			// create entry in HistoryStatus table
 			/*$historyStatus = new HistoryStatus();
 			$historyStatus->setPoItem($poItem);
@@ -374,15 +379,19 @@ class PoManagerProcessPoItemController extends Controller
 			
 		}
 		
-		// create a notification
+		// create a notification if required
 		// create a new notification with category "SHIPMENT NOTIFICATION"
-		$notification = $this->get('ach_po_manager.notification_creator')->createNotification($shipment, "SHIPMENT NOTIFICATION");
-		/*$repositoryNotificationCategory = $this->getDoctrine()
-			->getManager()
-			->getRepository('AchPoManagerBundle:NotificationCategory');
-		$notification = new Notification($shipment, $repositoryNotificationCategory->findOneByName("SHIPMENT NOTIFICATION"));*/
+		if($notificationRequired)
+		{
+			$notification = $this->get('ach_po_manager.notification_creator')->createNotification($shipment, "SHIPMENT NOTIFICATION");
+			
+			/*$repositoryNotificationCategory = $this->getDoctrine()
+				->getManager()
+				->getRepository('AchPoManagerBundle:NotificationCategory');
+			$notification = new Notification($shipment, $repositoryNotificationCategory->findOneByName("SHIPMENT NOTIFICATION"));*/
 		
-		$em->persist($notification);
+			$em->persist($notification);
+		}
 		
 		$em->persist($shipment);
 		$em->flush();
