@@ -10,6 +10,7 @@ class AchSendNotification
 	protected $po_files_path;
 	protected $bpo_files_path;
 	protected $invoice_files_path;
+	protected $files_root_path;
 	
 	// take string(s) in message_pattern
 	// and resolve variable %var% by their value define in replace_string_array
@@ -56,7 +57,7 @@ class AchSendNotification
 		return $email_array;
 	}
 
-	public function __construct(\Swift_Mailer $mailer, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, $po_files_path, $bpo_files_path, $invoice_files_path)
+	public function __construct(\Swift_Mailer $mailer, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, $po_files_path, $bpo_files_path, $invoice_files_path, $files_root_path)
 	{
 		$this->mailer = $mailer;
 		$this->router = $router;
@@ -64,6 +65,7 @@ class AchSendNotification
 		$this->po_files_path = $po_files_path;
 		$this->bpo_files_path = $bpo_files_path;
 		$this->invoice_files_path = $invoice_files_path;
+		$this->files_root_path = $files_root_path;
 	}
 
 	/**
@@ -220,7 +222,7 @@ class AchSendNotification
 				
 			case "Invoice":
 			
-				echo 'got Invoice';
+				//echo 'got Invoice';
 				
 				// get the collection
 				$listItems = $notification->getInvoice()->getShipmentItems();
@@ -346,14 +348,18 @@ class AchSendNotification
 			$email->setBcc($emailFields['bccTo']);
 		if(!empty($emailFields['attachedFile']))
 		{
-			//echo '../..'.$emailFields['attachedFile'];
+			//Set the root path for the attached file (not very nice: to be changed later)
+			//$email->attach(\Swift_Attachment::fromPath('/home/vitec/www'.$emailFields['attachedFile']));
+			$email->attach(\Swift_Attachment::fromPath($this->files_root_path . $emailFields['attachedFile']));
 			// test if this service is launched by CLI or by actual client
-			if (strpos(getcwd(), 'PoManager/web') !== FALSE)
+			/*if (strpos(getcwd(), 'PoManager/web') !== FALSE)
 			    // client
 			    $email->attach(\Swift_Attachment::fromPath('../..'.$emailFields['attachedFile']));
-			else
+			elseif(strpos(getcwd(), 'PoManager') !== FALSE)
 			    // script
 			    $email->attach(\Swift_Attachment::fromPath('..'.$emailFields['attachedFile']));
+			else
+			    // script launch from user home directory (it's the case if crontab is used)*/
 			
 		}
 		
@@ -362,9 +368,9 @@ class AchSendNotification
 		
 		$this->mailer->send($email);
 		
-		//	$log = "Email sent to: ".$coordinatorEmail."\nMessage: ".$message."\n";
-		// $log = "\n---EMAIL SENT TO " . $emailFields['sendTo'];
-		$log = "---EMAIL SENT TO " . $emailFields['sendTo'];
+		$nowDate = new \DateTime('NOW');
+		$log = $nowDate->format('Y-m-d H:i:s') . " ---EMAIL SENT TO " . $emailFields['sendTo'];
+		// $log = "---EMAIL SENT TO " . $emailFields['sendTo'];
 		// $log .= "\n---CC TO: " . $emailFields['ccTo'];
 		$log .= "---CC TO: " . $emailFields['ccTo'];
 		// $log .= "\n---BCC TO: " . $emailFields['bccTo'];
@@ -372,7 +378,7 @@ class AchSendNotification
 		// $log .= "\n---SUBJECT: " . $emailFields['subject'];
 		$log .= "---SUBJECT: " . $emailFields['subject'];
 		// $log .= "\n---MESSAGE: " . $emailFields['message'];
-		$log .= "---MESSAGE: " . $emailFields['message'];
+		//$log .= "---MESSAGE: " . $emailFields['message'];
 		
 		return $log;
 	}

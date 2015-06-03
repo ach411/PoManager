@@ -34,7 +34,7 @@
 					<td>{{ item.product.price.currency.tla }}</td>
 					<td><a href="{{ path('ach_po_manager_create_bpo', {'id': item.id} ) }}">Create BPO</td>
 					<td>{{ item.product.moq }}</td>
-					<td>{{ item.product.comment }}</td>
+					<td>{{ item.comment }}</td>
 					<td>{{ item.product.prodManager.email }}</td>
 				</tr>
 				{% else %}

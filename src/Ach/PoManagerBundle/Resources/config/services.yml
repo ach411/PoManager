@@ -3,6 +3,7 @@ parameters:
     po_files_path:		/po_files
     bpo_files_path:		/bpo_files
     invoice_files_path:		/invoice_files
+    files_root_path:		/home/vitec/www
 
 #services:
 #    ach_po_manager.example:
@@ -14,7 +15,7 @@ services:
         class: Ach\PoManagerBundle\VariableSubstitute\AchVariableSubstitute
     ach_po_manager.send_notification:
         class: Ach\PoManagerBundle\SendNotification\AchSendNotification
-        arguments: [@mailer, @router, @templating, %po_files_path%, %bpo_files_path%, %invoice_files_path%]
+        arguments: [@mailer, @router, @templating, %po_files_path%, %bpo_files_path%, %invoice_files_path%, %files_root_path%]
 #        scope: request
     ach_po_manager.generate_xls_response:
         class: Ach\PoManagerBundle\GenerateXlsResponse\AchGenerateXlsResponse
