@@ -9,33 +9,29 @@
 		<table id="sortable" class="table table-bordered table-hover tablesorter">
 			<thead>
 				<tr>
+					<th></th>
 					<th>{{ pn_header }}</th>
 					<th>{{ cust_pn_header }}</th>
 					<th>{{ desc_header }}</th>
 					<th>revision</th>
 					<th>cust. revision</th>
-					<th>{{ price_header}}</th>
-					<th>{{ currency_header}}</th>
-					<th>Create BPO</th>
-					<th>{{ moq_header}}</th>
 					<th>{{ comment_header}}</th>
-					<th>{{ prod_manager_header}}</th>
+					<th>Drawing</th>
+					<th>Create BPO</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for item in revisions %}
 				<tr>
+					<td> {% if item.active == true %}<span class="glyphicon glyphicon-ok alert-success" aria-hidden="true"></span>{% else %}<span class="glyphicon glyphicon-remove alert-danger" aria-hidden="true"></span>{% endif %} </td>
 					<td>{{ item.product.pn }}</td>
 					<td>{{ item.product.custPn }}</td>
 					<td>{{ item.product.description }}</td>
 					<td>{{ item.revision }}</td>
 					<td>{{ item.revisionCust}}</td>
-					<td>{{ item.product.price.price }}</td>
-					<td>{{ item.product.price.currency.tla }}</td>
-					<td><a href="{{ path('ach_po_manager_create_bpo', {'id': item.id} ) }}">Create BPO</td>
-					<td>{{ item.product.moq }}</td>
 					<td>{{ item.comment }}</td>
-					<td>{{ item.product.prodManager.email }}</td>
+					<td>{% if item.drawingPath is empty %} none {% else %} <a href="{{ revision_files_path }}/{{item.drawingPath}}">{{item.drawingPath}}</a> {% endif %}</td>
+					<td><a href="{{ path('ach_po_manager_create_bpo', {'id': item.id} ) }}">Create BPO</td>
 				</tr>
 				{% else %}
 				<tr>

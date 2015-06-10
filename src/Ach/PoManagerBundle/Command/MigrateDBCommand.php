@@ -69,6 +69,11 @@ class MigrateDBCommand extends ContainerAwareCommand
 			$this->migratePo($input, $output);
 		}
 		
+		if($input->getArgument('message') == "changeRevisionPath")
+		{
+			$this->changeRevisionPath($input, $output);
+		}
+		
 		$output->writeln('Migration executed');
 	}
 	
@@ -896,6 +901,29 @@ class MigrateDBCommand extends ContainerAwareCommand
 		}
 		
 		$em->persist($shipmentItemInstance);
+	}
+	
+	private function changeRevisionPath($input, $output)
+	{
+		$repositoryRevision = $this->getContainer()->get('doctrine')
+			->getManager()
+			->getRepository('AchPoManagerBundle:Revision');
+		$revisionInstances = $repositoryRevision->findAll();
+		
+		$em = $this->getContainer()->get('doctrine')->getManager();
+		
+		foreach($revisionInstances as $instance)
+		{
+			if($instance->getDrawingPath() != null)
+			{
+				$output->writeln("Check Product: "  . $instance->getProduct()->getPn() . " of revision: " . $instance->getRevisionCust() . " is NOT empty");
+				$instance->setDrawingPath($instance->getProduct()->getPn() . '/' . $instance->getDrawingPath() . ".pdf");
+			}
+			else
+				$output->writeln('!@ Check Product: '  . $instance->getProduct()->getPn() . ' of revision: ' . $instance->getRevisionCust() . ' IS empty');
+		}
+		
+		$em->flush();
 	}
 
 }
