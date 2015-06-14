@@ -8,4 +8,6 @@
   <a href="{{ path('ach_po_manager_search_poitem_number', {'poNum': po.num} ) }}" class="alert-link">New PO {{po.num}} entry added successfully in the database</a>
 </div>
 
+{% include "AchPoManagerBundle:PoManager:link2Index.html.twig" %}
+
 {% endblock %}
