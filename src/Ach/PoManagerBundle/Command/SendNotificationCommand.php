@@ -27,38 +27,38 @@ class SendNotificationCommand extends ContainerAwareCommand
         $context->setScheme('http');
         $context->setBaseUrl($input->getArgument('baseUrl'));
 		
-	$repositoryNotification = $this->getContainer()->get('doctrine')
+		$repositoryNotification = $this->getContainer()->get('doctrine')
 		    ->getManager()
 		    ->getRepository('AchPoManagerBundle:Notification');
-
-	$listNotifications = $repositoryNotification->findAll();
-
-	$em = $this->getContainer()->get('doctrine')->getManager();
-	
-	$log = null;
-
-	// scan all the pending notification of the table and send message for each
-	foreach($listNotifications as $notification)
-	{
-	    $log = $log.$this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification);
-	    $em->remove($notification);
-	}
-
-	$em->flush();
-
-	
-	$transport = $this->getContainer()->get('mailer')->getTransport();
-	if (!$transport instanceof \Swift_Transport_SpoolTransport) {
-	    return;
-	}
-
-	$spool = $transport->getSpool();
-       	if (!$spool instanceof \Swift_MemorySpool) {
-    	   return;
-	}
-
-	$spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	
-	
-        $output->writeln('SendNotification executed: ' . $log);
+		
+		$listNotifications = $repositoryNotification->findAll();
+		
+		$em = $this->getContainer()->get('doctrine')->getManager();
+		
+		$log = null;
+		
+		// scan all the pending notification of the table and send message for each
+		foreach($listNotifications as $notification)
+		{
+			$log = $log.$this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification);
+			$output->writeln('SendNotification launched');
+			$em->remove($notification);
+		}
+		
+		$transport = $this->getContainer()->get('mailer')->getTransport();
+		if (!$transport instanceof \Swift_Transport_SpoolTransport) {
+			return;
+		}
+		
+		$spool = $transport->getSpool();
+			if (!$spool instanceof \Swift_MemorySpool) {
+			return;
+		}
+		
+		$spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	
+		
+		$em->flush();
+		
+		$output->writeln('SendNotification executed: ' . $log);
     }
 }

@@ -42,15 +42,21 @@ class Notification
 
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Shipment")
-	 * @ORM\JoinColumn(nullable=true)
+	 * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
 	 */
 	private $shipment;
 	
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Invoice")
-	 * @ORM\JoinColumn(nullable=true)
+	 * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
 	 */
 	private $invoice;
+	
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Bpo")
+	 * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
+	 */
+	private $bpo;
 	
 	/**
 	 * Get id
@@ -167,7 +173,7 @@ class Notification
 		
 		return $this;
 	}
-
+	
 	/**
 	 * Get invoice
 	 *
@@ -176,6 +182,29 @@ class Notification
 	public function getInvoice()
 	{
 		return $this->invoice;
+	}
+	
+	/**
+	 * Get bpo
+	 *
+	 * @return \Ach\PoManagerBundle\Entity\Invoice 
+	 */
+	public function getBpo()
+	{
+		return $this->bpo;
+	}
+	
+	/**
+	 * Set bpo
+	 *
+	 * @param \Ach\PoManagerBundle\Entity\Bpo $bpo
+	 * @return Notification
+	 */
+	public function setBpo(\Ach\PoManagerBundle\Entity\Bpo $bpo)
+	{
+		$this->bpo = $bpo;
+		
+		return $this;
 	}
 	
 	
@@ -189,6 +218,7 @@ class Notification
 		//$setter = "set".$output_array[1];
 		//$this->$setter($notificationSource);
 		
+		/*
 		switch($this->notificationSourceClass)
 		{
 			case "PoItem":
@@ -200,9 +230,15 @@ class Notification
 			case "Invoice":
 				$this->invoice = $notificationSource;
 				break;
+			case "Bpo":
+				$this->bpo = $notificationSource;
+				break;
 			default:
 				echo "Error: notificationSource can't be identified";
 		}
+		*/
+		$notificationSourceAttribute = lcfirst($this->notificationSourceClass);
+		$this->$notificationSourceAttribute = $notificationSource;
 		
 		$this->notificationCategory = $notificationCategory;
 		

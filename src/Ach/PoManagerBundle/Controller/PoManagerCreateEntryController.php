@@ -501,13 +501,17 @@ class PoManagerCreateEntryController extends Controller
 				
 				$em->persist($bpo);
 				
-				echo $bpo->getFilePath();
+				// echo $bpo->getFilePath();
+				
+				// create a new notification with category "NEW BPO NOTIFICATION"
+				$notification = $this->get('ach_po_manager.notification_creator')->createNotification($bpo, "NEW BPO NOTIFICATION");
+				
+				$em->persist($notification);
 				
 				$em->flush();
 				
-				echo $bpo->getFilePath();
+				return new Response('new BPO entered successfully: ' . $bpo->getNum());
 				
-				return new Response('new BPO entered successfully' . $bpo->getNum());
 			}
 		
 		}

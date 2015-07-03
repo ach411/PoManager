@@ -307,6 +307,37 @@ class AchSendNotification
 				);
 				
 				break;
+			
+			case "Bpo":
+				
+				$pn = $notification->getBpo()->getRevision()->getProduct()->getPn();
+				
+				$variableDefArray = array(
+					'notificationCategory'		=> $notification->getNotificationCategory()->getName(),
+					'buyerEmail'				=> $notification->getBpo()->getBuyerEmail(),
+					'bpoNum'					=> $notification->getBpo()->getNum(),
+					'pn'						=> $notification->getBpo()->getRevision()->getProduct()->getPn(),
+					'qty'						=> $notification->getBpo()->getQty(),
+					'unit'						=> $notification->getBpo()->getRevision()->getProduct()->getUnit()->getName(),
+					'desc'						=> $notification->getBpo()->getRevision()->getProduct()->getDescription(),
+					'startDate'					=> $notification->getBpo()->getStartDate()->format('M d Y'),
+					'endDate'					=> $notification->getBpo()->getEndDate()->format('M d Y'),
+					'comment'					=> $notification->getBpo()->getComment(),
+					'ProdManagerEmail'			=> $notification->getBpo()->getRevision()->getProduct()->getProdManager()->getEmail(),
+					'ShippingManagerEmail'		=> $notification->getBpo()->getRevision()->getProduct()->getShippingManager()->getEmail(),
+					'BillingManagerEmail'		=> $notification->getBpo()->getRevision()->getProduct()->getBillingManager()->getEmail(),
+					'ProdManagerName'			=> $notification->getBpo()->getRevision()->getProduct()->getProdManager()->getName(),
+					'ShippingManagerName'		=> $notification->getBpo()->getRevision()->getProduct()->getShippingManager()->getName(),
+					'BillingManagerName'		=> $notification->getBpo()->getRevision()->getProduct()->getBillingManager()->getName(),
+					'custPn'					=> $notification->getBpo()->getRevision()->getProduct()->getCustPn(),
+					'revision'					=> $notification->getBpo()->getRevision()->getRevision(),
+					'revisionCust'				=> $notification->getBpo()->getRevision()->getRevisionCust(),
+					'SearchBpoByPnLink'			=> $this->router->generate('ach_po_manager_search_bpo_pn_num', array('pn' => $pn), true)
+				);
+				
+				break;
+				
+				
 			default:
 				echo "Error: notificationSource can't be identified";
 		}
