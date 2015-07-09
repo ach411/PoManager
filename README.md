@@ -22,6 +22,17 @@ This version is tested with:
 To install PoManager development environment
 --------------------------------
 
+Make sure that php5-mysql and php5-intl are installed.
+To install them:
+
+    sudo apt-get install php5-mysql
+    sudo apt-get install php5-intl
+    sudo service apache2 restart
+
+Go to your web server root document folder (e.g. /var/www) and create the following 4 folders:
+
+    mkdir po_files bpo_files invoice_files revision_files
+
 Use git to clone the project:
 
     git clone https://github.com/ach411/PoManager.git
@@ -77,6 +88,7 @@ Create your parameter file and saved it under `app/config/parameters.yml`
         po_files_path:              /po_files
         bpo_files_path:             /bpo_files
         invoice_files_path:         /invoice_files
+        revision_files_path:	    /revision_files
 
 Run composer to download and install the vendor depencies
 
@@ -95,12 +107,6 @@ Create the database
 Create the tables
 
     php app/console doctrine:schema:update --force
-
-Make sure that php5-intl is installed.
-To install php5-intl extension
-
-    sudo apt-get install php5-intl
-    sudo service apache2 restart
 
 To have the notification sent automatically, configure crontab to run:
 
