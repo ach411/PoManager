@@ -574,7 +574,7 @@ class PoManagerCreateEntryController extends Controller
 			$poIt->setPrice($revision->getProduct()->getPrice());
 		}
 		
-		// if item Product Manager ID is 1, then follow complete workflow for notification and status
+		// if item Production Manager ID is 1, then follow complete workflow for notification and status
 		if($poIt->getRevision()->getProduct()->getProdManager()->getId() == 1)
 		{
 			
@@ -598,13 +598,16 @@ class PoManagerCreateEntryController extends Controller
 			$poIt->setStatus($repositoryStatus->findOneByName('APPROVED'));
 			$poIt->setApproved(true);
 			
-			// create a new notification with category "TEAM ORDER NOTIFICATION"
-			$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "TEAM ORDER NOTIFICATION");
-			$em->persist($notification);
-			
-			// create a new notification with category "CONFIRM ORDER NOTIFICATION"
-			$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "CONFIRM ORDER NOTIFICATION");
-			$em->persist($notification);
+			if($poIt->getRevision()->getProduct()->getProdManager()->getId() == 2)
+			{
+				// create a new notification with category "TEAM ORDER NOTIFICATION"
+				$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "TEAM ORDER NOTIFICATION");
+				$em->persist($notification);
+				
+				// create a new notification with category "CONFIRM ORDER NOTIFICATION"
+				$notification = $this->get('ach_po_manager.notification_creator')->createNotification($poIt, "CONFIRM ORDER NOTIFICATION");
+				$em->persist($notification);
+			}
 		}
 		return false;
 	}
