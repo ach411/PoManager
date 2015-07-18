@@ -16,6 +16,7 @@ use Ach\PoManagerBundle\Entity\Price;
 use Ach\PoManagerBundle\Entity\Shipment;
 use Ach\PoManagerBundle\Entity\Invoice;
 use Ach\PoManagerBundle\Entity\Bpo;
+use Ach\PoManagerBundle\Entity\ShipmentBatch;
 
 use Ach\PoManagerBundle\Form\ProductSearchPnType;
 use Ach\PoManagerBundle\Form\ProductSearchCustPnType;
@@ -33,6 +34,7 @@ use Ach\PoManagerBundle\Form\BpoSearchNumberType;
 use Ach\PoManagerBundle\Form\BpoSearchPnType;
 use Ach\PoManagerBundle\Form\BpoSearchCustPnType;
 use Ach\PoManagerBundle\Form\BpoSearchDescType;
+use Ach\PoManagerBundle\Form\ParseShipmentBatchType;
 
 class PoManagerController extends Controller
 {
@@ -43,14 +45,18 @@ class PoManagerController extends Controller
 	$shipment = new Shipment();
 	$invoice = new Invoice();
 	$bpo = new Bpo();
+    $shipmentBatch = new ShipmentBatch();
 	
 	// create forms for the product search
 	$formPn = $this->createForm(new ProductSearchPnType, $product);
 	$formCustPn = $this->createForm(new ProductSearchCustPnType, $product);
 	$formDesc = $this->createForm(new ProductSearchDescType, $product);
-	
+    
 	// create form for the file parsing to create PO
 	$formParsePo = $this->createForm(new ParsePoType, $po);
+
+    // create form for the file parsing to create ShipmentBatch
+    $formParseShipmentBatch = $this->createForm(new ParseShipmentBatchType, $shipmentBatch);
 
 	// create forms for the Po Item search
 	$formPoItemPn = $this->createForm(new PoItemSearchPnType, $product);
@@ -192,6 +198,7 @@ class PoManagerController extends Controller
 	       'formCustPn' => $formCustPn->createView(),
 	       'formDesc' => $formDesc->createView(),
 	       'formParsePo' => $formParsePo->createView(),
+           'formParseShipmentBatch' => $formParseShipmentBatch->createView(),
 	       'formPoItemNum' => $formPoItemNum->createView(),
 	       'formPoItemPn' => $formPoItemPn->createView(),
 	       'formPoItemCustPn' => $formPoItemCustPn->createView(),

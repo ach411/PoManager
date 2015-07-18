@@ -101,6 +101,19 @@ ach_po_manager_search_shipmentitem_invoicedate:
     pattern:  /search/shipmentitem/invoicedate/{minDate}/{maxDate}
     defaults: { _controller: AchPoManagerBundle:PoManagerSearchShipmentItem:searchShipmentItemInvoiceDate, maxDate: +0d }
 
+# Process ShipmentBatch (lot) Section
+
+ach_po_manager_process_shipmentbatch:
+    pattern:  /process/lot/product/{productName}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessShipmentBatch:ProcessShipmentBatchShow }
+
+ach_po_manager_process_select_waitforremoval:
+    pattern: /process/lot/select/shipmentbatch/id/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessShipmentBatch:ProcessShipmentBatchSelect }
+
+ach_po_manager_process_unselect_waitforremoval:
+    pattern: /process/lot/unselect/shipmentbatch/id/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessShipmentBatch:ProcessShipmentBatchUnselect }
 
 # Search BPO Section
 ach_po_manager_search_bpo_all:
@@ -141,6 +154,10 @@ ach_po_manager_create_bpo:
     pattern:  /create/bpo/revision/{id}
     defaults: { _controller: AchPoManagerBundle:PoManagerCreateEntry:createBpo }
 
+ach_po_manager_create_shipmentbatch:
+    pattern:  /create/shipmentbatch
+    defaults: { _controller: AchPoManagerBundle:PoManagerCreateEntry:createShipmentBatch }
+    
 # Process Item Section
 
 ach_po_manager_process_poitem_prod:

@@ -1,0 +1,55 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Current lots in stock{% endblock %}
+
+{% block body %}
+
+<h2>List of lots available:</h2>
+<p>
+  <table id="sortable" class="table table-bordered table-hover tablesorter">
+    <thead>
+      <tr>
+	<th>Lot number</th>
+	<th>File</th>
+	<th>Date recorded</th>
+	<th>Comment</th>
+	<th>Waiting for removal on next shipment</th>
+	{# <th>Select/Unselect this lot for next shipment</th> #}
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in lots %}
+      <tr>
+	<td>{{ item.num }}</td>
+	<td>{{ item.filePath }}</td>
+	<td>{{ item.createdDate is empty ? "unknown" : item.createdDate|date('Y-m-d') }}</td>
+	<td>{{ item.comment }}</td>
+	<td id="cell-removal-{{item.id}}">
+	  {% if item.waitingForRemoval == false %}
+	  <span id="check-removal-{{item.id}}" class="glyphicon glyphicon-remove alert-danger" aria-hidden="true"></span>
+	  {% else %}
+	  <span id="check-removal-{{item.id}}" class="glyphicon glyphicon-ok alert-success" aria-hidden="true"></span>
+	  {% endif %}
+	</td>
+{#	<td>
+	  {% if item.waitingForRemoval == false %}
+	  <button id="button-lot-{{item.id}}" type="button" class="btn btn-primary">Select</button>
+	  {% else %}
+	  <button id="button-lot-{{item.id}}" type="button" class="btn btn-danger">Unselect</button>
+	  {% endif %}
+	</td>#}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</p>
+<p id="unitsPerLot" hidden>{{ unitsPerLot }}</p>
+<h3>Total number of units selected: <small id="totalUnitsSelected"></h3>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/enablesorting.js') }}"></script>
+<script src="{{ asset('js/processShipmentBatch.js')}}"></script>
+
+{% endblock %}
+

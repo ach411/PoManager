@@ -16,6 +16,8 @@ use Ach\PoManagerBundle\Entity\PoItem;
 use Ach\PoManagerBundle\Entity\Price;
 use Ach\PoManagerBundle\Entity\Invoice;
 use Ach\PoManagerBundle\Entity\Revision;
+use Ach\PoManagerBundle\Entity\ShipmentBatch;
+use Ach\PoManagerBundle\Entity\SerialNumber;
 
 use Ach\PoManagerBundle\Form\ProductSearchPnType;
 use Ach\PoManagerBundle\Form\ProductSearchCustPnType;
@@ -25,6 +27,7 @@ use Ach\PoManagerBundle\Form\PoType;
 use Ach\PoManagerBundle\Form\EditPoType;
 use Ach\PoManagerBundle\Form\BpoType;
 use Ach\PoManagerBundle\Form\InvoiceType;
+use Ach\PoManagerBundle\Form\ParseShipmentBatchType;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
@@ -531,6 +534,145 @@ class PoManagerCreateEntryController extends Controller
 		
 		// new Response($revision->getRevisionCust());
 	}
+
+    /**
+     *
+     * Create Batch
+     *
+    **/
+    public function createShipmentBatchAction()
+    {
+  		// create the form based on an pre-filled instance of ShipmentBatch (using the parser)
+        $shipmentBatch = new ShipmentBatch($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('zip_files_path'));
+		$formParseShipmentBatch = $this->createForm(new ParseShipmentBatchType, $shipmentBatch);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $request = $this->get('request');
+        if ($request->getMethod() == 'POST')
+		{
+			$formParseShipmentBatch->bind($request);
+			if($formParseShipmentBatch->isValid())
+			{
+                if($shipmentBatch->getFile() === null)
+				{
+					return $this->renderErrorPage("no file parameter passed");
+				}
+				else
+				{
+                    $file = $shipmentBatch->getFile();
+                    $filename = $file->getClientOriginalName();
+
+                    // if file already exist in database, then return error
+                    // get the repository for ShipmentItem
+                    $repositoryShipmentBatch = $this->getDoctrine()
+                                                   ->getManager()
+                                                   ->getRepository('AchPoManagerBundle:ShipmentBatch');
+                    if($repositoryShipmentBatch->findOneByFilePath($filename) != null)
+                    {
+                        return $this->renderErrorPage("File $filename has already been recorded");
+                    }
+
+                    preg_match("/(\d+)_(\S+)_lot.zip/", $filename, $output_array);
+
+                    if(count($output_array) <2 )
+                    {
+                        return $this->renderErrorPage("File name $filename invalid, are you sure it's a regular zip lot file?");
+                    }
+
+                    $product = $output_array[2];
+                    $lotNum =  $output_array[1];
+
+                    //echo "Uploading Production ZIP file \n";
+                    //echo "Product: " . $product . "\n";
+                    //echo "Lot Number: " . $lotNum . "\n";
+
+                    $shipmentBatch->setProductName($product);
+                    $shipmentBatch->setNum($lotNum);
+
+                    $za = new \ZipArchive();
+
+                    if ($za->open($file, \ZipArchive::CREATE)!==TRUE) {
+                        return $this->renderErrorPage("Unable to open zip file $filename.");
+                    }
+
+                    //echo "Number of files in the archive: " . $za->numFiles . "\n";
+                    ////echo "status:" . $za->status . "\n";
+                    ////echo "statusSys: " . $za->statusSys . "\n";
+                    ////echo "filename: " . $za->filename . "\n";
+                    ////echo "comment: " . $za->comment . "\n";
+
+                    //verify if number of file in the archive is normal
+                    $correctNumFile = $this->container->getParameter('lot_' . $product);
+                    $numFiles = $za->numFiles;
+                    if($numFiles != $correctNumFile)
+                        return $this->renderErrorPage("$filename contains $za->numFiles ini files, $product zip should contain $correctNumFile files!");
+
+                    //echo "========================\n";
+
+                    // parse each ini file one by one and if correct record them in database
+                    for ($i=0; $i<$za->numFiles;$i++) {
+                        //echo "ini file number ". ($i+1) . "\n";
+                        $iniFiles[$i]['fileNum'] = $i+1;
+                        $iniName = $za->getNameIndex($i);
+                        //echo $iniName . "\n";
+                        $iniFiles[$i]['iniName'] = $iniName; 
+                        $iniContent = $za->getFromIndex($i);
+                        //echo $iniContent;
+                        $iniFiles[$i]['iniContent'] = $iniContent; 
+                        preg_match("/[0-9A-Fa-fxX]{2}(-[0-9A-Fa-fxX]{2}){5}/", $iniName, $output_array);
+                        $macAddress = $output_array[0];
+                        preg_match("/-SYS ([A-Z]\d{7})_/", $iniName, $output_array);
+                        $sn = $output_array[1];
+                        
+                        if(strpos($iniName, $product) !== false and strpos($iniContent, $macAddress) and strpos($iniContent, $sn) and strpos($iniContent, "Overall=Pass"))
+                        {
+                            //echo "ini file is correct\n";
+                            //echo "MAC address: " . $macAddress . "\n";
+                            $iniFiles[$i]['macAddress'] = $macAddress; 
+                            //echo "S/N: " . $sn . "\n";
+                            $iniFiles[$i]['sn'] = $sn; 
+                            $serialNumber = new SerialNumber($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('zip_files_path'));
+                            $serialNumber->setSerialNumber($sn);
+                            $serialNumber->setMacAddress(preg_replace("/-/", "", $macAddress));
+                            $serialNumber->setShipmentBatch($shipmentBatch);
+                            $serialNumber->setCertificateFileName($iniName);
+                            $serialNumber->setComment($iniContent);
+                            $em->persist($serialNumber);
+                        }
+                        else
+                        {
+                            return $this->renderErrorPage("File $iniName in $filename is not correct");
+                        }
+                        //$za->extractTo(".", $iniName);
+                        //print_r($za->statIndex($i));
+                        //echo "--------------------\n";
+                    }
+
+                    $em->persist($shipmentBatch);
+                    $em->flush();
+
+                    //echo getcwd();
+
+                    $za->close();
+
+                    return $this->render('AchPoManagerBundle:PoManager:successLotCreated.html.twig', array(
+                        'filename' => $filename,
+                        'product' => $product,
+                        'lotNum' => $lotNum,
+                        'numFiles' => $numFiles,
+                        'iniFiles' => $iniFiles,
+                        'comment' =>  $shipmentBatch->getComment()
+                    ));
+                    
+                    //return new Response('Success creating ZIP ' . $file->getClientOriginalName());
+                }
+                
+            }
+
+        }
+
+    }
 	
 	
 	//////

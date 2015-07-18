@@ -76,6 +76,25 @@
   </div>
 </div>
 
+<h3>Parse a lot file (ZIP):</h3>
+<div class="well">
+  <form action="{{ path('ach_po_manager_create_shipmentbatch') }}" method="post" {{ form_enctype(formParsePo) }}>
+  <div class="row form-group" >
+    <div class="col-lg-2">
+      {{ form_widget(formParseShipmentBatch.file, {'attr': {'class': 'form-control'}}) }}
+    <!-- </div> -->
+    <!-- <div class="col-lg-2"> -->
+    {{ form_label(formParseShipmentBatch.comment, "comment (optionnal)", {'attr': {'class': 'control-label'}}) }}
+    {{ form_widget(formParseShipmentBatch.comment, {'attr': {'class': 'form-control'}}) }}
+    {{ form_rest(formParseShipmentBatch) }}
+    </div>
+  <div class="col-lg-1">
+    <input type="submit" class="btn btn-primary" value="Import lot file"/>
+  </div>
+  </form>
+  </div>
+</div>
+
 <h3>Search PO item(s):</h3>
 <div class="well">
   <form method="post" {{ form_enctype(formPoItemNum) }}>

@@ -1,0 +1,50 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Lot created!{% endblock %}
+
+{% block body %}
+
+<div class="alert alert-success" role="alert">
+  {# <a href="{{ path('ach_po_manager_search_poitem_number', {'poNum': po.num} ) }}" class="alert-link">New PO {{po.num}} entry added successfully in the database</a> #}
+  {# <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> #}
+  <span class="glyphicon glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
+  <span class="sr-only">Success:</span>
+  New lot entry created in the PO Manager !<br />
+</div>
+<p class="lead">
+<h3> Lot file: <small> {{ filename }} </small></h3>
+<h3> Product: <small> {{ product }} </small></h3>
+<h3> Lot number: <small> {{ lotNum }} </small></h3>
+<h3> Number of files: <small> {{ numFiles }} </small></h3>
+<h3> Comment: <small> {{ comment }} </small></h3>
+</p>
+
+<p>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+	<th>File Number</th>
+	<th>File Name</th>
+	<th>File content</th>
+	<th>S/N</th>
+	<th>Mac address</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in iniFiles %}
+      <tr>
+	<td>{{ item.fileNum }}</td>
+	<td>{{ item.iniName }}</td>
+	<td>{{ item.iniContent }}</td>
+	<td>{{ item.sn }}</td>
+	<td>{{ item.macAddress}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+</p>
+
+{% include "AchPoManagerBundle:PoManager:link2Index.html.twig" %}
+
+{% endblock %}

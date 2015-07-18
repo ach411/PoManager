@@ -4,11 +4,14 @@ namespace Ach\PoManagerBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+//use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 /**
  * SerialNumber
  *
  * @ORM\Table()
  * @ORM\Entity(repositoryClass="Ach\PoManagerBundle\Entity\SerialNumberRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class SerialNumber
 {
@@ -23,10 +26,16 @@ class SerialNumber
 
 	/**
 	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\ShipmentItem")
-	 * @ORM\JoinColumn(nullable=false)
+	 * @ORM\JoinColumn(nullable=true)
 	 */
 	private $shipmentItem;
 
+    /**
+	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\ShipmentBatch")
+	 * @ORM\JoinColumn(nullable=true)
+	 */
+	private $shipmentBatch;
+    
 	/**
 	 * @var string
 	 *
@@ -41,6 +50,13 @@ class SerialNumber
 	 */
 	private $macAddress;
 
+    /**
+	 * @var string
+	 *
+	 * @ORM\Column(name="certificateFileName", type="string", length=255, nullable=true)
+	 */
+	private $certificateFileName;
+    
 	/**
 	 * @var string
 	 *
@@ -48,6 +64,32 @@ class SerialNumber
 	 */
 	private $comment;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="createdDate", type="datetime", nullable=true)
+     */
+    private $createdDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="modifiedDate", type="datetime", nullable=true)
+     */
+    private $modifiedDate;
+
+    /**
+	 * @var string
+	 *
+	 * @ORM\Column(name="filePath", type="string", nullable=true)
+	 */
+	private $filePath;
+	
+	//private $rootpath;
+	
+	//private $tempFile;
+	
+   	//private $file;
 
 	/**
 	 * Get id
@@ -80,6 +122,29 @@ class SerialNumber
 	public function getShipmentItem()
 	{
 		return $this->shipmentItem;
+	}
+
+    /**
+	 * Set shipmentBatch
+	 *
+	 * @param \Ach\PoManagerBundle\Entity\ShipmentBatch $shipmentBatch
+	 * @return SerialNumber
+	 */
+	public function setShipmentBatch(\Ach\PoManagerBundle\Entity\ShipmentBatch $shipmentBatch)
+	{
+		$this->shipmentBatch = $shipmentBatch;
+	
+		return $this;
+	}
+
+	/**
+	 * Get shipmentBatch
+	 *
+	 * @return \Ach\PoManagerBundle\Entity\ShipmentBatch
+	 */
+	public function getShipmentBatch()
+	{
+		return $this->shipmentBatch;
 	}
 
 	/**
@@ -128,6 +193,29 @@ class SerialNumber
 		return $this->macAddress;
 	}
 
+    /**
+	 * Set certificateFileName
+	 *
+	 * @param string $certificateFileName
+	 * @return SerialNumber
+	 */
+	public function setCertificateFileName($certificateFileName)
+	{
+		$this->certificateFileName = $certificateFileName;
+	
+		return $this;
+	}
+
+	/**
+	 * Get certificateFileName
+	 *
+	 * @return string 
+	 */
+	public function getCertificateFileName()
+	{
+		return $this->certificateFileName;
+	}
+    
 	/**
 	 * Set comment
 	 *
@@ -150,4 +238,100 @@ class SerialNumber
 	{
 		return $this->comment;
 	}
+
+    /**
+     * Set createdDate
+     *
+     * @param \DateTime $createdDate
+     * @return SerialNumber
+     */
+    public function setCreatedDate($createdDate)
+    {
+        $this->createdDate = $createdDate;
+    
+        return $this;
+    }
+
+    /**
+     * Get createdDate
+     *
+     * @return \DateTime 
+     */
+    public function getCreatedDate()
+    {
+        return $this->createdDate;
+    }
+
+	/**
+    * @ORM\PrePersist
+    */
+    public function creationDate()
+    {
+	$this->setCreatedDate(new \Datetime());
+    }
+	
+    /**
+     * Set modifiedDate
+     *
+     * @param \DateTime $modifiedDate
+     * @return SerialNumber
+     */
+    public function setModifiedDate($modifiedDate)
+    {
+        $this->modifiedDate = $modifiedDate;
+    
+        return $this;
+    }
+
+    /**
+     * Get modifiedDate
+     *
+     * @return \DateTime 
+     */
+    public function getModifiedDate()
+    {
+        return $this->modifiedDate;
+    }
+
+    /**
+    * @ORM\PreUpdate
+    */
+    public function modificationDate()
+    {
+	$this->setModifiedDate(new \Datetime());
+    }
+    
+    /**
+     * Set filePath
+     *
+     * @param string $filePath
+     * @return SerialNumber
+     */
+    public function setFilePath($filePath)
+    {
+		//echo 'Set file path';
+        $this->filePath = $filePath;
+    
+        return $this;
+    }
+
+    /**
+     * Get filePath
+     *
+     * @return string 
+     */
+    public function getFilePath()
+    {
+        return $this->filePath;
+    }
+
+    /**
+     * Constructor
+     */
+     public function __construct($rootPath = null)
+    {
+        $this->rootPath = $rootPath;
+		//echo $this->rootPath;
+    }
+    
 }
