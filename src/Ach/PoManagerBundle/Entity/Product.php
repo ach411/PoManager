@@ -104,6 +104,13 @@ class Product
     /**
      * @var string
      *
+     * @ORM\Column(name="lotConfig", type="string", length=255, nullable=true)
+     */
+    private $lotConfig;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="comment", type="text", nullable=true)
      */
     private $comment;
@@ -410,6 +417,29 @@ class Product
     public function getBillingManager()
     {
         return $this->billingManager;
+    }
+
+    /**
+     * Set lotConfig
+     *
+     * @param string $lotConfig
+     * @return Product
+     */
+    public function setLotConfig($lotConfig)
+    {
+        $this->lotConfig = $lotConfig;
+    
+        return $this;
+    }
+
+    /**
+     * Get lotConfig
+     *
+     * @return string 
+     */
+    public function getLotConfig()
+    {
+        return $this->lotConfig;
     }
 
     /**

@@ -12,6 +12,7 @@ use Ach\PoManagerBundle\Entity\Notification;
 use Ach\PoManagerBundle\Entity\Shipment;
 use Ach\PoManagerBundle\Entity\ShipmentItem;
 use Ach\PoManagerBundle\Entity\PoItem;
+use Ach\PoManagerBubdle\Entity\ShipmentBatch;
 
 class PoManagerProcessPoItemController extends Controller
 {
@@ -133,10 +134,12 @@ class PoManagerProcessPoItemController extends Controller
 	$repositoryPoItem = $this->getDoctrine()
 		        ->getManager()
 	    		->getRepository('AchPoManagerBundle:PoItem');
-	$poItemsApproved = $repositoryPoItem->findPoItemByStatusShippingManager($shippingManagerId, "APPROVED");
-	$poItemsPartiallyShipped = $repositoryPoItem->findPoItemByStatusShippingManager($shippingManagerId, "PARTIALLY SHIPPED");
+	// $poItemsApproved = $repositoryPoItem->findPoItemByStatusShippingManager($shippingManagerId, "APPROVED");
+	// $poItemsPartiallyShipped = $repositoryPoItem->findPoItemByStatusShippingManager($shippingManagerId, "PARTIALLY SHIPPED");
+
+    $poItems = $repositoryPoItem->findPoItemByStatusShippingManager($shippingManagerId, "APPROVED", "PARTIALLY SHIPPED");
 	
-	$poItems = array_merge($poItemsApproved, $poItemsPartiallyShipped);
+	// $poItems = array_merge($poItemsApproved, $poItemsPartiallyShipped);
 	
 	$repositoryShippingManager = $this->getDoctrine()
 		        ->getManager()
@@ -327,21 +330,22 @@ class PoManagerProcessPoItemController extends Controller
 			//echo $shippedQty . " - ";
 			
 			// add this shipment qty to already shipped qty
-			$shippedQty += $poItem->getShippedQty();
+			// $shippedQty += $poItem->getShippedQty();
+            $shippedAllQty = $poItem->getShippedQty() + $shippedQty;
 			
 			//echo $shippedQty . " - ";
 			
 			// take action accordingly to this new shipment qty
-			if($shippedQty > $poItem->getQty())
+			if($shippedAllQty > $poItem->getQty())
 			{
 				return new Response("Error: shipping more units than contained in the PO item");
 			}
 			else
 			{
 				// update shippedQty value
-				$poItem->setShippedQty($shippedQty);
+				$poItem->setShippedQty($shippedAllQty);
 				
-				if($shippedQty == $poItem->getQty())
+				if($shippedAllQty == $poItem->getQty())
 				{
 					//update status of PoItem
 					$repositoryStatus = $this->getDoctrine()
@@ -371,6 +375,28 @@ class PoManagerProcessPoItemController extends Controller
 			/*$pendingNotification = new PendingNotification();
 			$pendingNotification->setHistoryStatus($historyStatus);
 			*/
+
+            // manage lots (ShipmentBatch)
+            $lotType =  $poItem->getRevision()->getProduct()->getLotConfig();
+            if($lotType != null)
+            {
+                $productName = str_replace("lot_", "", $lotType);
+                $repositoryShipmentBatch = $this->getDoctrine()
+						->getManager()
+						->getRepository('AchPoManagerBundle:ShipmentBatch');
+                
+                $shipmentBatchInstances = $repositoryShipmentBatch->findWaitingForRemovalByProductName($productName);
+                $lotNumber = count($shipmentBatchInstances);
+                if(empty($shipmentBatchInstances))
+                    return new Response("Error: lot type is not defined properly in parameter file");
+                if(count($shipmentBatchInstances) * intval($this->container->getParameter($lotType)) != $shippedQty)
+                    return new Response("Error: the $lotNumber $productName lot(s) previously selected for that shipment does not match with entered quantity of $shippedQty!");
+                foreach($shipmentBatchInstances as $shipmentBatchInstance)
+                {
+                    $shipmentBatchInstance->setShipment($shipment);
+                }
+            }
+                
 			
 			//persist PoItem and associated notification
 			$em->persist($poItem);
@@ -394,7 +420,7 @@ class PoManagerProcessPoItemController extends Controller
 		}
 		
 		$em->persist($shipment);
-		$em->flush();
+		//$em->flush();
 		return new Response('Selected items now have tracking number entry: ' . $tracking);
 		
 	}

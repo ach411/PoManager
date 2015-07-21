@@ -19,7 +19,7 @@ class PoManagerProcessShipmentBatchController extends Controller
 					->getManager()
 					->getRepository('AchPoManagerBundle:ShipmentBatch');
 		//$lots = $repositoryLot->findByWaitingForRemoval(false);
-        $lots = $repositoryLot->findByProductName($productName);
+        $lots = $repositoryLot->findAvailableByProductName($productName);
 
         $unitsPerLot = $this->container->getParameter('lot_' . $productName);
 

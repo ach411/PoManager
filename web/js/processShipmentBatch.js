@@ -1,11 +1,14 @@
 $(function() {
     var unitsPerLot = parseInt($('#unitsPerLot').html());
     var total = 0;
+    var available = 0;
     $('[id*="check-removal-"]').each(function(){
+	available += unitsPerLot;
 	if($(this).hasClass("glyphicon-ok"))
 	    total += unitsPerLot;
     });
     $('#totalUnitsSelected').html(total);
+    $('#totalUnitsAvailable').html(available);
     
     $('[id*="cell-removal-"]').click(function(event) {
 

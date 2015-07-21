@@ -89,10 +89,11 @@ class PoItemRepository extends EntityRepository
 		return $query->getResult();
 	}
 
-	public function findPoItemByStatusShippingManager($shippingManagerId, $statusName = "%")
+	public function findPoItemByStatusShippingManager($shippingManagerId, $statusName1 = "", $statusName2 = "")
 	{
-	$query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:PoItem p JOIN p.status s JOIN p.revision r JOIN r.product d JOIN d.shippingManager a WHERE s.name = :statusName AND a.id = :shippingManagerId ORDER BY p.dueDate');
-	$query->setParameter('statusName', $statusName);
+	$query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:PoItem p JOIN p.status s JOIN p.revision r JOIN r.product d JOIN d.shippingManager a WHERE (s.name = :statusName1 OR s.name = :statusName2) AND a.id = :shippingManagerId ORDER BY p.dueDate');
+	$query->setParameter('statusName1', $statusName1);
+	$query->setParameter('statusName2', $statusName2);
 	$query->setParameter('shippingManagerId', $shippingManagerId);
 	return $query->getResult();
 	}

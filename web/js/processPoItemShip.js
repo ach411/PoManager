@@ -17,7 +17,11 @@ $(function() {
 		var carrier = '#carrier-id-global option:selected';
 		var shippingDate = '#shippingDate-id-global';
 		var first = true;
-		var parameter_string = "?";
+	    var parameter_string = "?";
+	    var restArray = new Array();
+	    var indexArray = new Array();
+	    var originalArray = new Array();
+	    var i = 0;
 		
 		$('input[type=checkbox]').each(function () {
 			if(this.checked)
@@ -42,21 +46,25 @@ $(function() {
 				
 				//var rest=$("#origin-qty-id-"+index).val() - $("select[name='qty_id_"+ index +"'] option:selected").text();
 				var rest= original_val - select_val;
-				
-				if(rest == 0)
-				{
-					var row = '#row-id-' + index;
-					$(row).remove();
-				}
-				else
-				{
-					for(i = rest+1; i <= original_val; i++)
-					{
-						$("select[name='qty_id_"+ index +"'] option[value='" + i + "']").remove();
-					}
-					$("#origin-qty-id-"+index).val(rest);
-					$("select[name='qty_id_"+ index +"']").val(rest);
-				}
+
+			    indexArray[i] = index;
+			    originalArray[i] = original_val;
+			    restArray[i++] = rest;
+			    
+				// if(rest == 0)
+				// {
+				// 	var row = '#row-id-' + index;
+				// 	$(row).remove();
+				// }
+				// else
+				// {
+				// 	for(i = rest+1; i <= original_val; i++)
+				// 	{
+				// 		$("select[name='qty_id_"+ index +"'] option[value='" + i + "']").remove();
+				// 	}
+				// 	$("#origin-qty-id-"+index).val(rest);
+				// 	$("select[name='qty_id_"+ index +"']").val(rest);
+				// }
 			}
 		});
 		
@@ -71,9 +79,49 @@ $(function() {
 				tracking_num = "none";
 			}
 			
-			$.get("../tracking/"+$(shippingDate).val()+"/"+$(carrier).val()+"/"+tracking_num+parameter_string, function(data) {
-				$("#sortable").trigger("update"); 
-				alert(data);
+		    $.get("../tracking/"+$(shippingDate).val()+"/"+$(carrier).val()+"/"+tracking_num+parameter_string, function(data) {
+			
+			// if server returns error display error
+			if(data.indexOf("Error") >= 0)
+			    alert(data);
+			// if no error then update table list and display message from Server
+			else
+			{
+			    // update qty or delete rows
+			    for (var j=0; j < restArray.length; j++)
+			    {
+				rest = restArray[j];
+				index = indexArray[j];
+				original_val = originalArray[j];
+
+				if(rest == 0)
+				{
+					var row = '#row-id-' + index;
+					$(row).remove();
+				}
+				else
+				{
+					for(i = rest+1; i <= original_val; i++)
+					{
+						$("select[name='qty_id_"+ index +"'] option[value='" + i + "']").remove();
+					}
+					$("#origin-qty-id-"+index).val(rest);
+					$("select[name='qty_id_"+ index +"']").val(rest);
+				}
+				
+			    }
+
+			    // uncheck all row
+			    $('input[type=checkbox]').each(function () {
+			    	$(this).prop("checked", false);
+			    });
+			    
+			    // update sorting
+			    $("#sortable").trigger("update");
+			    // send alert
+			    alert(data);
+			}
+			    
 			});
 		}
 		// if no box was checked, send alert
