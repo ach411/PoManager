@@ -31,7 +31,7 @@ class SerialNumber
 	private $shipmentItem;
 
     /**
-	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\ShipmentBatch")
+	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\ShipmentBatch", inversedBy="serialNumbers")
 	 * @ORM\JoinColumn(nullable=true)
 	 */
 	private $shipmentBatch;

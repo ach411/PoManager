@@ -39,6 +39,12 @@ class ShipmentBatch
     private $productName;
 
     /**
+     * @ORM\OneToMany(targetEntity="Ach\PoManagerBundle\Entity\SerialNumber", mappedBy="shipmentBatch")
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $serialNumbers;
+
+    /**
      * @var boolean
      *
      * @ORM\Column(name="waitingForRemoval", type="boolean")
@@ -139,6 +145,24 @@ class ShipmentBatch
     public function getProductName()
     {
         return $this->productName;
+    }
+
+    public function addSerialNumber(\Ach\PoManagerBundle\Entity\SerialNumber $serialNumber)
+    {
+        $this->serialNumbers[] = $serialNumber;
+        $serialNumber->setShipmentBatch($this);
+        return $this;
+    }
+
+    public function removeSerialNumber(\Ach\PoManagerBundle\Entity\SerialNumber $serialNumber)
+    {
+        $this->serialNumbers->removeElement($serialNumber);
+        $serialNumber->setShipmentBatch(null);
+    }
+
+    public function getSerialNumbers()
+    {
+        return $this->serialNumbers;
     }
 
     /**
@@ -383,6 +407,8 @@ class ShipmentBatch
     {
         $this->rootPath = $rootPath;
         $this->waitingForRemoval = false;
+
+        $this->serialNumbers = new \Doctrine\Common\Collections\ArrayCollection();
 		//echo $this->rootPath;
     }
 }

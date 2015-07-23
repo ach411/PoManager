@@ -34,28 +34,31 @@ class SendNotificationCommand extends ContainerAwareCommand
 		$listNotifications = $repositoryNotification->findAll();
 		
 		$em = $this->getContainer()->get('doctrine')->getManager();
-		
+
+        // get root dir of app on the server for email attachment retrieval on the disk
+        $files_root_path = $this->getContainer()->get('kernel')->getRootdir() . '/../..';
+        
 		$log = null;
 		
 		// scan all the pending notification of the table and send message for each
 		foreach($listNotifications as $notification)
 		{
-			$log = $log.$this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification);
+			$log = $log.$this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification, $files_root_path);
 			$output->writeln('SendNotification launched');
 			$em->remove($notification);
 		}
 		
-		$transport = $this->getContainer()->get('mailer')->getTransport();
-		if (!$transport instanceof \Swift_Transport_SpoolTransport) {
-			return;
-		}
+		/* $transport = $this->getContainer()->get('mailer')->getTransport(); */
+		/* if (!$transport instanceof \Swift_Transport_SpoolTransport) { */
+		/* 	return; */
+		/* } */
 		
-		$spool = $transport->getSpool();
-			if (!$spool instanceof \Swift_MemorySpool) {
-			return;
-		}
+		/* $spool = $transport->getSpool(); */
+		/* 	if (!$spool instanceof \Swift_MemorySpool) { */
+		/* 	return; */
+		/* } */
 		
-		$spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	
+		/* $spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	 */
 		
 		$em->flush();
 		

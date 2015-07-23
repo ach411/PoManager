@@ -390,7 +390,7 @@ class PoManagerProcessPoItemController extends Controller
                 if(empty($shipmentBatchInstances))
                     return new Response("Error: lot type is not defined properly in parameter file");
                 if(count($shipmentBatchInstances) * intval($this->container->getParameter($lotType)) != $shippedQty)
-                    return new Response("Error: the $lotNumber $productName lot(s) previously selected for that shipment does not match with entered quantity of $shippedQty!");
+                    return new Response("Error: the $lotNumber $productName lot(s) previously selected for that shipment do not match with entered quantity of $shippedQty!");
                 foreach($shipmentBatchInstances as $shipmentBatchInstance)
                 {
                     $shipmentBatchInstance->setShipment($shipment);
@@ -420,7 +420,7 @@ class PoManagerProcessPoItemController extends Controller
 		}
 		
 		$em->persist($shipment);
-		//$em->flush();
+		$em->flush();
 		return new Response('Selected items now have tracking number entry: ' . $tracking);
 		
 	}

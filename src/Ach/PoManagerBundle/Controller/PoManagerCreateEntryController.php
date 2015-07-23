@@ -635,9 +635,10 @@ class PoManagerCreateEntryController extends Controller
                             $serialNumber = new SerialNumber($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('zip_files_path'));
                             $serialNumber->setSerialNumber($sn);
                             $serialNumber->setMacAddress(preg_replace("/-/", "", $macAddress));
-                            $serialNumber->setShipmentBatch($shipmentBatch);
+                            //$serialNumber->setShipmentBatch($shipmentBatch);
                             $serialNumber->setCertificateFileName($iniName);
                             $serialNumber->setComment($iniContent);
+                            $shipmentBatch->addSerialNumber($serialNumber);
                             $em->persist($serialNumber);
                         }
                         else
