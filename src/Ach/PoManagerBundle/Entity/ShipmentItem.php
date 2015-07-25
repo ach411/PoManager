@@ -40,6 +40,11 @@ class ShipmentItem
 	 */
 	private $invoice;
 	
+    /**
+     * @ORM\OneToMany(targetEntity="Ach\PoManagerBundle\Entity\ShipmentBatch", mappedBy="shipmentItem")
+     */
+    private $shipmentBatches;
+    
 	/**
 	 * @var \DateTime
 	 *
@@ -148,6 +153,24 @@ class ShipmentItem
 		return $this;
 	}
 
+    Public function addShipmentBatch(\Ach\PoManagerBundle\Entity\ShipmentBatch $shipmentBatch)
+    {
+        $this->shipmentBatches[] = $shipmentBatch;
+        $shipmentBatch->setShipmentItem($this);
+        return $this;
+    }
+
+    public function removeShipmentBatch(\Ach\PoManagerBundle\Entity\ShipmentBatch $shipmentBatch)
+    {
+        $this->shipmentBatches->removeElement($shipmentBatch);
+        $shipmentBatch->setShipmentItem(null);
+    }
+
+    public function getShipmentBatches()
+    {
+        return $this->shipmentBatches;
+    }
+
 	/**
 	 * Get createdDate
 	 *
@@ -198,6 +221,7 @@ class ShipmentItem
 		$this->setShipment($shipment);
 		$this->poItem = $poItem;
 		$this->qty = $qty;
+        $this->shipmentBatches = new \Doctrine\Common\Collections\ArrayCollection();
 		
     }
 }

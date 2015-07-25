@@ -53,8 +53,6 @@ class Shipment
 	private $trackingNum;
 
 	/**
-	 * @var string
-	 *
 	 * @ORM\OneToMany(targetEntity="Ach\PoManagerBundle\Entity\ShipmentItem", mappedBy="shipment")
 	 */
 	private $shipmentItems;

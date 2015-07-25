@@ -40,7 +40,6 @@ class ShipmentBatch
 
     /**
      * @ORM\OneToMany(targetEntity="Ach\PoManagerBundle\Entity\SerialNumber", mappedBy="shipmentBatch")
-     * @ORM\JoinColumn(nullable=true)
      */
     private $serialNumbers;
 
@@ -52,10 +51,10 @@ class ShipmentBatch
     private $waitingForRemoval;
 
   	/**
-     * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Shipment")
+     * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\ShipmentItem", inversedBy="shipmentBatches")
      * @ORM\JoinColumn(nullable=true)
      */
-    private $shipment;
+    private $shipmentItem;
 
    	/**
 	 * @var string
@@ -166,26 +165,26 @@ class ShipmentBatch
     }
 
     /**
-     * Set shipment
+     * Set shipmentItem
      *
-     * @param \Ach\PoManagerBundle\Entity\Shipment $shipment
+     * @param \Ach\PoManagerBundle\Entity\ShipmentItem $shipmentItem
      * @return ShipmentBatch
      */
-    public function setShipment(\Ach\PoManagerBundle\Entity\Shipment $shipment = null)
+    public function setShipmentItem(\Ach\PoManagerBundle\Entity\ShipmentItem $shipmentItem = null)
     {
-        $this->shipment = $shipment;
+        $this->shipmentItem = $shipmentItem;
     
         return $this;
     }
 
     /**
-     * Get shipment
+     * Get shipmentItem
      *
-     * @return \Ach\PoManagerBundle\Entity\Shipment
+     * @return \Ach\PoManagerBundle\Entity\ShipmentItem
      */
-    public function getShipment()
+    public function getShipmentItem()
     {
-        return $this->shipment;
+        return $this->shipmentItem;
     }
 
     /**

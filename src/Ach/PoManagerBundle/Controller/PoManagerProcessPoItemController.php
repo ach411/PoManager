@@ -393,13 +393,14 @@ class PoManagerProcessPoItemController extends Controller
                     return new Response("Error: the $lotNumber $productName lot(s) previously selected for that shipment do not match with entered quantity of $shippedQty!");
                 foreach($shipmentBatchInstances as $shipmentBatchInstance)
                 {
-                    $shipmentBatchInstance->setShipment($shipment);
+                    //$shipmentBatchInstance->setShipment($shipment);
+                    $shipmentItem->addShipmentBatch($shipmentBatchInstance);
                 }
             }
                 
 			
-			//persist PoItem and associated notification
-			$em->persist($poItem);
+			//persist shipmentItem
+			//$em->persist($poItem);
 			$em->persist($shipmentItem);
 			//$em->persist($pendingNotification);
 			

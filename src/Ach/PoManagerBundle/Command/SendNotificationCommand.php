@@ -60,7 +60,7 @@ class SendNotificationCommand extends ContainerAwareCommand
 		
 		/* $spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	 */
 		
-		$em->flush();
+		//$em->flush();
 		
 		$output->writeln('SendNotification executed: ' . $log);
     }

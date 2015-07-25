@@ -14,14 +14,14 @@ class ShipmentBatchRepository extends EntityRepository
 {
     public function findAvailableByProductName($productName)
     {
-        $query = $this->_em->createQuery('SELECT l FROM AchPoManagerBundle:ShipmentBatch l WHERE l.productName like :productName AND l.shipment is NULL');
+        $query = $this->_em->createQuery('SELECT l FROM AchPoManagerBundle:ShipmentBatch l WHERE l.productName like :productName AND l.shipmentItem is NULL');
         $query->setParameter('productName', $productName);
         return $query->getResult();
     }
 
     public function findWaitingForRemovalByProductName($productName)
     {
-        $query = $this->_em->createQuery('SELECT l FROM AchPoManagerBundle:ShipmentBatch l WHERE l.productName like :productName AND l.shipment is NULL AND l.waitingForRemoval = true');
+        $query = $this->_em->createQuery('SELECT l FROM AchPoManagerBundle:ShipmentBatch l WHERE l.productName like :productName AND l.shipmentItem is NULL AND l.waitingForRemoval = true');
         $query->setParameter('productName', $productName);
         return $query->getResult();
     }
