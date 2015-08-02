@@ -1,14 +1,28 @@
-$(function() {
+function updateCount()
+{
     var unitsPerLot = parseInt($('#unitsPerLot').html());
     var total = 0;
     var available = 0;
     $('[id*="check-removal-"]').each(function(){
 	available += unitsPerLot;
 	if($(this).hasClass("glyphicon-ok"))
+	{
 	    total += unitsPerLot;
+	    var re = /\d+/ig;
+	    var result = re.exec($(this).attr('id'));
+	    var index = result[0];
+	    $('#recap').append($('#lot-num-'+index).html());
+	    $('#recap').append("\n");
+	}
     });
     $('#totalUnitsSelected').html(total);
     $('#totalUnitsAvailable').html(available);
+}
+
+
+$(function() {
+
+    updateCount();
     
     $('[id*="cell-removal-"]').click(function(event) {
 
@@ -23,8 +37,10 @@ $(function() {
 		//alert("Selected: "+index);
 		$('#check-removal-'+index).toggleClass("glyphicon-remove alert-danger");
 		$('#check-removal-'+index).toggleClass("glyphicon-ok alert-success");
-		total += unitsPerLot;
-		$('#totalUnitsSelected').html(total);
+		//total += unitsPerLot;
+		//$('#totalUnitsSelected').html(total);
+		$('#recap').html('');
+		updateCount();
 	    });
 	}
 
@@ -35,8 +51,10 @@ $(function() {
 		//alert("Selected: "+index);
 		$('#check-removal-'+index).toggleClass("glyphicon-remove alert-danger");
 		$('#check-removal-'+index).toggleClass("glyphicon-ok alert-success");
-		total -= unitsPerLot;
-		$('#totalUnitsSelected').html(total);
+		//total -= unitsPerLot;
+		//$('#totalUnitsSelected').html(total);
+		$('#recap').html('');
+		updateCount();
 	    });
 	}
 	

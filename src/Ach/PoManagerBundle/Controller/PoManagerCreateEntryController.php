@@ -583,6 +583,10 @@ class PoManagerCreateEntryController extends Controller
                     $product = $output_array[2];
                     $lotNum =  $output_array[1];
 
+                    // verify if this lot number for very same product has not been recorded already
+                    if($repositoryShipmentBatch->findByProductNameAndLotNumber($product, $lotNum) != null)
+                        return $this->renderErrorPage("This lot number $lotNum, has already been recorded for product $product");
+                    
                     //echo "Uploading Production ZIP file \n";
                     //echo "Product: " . $product . "\n";
                     //echo "Lot Number: " . $lotNum . "\n";

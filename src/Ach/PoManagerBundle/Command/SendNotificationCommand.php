@@ -43,8 +43,8 @@ class SendNotificationCommand extends ContainerAwareCommand
 		// scan all the pending notification of the table and send message for each
 		foreach($listNotifications as $notification)
 		{
-			$log = $log.$this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification, $files_root_path);
-			$output->writeln('SendNotification launched');
+			$log = $this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification, $files_root_path);
+			$output->writeln($log);
 			$em->remove($notification);
 		}
 		
@@ -60,8 +60,8 @@ class SendNotificationCommand extends ContainerAwareCommand
 		
 		/* $spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	 */
 		
-		//$em->flush();
+		$em->flush();
 		
-		$output->writeln('SendNotification executed: ' . $log);
+		//$output->writeln('SendNotification executed: ' . $log);
     }
 }

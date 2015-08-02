@@ -25,4 +25,13 @@ class ShipmentBatchRepository extends EntityRepository
         $query->setParameter('productName', $productName);
         return $query->getResult();
     }
+
+    public function findByProductNameAndLotNumber($productName, $lotNum)
+    {
+        $query = $this->_em->createQuery('SELECT l FROM AchPoManagerBundle:ShipmentBatch l WHERE l.productName like :productName AND l.num like :num');
+        $query->setParameter('productName', $productName);
+        $query->setParameter('num', $lotNum);
+        return $query->getResult();
+    }
+        
 }

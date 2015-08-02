@@ -421,22 +421,33 @@ class AchSendNotification
                 $phpExcelObject->getActiveSheet()->getColumnDimension('A')->setWidth(25);
                 $phpExcelObject->getActiveSheet()->getColumnDimension('B')->setWidth(25);
                 $phpExcelObject->getActiveSheet()->getColumnDimension('C')->setWidth(25);
-                $phpExcelObject->getActiveSheet()->getColumnDimension('D')->setWidth(25);
+                $phpExcelObject->getActiveSheet()->getColumnDimension('D')->setWidth(35);
+
+                $phpExcelObject->getActiveSheet()->getStyle('A1:A4')->getFont()->setBold(true);
                 
                 $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A1', 'Shipment ID: ');
                 $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A2', 'Carrier: ');
                 $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A3', 'tracking number: ');
                 $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A4', 'Shipping date: ');
 
+                $phpExcelObject->getActiveSheet()->getStyle('B1:B4')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+
                 $phpExcelObject->setActiveSheetIndex(0)->setCellValue('B1', $shipmentId); 
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B2', $carrier); 
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B3', $tracking); 
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B4', $dateShip);
 
-                $index = 6;
+                $phpExcelObject->getActiveSheet()->getStyle('A6:D6')->getFont()->setBold(true);
+
+                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A6', 'LOT');
+                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('B6', 'S/N');
+                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('C6', 'MAC Address');
+                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('D6', 'Comments');
+
+                $index = 7;
                 foreach($shipmentBatches as $lot)
                     {
-                        $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A' . $index, 'lot '. $lot->getProductName() . ' #' . $lot->getNum());
+                        $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A' . $index, $lot->getProductName() . ' lot #' . $lot->getNum());
                         $phpExcelObject->setActiveSheetIndex(0)->mergeCells('A' . $index . ':A' . ($index+count($lot->getSerialNumbers())-1) );
                         $phpExcelObject->getActiveSheet()->getStyle('A' . $index . ':A' . ($index+count($lot->getSerialNumbers())-1))->getAlignment()->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
@@ -452,6 +463,22 @@ class AchSendNotification
                             }
                     }
 
+                $phpExcelObject->getActiveSheet()->getStyle('D7:D' . ($index-1))->getAlignment()->setWrapText(true);
+
+                $styleArray = array(
+                    'borders' => array(
+                        'allborders' => array(
+                            'style' => \PHPExcel_Style_Border::BORDER_THIN
+                        )
+                    ),
+                    'font' => array(
+                        'name'	=> 'Calibri',
+                        'size' => 11
+                    )
+                );
+
+                $phpExcelObject->getActiveSheet()->getStyle('A6:D' . ($index-1))->applyFromArray($styleArray);
+
                 $phpExcelObject->getActiveSheet()->setTitle('shipment details');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
@@ -462,7 +489,7 @@ class AchSendNotification
                 
                 // create a temp file
                 $ftemp = tempnam(sys_get_temp_dir(), 'pomanagerxls');
-                $log .= $ftemp . " ";
+                //$log .= $ftemp . " ";
                 
                 // create the response
                 //$writer->save($files_root_path . "/../tmp/temp.xlsx" );
@@ -495,7 +522,7 @@ class AchSendNotification
                 unlink($ftemp);
             
             $nowDate = new \DateTime('NOW');
-            $log .= "ok ";
+            $log .= $nowDate->format('Y-m-d H:i:s') . " : Notification ID #".$notification->getId()." sent successfully";
             /* $log = $nowDate->format('Y-m-d H:i:s') . " ---EMAIL SENT TO " . $emailFields['sendTo']; */
             /* // $log = "---EMAIL SENT TO " . $emailFields['sendTo']; */
             /* // $log .= "\n---CC TO: " . $emailFields['ccTo']; */
