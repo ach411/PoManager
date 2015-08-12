@@ -17,6 +17,7 @@ use Ach\PoManagerBundle\Entity\Shipment;
 use Ach\PoManagerBundle\Entity\Invoice;
 use Ach\PoManagerBundle\Entity\Bpo;
 use Ach\PoManagerBundle\Entity\ShipmentBatch;
+use Ach\PoManagerBundle\Entity\SerialNumber;
 
 use Ach\PoManagerBundle\Form\ProductSearchPnType;
 use Ach\PoManagerBundle\Form\ProductSearchCustPnType;
@@ -35,6 +36,8 @@ use Ach\PoManagerBundle\Form\BpoSearchPnType;
 use Ach\PoManagerBundle\Form\BpoSearchCustPnType;
 use Ach\PoManagerBundle\Form\BpoSearchDescType;
 use Ach\PoManagerBundle\Form\ParseShipmentBatchType;
+use Ach\PoManagerBundle\Form\SerialNumberSearchType;
+use Ach\PoManagerBundle\Form\SerialNumberSearchMacAddressType;
 
 class PoManagerController extends Controller
 {
@@ -46,6 +49,7 @@ class PoManagerController extends Controller
 	$invoice = new Invoice();
 	$bpo = new Bpo();
     $shipmentBatch = new ShipmentBatch();
+    $sn = new SerialNumber();
 	
 	// create forms for the product search
 	$formPn = $this->createForm(new ProductSearchPnType, $product);
@@ -72,7 +76,12 @@ class PoManagerController extends Controller
 	$formShipmentItemTrackingNum = $this->createForm(new ShipmentItemSearchTrackingNumberType, $shipment);
 	$formShipmentItemShippingDate = $this->createForm(new ShipmentItemSearchShippingDateType, $shipment);
 	$formShipmentItemInvoice = $this->createForm(new ShipmentItemSearchInvoiceType, $invoice);
-	
+
+    // create form for search by serial number
+    $formSerialNumber = $this->createForm(new SerialNumberSearchType, $sn);
+    $formSerialNumberMac = $this->createForm(new SerialNumberSearchMacAddressType, $sn);
+    
+    // create forms for the BPO search
 	$formBpoPn = $this->createForm(new BpoSearchPnType, $product);
 	$formBpoCustPn = $this->createForm(new BpoSearchCustPnType, $product);
 	$formBpoDesc = $this->createForm(new BpoSearchDescType, $product);
@@ -167,6 +176,18 @@ class PoManagerController extends Controller
 			return $this->redirect($this->generateUrl('ach_po_manager_search_shipmentitem_invoicenum', array('num' => $invoice->getNum())) );
 		}
 
+        $formSerialNumber->bind($request);
+        if($formSerialNumber->isValid())
+        {
+            return $this->redirect($this->generateUrl('ach_po_manager_search_serial_number', array('sn' => $sn->getSerialNumber())) );
+        }
+
+        $formSerialNumberMac->bind($request);
+        if($formSerialNumberMac->isValid())
+        {
+            return $this->redirect($this->generateUrl('ach_po_manager_search_serial_number_mac_address', array('mac' => $sn->getMacAddress())) );
+        }
+
 		$formBpoNum->bind($request);
 	    if($formBpoNum->isValid())
 	    {
@@ -206,6 +227,8 @@ class PoManagerController extends Controller
 		   'formShipmentItemTrackingNum' => $formShipmentItemTrackingNum->createView(),
 		   'formShipmentItemShippingDate' => $formShipmentItemShippingDate->createView(),
 		   'formShipmentItemInvoice' => $formShipmentItemInvoice->createView(),
+           'formSerialNumber' => $formSerialNumber->createView(),
+           'formSerialNumberMac' => $formSerialNumberMac->createView(),
 		   'formBpoNum' => $formBpoNum->createView(),
 		   'formBpoPn' => $formBpoPn->createView(),
 		   'formBpoCustPn' => $formBpoCustPn->createView(),

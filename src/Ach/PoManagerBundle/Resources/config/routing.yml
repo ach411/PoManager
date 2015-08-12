@@ -136,6 +136,15 @@ ach_po_manager_search_bpo_desc:
     pattern:  /search/bpo/desc/{desc}
     defaults: { _controller: AchPoManagerBundle:PoManagerSearchBpo:searchBpoDesc}
 
+# Search Serial Number
+ach_po_manager_search_serial_number:
+    pattern:  /search/sn/number/{sn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchSerialNumber:searchSerialNumber}
+
+ach_po_manager_search_serial_number_mac_address:
+    pattern:  /search/sn/mac/{mac}
+    defaults: { _controller: AchPoManagerBundle:PoManagerSearchSerialNumber:searchSerialNumberMac}
+
 # Create Entry Section
 
 ach_po_manager_create_po:

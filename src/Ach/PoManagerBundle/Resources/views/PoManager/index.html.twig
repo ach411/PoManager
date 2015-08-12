@@ -209,6 +209,41 @@
   </form>
 </div>
 
+<h3>Search Serial Number(s):</h3>
+<div class="well">
+  <form method="post" {{ form_enctype(formSerialNumber) }}>
+	<div class="row form-group" >
+	<div class="col-lg-1">
+      {{ form_label(formSerialNumber.serialNumber, "S/N", {'attr': {'class': 'control-label'}}) }}
+	</div>
+	<div class="col-lg-2">
+      {{ form_errors(formSerialNumber.serialNumber, {'attr': {'class': 'form-control'}}) }}
+      {{ form_widget(formSerialNumber.serialNumber, {'attr': {'class': 'form-control'}}) }}
+      {{ form_rest(formSerialNumber, {'attr': {'class': 'form-control'}}) }}
+	</div>
+	<div class="col-lg-1">
+      <input type="submit" class="btn btn-primary" value="search" />
+	</div>
+    </div>
+  </form>
+  <form method="post" {{ form_enctype(formSerialNumberMac) }}>
+	<div class="row form-group" >
+	<div class="col-lg-1">
+      {{ form_label(formSerialNumberMac.macAddress, "MAC address", {'attr': {'class': 'control-label'}}) }}
+	</div>
+	<div class="col-lg-2">
+      {{ form_errors(formSerialNumberMac.macAddress, {'attr': {'class': 'form-control'}}) }}
+      {{ form_widget(formSerialNumberMac.macAddress, {'attr': {'class': 'form-control'}}) }}
+      {{ form_rest(formSerialNumberMac, {'attr': {'class': 'form-control'}}) }}
+	</div>
+	<div class="col-lg-1">
+      <input type="submit" class="btn btn-primary" value="search" />
+	</div>
+    </div>
+  </form>
+</div>
+
+
 <h3>Search BPO(s):</h3>
 <div class="well">
   <form method="post" {{ form_enctype(formBpoNum) }}>

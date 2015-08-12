@@ -48,7 +48,7 @@
 					<td>{% if item.shipment.trackingNum == "none" %}N/A{% else %}
 						<a href="{{ path('ach_po_manager_search_shipmentitem_tracking', {'tracking': item.shipment.trackingNum} ) }}">{{ item.shipment.trackingNum }}</a>
 						<br />
-						<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">(view info)</a>{% endif %}
+						<a href="{{ item.shipment.carrier.link }}{{ item.shipment.trackingNum }}">(view carrier info)</a>{% endif %}
 					</td>
 					<td>{{ item.shipment.shippingDate is empty ? "unknown" : item.shipment.shippingDate|date('M d, Y') }}</td>
 					<td>{% if item.invoice is empty %}Not invoiced{% else %}<a href="{{ invoice_files_path }}/{{ item.invoice.filePath }}">{{item.invoice.num}}</a>{% endif %}</td>

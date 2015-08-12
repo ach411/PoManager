@@ -73,56 +73,64 @@ $(function() {
 		{
 			//alert("../tracking/"+$(tracking).val()+parameter_string);
 			//prompt("blbla","/tracking/"+$(tracking).val()+"/"+$(carrier).val()+parameter_string);
-			var tracking_num = $(tracking).val();
-			if(tracking_num == null || tracking_num == "")
-			{
-				tracking_num = "none";
-			}
-			
-		    $.get("../tracking/"+$(shippingDate).val()+"/"+$(carrier).val()+"/"+tracking_num+parameter_string, function(data) {
-			
-			// if server returns error display error
-			if(data.indexOf("Error") >= 0)
-			    alert(data);
-			// if no error then update table list and display message from Server
-			else
-			{
-			    // update qty or delete rows
-			    for (var j=0; j < restArray.length; j++)
-			    {
-				rest = restArray[j];
-				index = indexArray[j];
-				original_val = originalArray[j];
+		    var tracking_num = $(tracking).val();
+		    if(tracking_num == null || tracking_num == "")
+		    {
+			tracking_num = "none";
+		    }
 
-				if(rest == 0)
+		    var shippingDateVal = $(shippingDate).val() ;
+		    if(shippingDateVal == null || shippingDateVal == "")
+		    {
+			alert("Error: Please Enter shipping date!");
+		    }
+		    else
+		    {
+			$.get("../tracking/"+shippingDateVal+"/"+$(carrier).val()+"/"+tracking_num+parameter_string, function(data) {
+			    
+			    // if server returns error display error
+			    if(data.indexOf("Error") >= 0)
+				alert(data);
+			    // if no error then update table list and display message from Server
+			    else
+			    {
+				// update qty or delete rows
+				for (var j=0; j < restArray.length; j++)
 				{
+				    rest = restArray[j];
+				    index = indexArray[j];
+				    original_val = originalArray[j];
+				    
+				    if(rest == 0)
+				    {
 					var row = '#row-id-' + index;
 					$(row).remove();
-				}
-				else
-				{
+				    }
+				    else
+				    {
 					for(i = rest+1; i <= original_val; i++)
 					{
-						$("select[name='qty_id_"+ index +"'] option[value='" + i + "']").remove();
+					    $("select[name='qty_id_"+ index +"'] option[value='" + i + "']").remove();
 					}
 					$("#origin-qty-id-"+index).val(rest);
 					$("select[name='qty_id_"+ index +"']").val(rest);
+				    }
+				    
 				}
 				
+				// uncheck all row
+				$('input[type=checkbox]').each(function () {
+			    	    $(this).prop("checked", false);
+				});
+				
+				// update sorting
+				$("#sortable").trigger("update");
+				// send alert
+				alert(data);
 			    }
-
-			    // uncheck all row
-			    $('input[type=checkbox]').each(function () {
-			    	$(this).prop("checked", false);
-			    });
-			    
-			    // update sorting
-			    $("#sortable").trigger("update");
-			    // send alert
-			    alert(data);
-			}
 			    
 			});
+		    }
 		}
 		// if no box was checked, send alert
 		else

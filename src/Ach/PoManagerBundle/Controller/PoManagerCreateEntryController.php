@@ -626,7 +626,7 @@ class PoManagerCreateEntryController extends Controller
                         $iniFiles[$i]['iniContent'] = $iniContent; 
                         preg_match("/[0-9A-Fa-fxX]{2}(-[0-9A-Fa-fxX]{2}){5}/", $iniName, $output_array);
                         $macAddress = $output_array[0];
-                        preg_match("/-SYS ([A-Z]\d{7})_/", $iniName, $output_array);
+                        preg_match("/^(\S+-SYS [A-Z]\d{7})_/", $iniName, $output_array);
                         $sn = $output_array[1];
                         
                         if(strpos($iniName, $product) !== false and strpos($iniContent, $macAddress) and strpos($iniContent, $sn) and strpos($iniContent, "Overall=Pass"))
@@ -674,7 +674,11 @@ class PoManagerCreateEntryController extends Controller
                 }
                 
             }
-
+            
+        }
+        else
+        {
+            return $this->renderErrorPage("Invalid Request");
         }
 
     }
