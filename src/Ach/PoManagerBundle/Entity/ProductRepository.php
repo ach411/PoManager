@@ -49,4 +49,10 @@ class ProductRepository extends EntityRepository
 	return $query->getResult();
     }
 
+    public function findMasterProducts()
+    {
+        $query = $this->_em->createQuery('SELECT p FROM AchPoManagerBundle:Product p WHERE SIZE(p.spareParts) > 0');
+        return $query->getResult();
+    }
+
 }

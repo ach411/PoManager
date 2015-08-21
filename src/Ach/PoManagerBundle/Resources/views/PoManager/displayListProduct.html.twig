@@ -23,14 +23,16 @@
 			</thead>
 			<tbody>
 				{% for item in products %}
-				<tr>
+				{% if item.active == true %}<tr>{% else %}<tr class="bg-warning text-warning">{% endif %}
 					<td>{{ item.pn }}</td>
 					<td>{{ item.custPn }}</td>
 					<td>{{ item.description }}</td>
 					<td>{{ item.price.price }}</td>
 					<td>{{ item.price.currency.tla }}</td>
 					<td>{{ item.moq }}</td>
-					<td>{{ item.comment }}</td>
+					<td>
+					  {% if item.active == false %}PRODUCT NO LONGER ACTIVE<br />{% endif %} {{ item.comment }}
+					</td>
 					<td>{{ item.prodManager.email }}</td>
 					<td>{{ item.BillingManager.email }}</td>
 					<td> <a href="{{ path('ach_po_manager_search_revision_pn', {'pn': item.pn} ) }}">see revisions for P/N {{item.pn}}</a> </td>

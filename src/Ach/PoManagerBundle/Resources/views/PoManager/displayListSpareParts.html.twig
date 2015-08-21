@@ -1,0 +1,56 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Spare Part List {{product.pn}} {% endblock %}
+
+{% block body %}
+<h2>List of Spare part for {{product.description}} (P/N {{product.pn}} / {{product.custPn}}):</h2>
+<p>
+  <table id="sortable" class="table table-bordered table-hover tablesorter">
+    <thead>
+      <tr>
+	<td>Id</td>
+	<th>P/N</th>
+	<th>Cust. P/N</th>
+	<th>Description</th>
+	<th>Price</th>
+	<th>Currency</th>
+	<th>Comment</th>
+	
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in product.spareParts %}
+	{% if item.active == true %}
+	  <tr>
+	    <td>{{item.id}}</td>
+	    <td>{{item.pn}}</td>
+	    <td>{{item.custPn}}</td>
+	    <td>{{item.description}}</td>
+	    <td>{{item.price.price}}</td>
+	    <td>{{item.price.currency.tla}}</td>
+	    <td class="input-group col-lg-4"><div class="input-group">
+		<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}">
+		  <span class="input-group-btn">
+		    <button id="update-comment-id-{{ item.id }}" class="btn btn-default " type="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+		  </span>
+	      </div>
+	      {# {{item.comment}} #}
+	    </td>
+	  </tr>
+	{% endif %}
+      {% else %}
+	<tr>
+	  No match!
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {# {% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %} #}
+</p>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/enablesorting.js') }}"></script>
+<script src="{{ asset('js/displayListSpareParts.js') }}"></script>
+
+{% endblock %}

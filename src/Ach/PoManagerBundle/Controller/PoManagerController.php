@@ -393,4 +393,44 @@ class PoManagerController extends Controller
         return $response;        
     }
 
+    public function dumpSparePartsAction($pn)
+    {
+        $repositoryProduct = $this->getDoctrine()
+						->getManager()
+						->getRepository('AchPoManagerBundle:Product');
+
+        $request = $this->get('request');
+        
+        if($request->query->get('return') == 'xls')
+        {
+            $results = $repositoryProduct->findMasterProducts();
+            $txt = '';
+            foreach($results as $result)
+            {
+                $txt .= $result->getDescription() . "\n";
+            }
+            return new Response($txt);
+        }
+
+       
+        $productInstance = $repositoryProduct->findOneByPn($pn);
+
+        return $this->render('AchPoManagerBundle:PoManager:displayListSpareParts.html.twig', array('product' => $productInstance));
+        
+        /* $response = new Response('part: '. $productInstance->getDescription()); */
+        /* return $response; */
+    }
+
+    public function updateProductAction(Product $product)
+    {
+		$request = $this->get('request');
+		$comment = $request->request->get("comment");
+		
+		$product->setComment($comment);
+		$em = $this->getDoctrine()->getManager();
+		$em->flush();
+		
+		return new Response('Comment updated: ' . $comment);
+	}
+    
 }

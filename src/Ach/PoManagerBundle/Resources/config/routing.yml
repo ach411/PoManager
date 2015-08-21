@@ -229,6 +229,19 @@ ach_po_manager_kill_po:
 #    pattern: approve/poItem/{poItemId}
 #    defaults: { _controller: AchPoManagerBundle:PoManager:approvePoItem }
 
+ach_po_manager_dump_spare_parts_product:
+    pattern: spareparts/dump/product/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManager:dumpSpareParts}
+
+ach_po_manager_dump_spare_parts_all:
+    pattern: spareparts/dump/all
+    defaults: { _controller: AchPoManagerBundle:PoManager:dumpSparePartsAll}
+
+ach_po_manager_product_update_comment:
+    pattern: spareparts/update/product/{id}
+    defaults: { _controller: AchPoManagerBundle:PoManager:updateProduct}
+
+
 ach_po_manager_status_pending:
     pattern: ship/poItem/{poItemId}
     defaults: { _controller: AchPoManagerBundle:PoManager:shipPoItem }

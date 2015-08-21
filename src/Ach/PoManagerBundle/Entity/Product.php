@@ -116,11 +116,27 @@ class Product
     private $comment;
 
     /**
+     * @ORM\ManyToMany(targetEntity="Ach\PoManagerBundle\Entity\Product", mappedBy="spareParts")
+     **/
+    private $partOfProducts;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Ach\PoManagerBundle\Entity\Product", inversedBy="partOfProducts")
+     * @ORM\JoinTable(name="spare_parts",
+     *      joinColumns={@ORM\JoinColumn(name="product_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="spare_parts_id", referencedColumnName="id")}
+     *      )
+     **/
+    private $spareParts;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         $this->category = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->partOfProducts = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->spareParts = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -463,5 +479,15 @@ class Product
     public function getComment()
     {
         return $this->comment;
+    }
+
+    /**
+     * Get spareParts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getSpareParts()
+    {
+        return $this->spareParts;
     }
 }
