@@ -16,6 +16,7 @@
 					<th>VITEC P/N</th>
 					<th>Customer P/N</th>
 					<th>Description</th>
+					<th>Cust. Rev.</th>
 					<th>Quantity</th>
 					<th>Unit Price</th>
 					<th>Amount</th>
@@ -39,13 +40,14 @@
 					<td id="pn-id-{{ item.id }}">{{ item.revision.product.pn }}</td>
 					<td>{{ item.revision.product.custPn }}</td>
 					<td>{{ item.description }}</td>
+					<td>{{ item.revision.revisionCust }}</td>
 					<td id="qty-id-{{ item.id }}">{{ item.qty }}</td>
 					<td>{{ item.price.price }}</td>
 					<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
 					<td>{{ item.price.currency.tla }}</td>
 					<td id="date-id-{{ item.id }}">{{ item.dueDate is empty ? "unknown" : item.dueDate|date('Y-m-d') }}</td>
 					<!-- <td>{{ item.comment }}</td> -->
-					<td class="input-group col-lg-2"><div class="input-group">
+					<td class="input-group col-lg-3"><div class="input-group">
 						<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}">
 							<span class="input-group-btn">
 								<button id="update-comment-id-{{ item.id }}" class="btn btn-default " type="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
