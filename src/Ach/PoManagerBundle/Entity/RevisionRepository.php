@@ -14,9 +14,9 @@ class RevisionRepository extends EntityRepository
 {
 	public function findRevProduct($custRev, $custPn)
 	{
-		$query = $this->_em->createQuery('SELECT r, p FROM AchPoManagerBundle:Revision r JOIN r.product p WHERE r.revisionCust = :custRev AND p.custPn = :custPn');
+		$query = $this->_em->createQuery('SELECT r, p FROM AchPoManagerBundle:Revision r JOIN r.product p WHERE r.revisionCust = :custRev AND p.custPn like :custPn AND r.active = 1');
 		$query->setParameter('custRev', $custRev);
-		$query->setParameter('custPn', $custPn);
+		$query->setParameter('custPn', '%'.$custPn.'%');
 		//return $query->getResult();
 		return $query->getOneOrNullResult();
 	}
