@@ -12,10 +12,13 @@ use Doctrine\ORM\EntityRepository;
  */
 class SerialNumberRepository extends EntityRepository
 {
-    public function findBySerialNumber($sn)
+    public function findBySerialNumber($sn, $exact = false)
     {
         $query = $this->_em->createQuery('SELECT s FROM AchPoManagerBundle:SerialNumber s WHERE s.serialNumber like :sn');
-        $query->setParameter('sn', '%' . $sn . '%');
+        if($exact)
+            $query->setParameter('sn', $sn);
+        else
+            $query->setParameter('sn', '%' . $sn . '%');
         return $query->getResult();
     }
 

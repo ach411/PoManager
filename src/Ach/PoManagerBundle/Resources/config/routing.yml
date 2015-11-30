@@ -203,6 +203,24 @@ ach_po_manager_process_poitem_update_comment:
     pattern: /process/update/poitem/{id}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemUpdateComment }
 
+# Process Rma section
+
+ach_po_manager_process_rma_create:
+    pattern: /create/rma
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:createRma }
+
+ach_po_manager_process_rma_receive:
+    pattern: /receive/rma/{location}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:receiveRma }
+
+ach_po_manager_process_rma_repair:
+    pattern: /repair/rma/{location}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:repairRma }
+
+ach_po_manager_process_rma_update:
+    pattern: /update/rma/{location}/{sn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:updateRma }
+    
 # Others Section
 
 ach_po_manager_json_return_latest_active_rev:

@@ -806,6 +806,6 @@ class PoManagerCreateEntryController extends Controller
 	
 	private function renderErrorPage($message)
 	{
-		return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message));
+		return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_index'));
 	}
 }

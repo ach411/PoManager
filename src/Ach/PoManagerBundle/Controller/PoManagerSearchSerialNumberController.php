@@ -11,6 +11,7 @@ use Ach\PoManagerBundle\Entity\Invoice;
 
 class PoManagerSearchSerialNumberController extends Controller
 {
+    
     public function searchSerialNumberAction($sn)
     {
         $repoSerialNumber = $this->getDoctrine()
@@ -18,8 +19,15 @@ class PoManagerSearchSerialNumberController extends Controller
 								->getRepository('AchPoManagerBundle:SerialNumber');
         
         $request = $this->getRequest();
-		
-		$serialNumberInstances = $repoSerialNumber->findBySerialNumber($sn);
+
+        if($request->query->get('match') == 'exact') {
+            $exact = true;
+        }
+        else {
+            $exact = false;
+        }
+
+        $serialNumberInstances = $repoSerialNumber->findBySerialNumber($sn, $exact);
 		
 		return $this->generateResponse($request, $serialNumberInstances);
     }
@@ -47,13 +55,24 @@ class PoManagerSearchSerialNumberController extends Controller
 		}
 		elseif($request->query->get('return') == 'json')
 		{
-			//return $this->generatePoItemJson($shipmentItems);
+			return $this->generateResponseJson($serialNumberInstances);
 		}
 		else
 		{
 			return $this->render('AchPoManagerBundle:PoManager:displayListSerialNumber.html.twig', array('serialNumbers' => $serialNumberInstances));
 		}
 	}
+
+    private function generateResponseJson($serialNumberInstances)
+    {
+        $jsonTable = array();
+        foreach($serialNumberInstances as $sn) {
+            $jsonTable[] = array("SN" => $sn->getSerialNumber(), "MAC" => $sn->getMacAddress());
+        }
+        $response = new JsonResponse();
+        $response->setData($jsonTable);
+        return $response;
+    }
 
 
 }

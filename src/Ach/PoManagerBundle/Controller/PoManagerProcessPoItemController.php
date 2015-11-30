@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-use Ach\PoManagerBundle\Entity\HistoryStatus;
+use Ach\PoManagerBundle\Entity\Status;
 use Ach\PoManagerBundle\Entity\Notification;
 use Ach\PoManagerBundle\Entity\Shipment;
 use Ach\PoManagerBundle\Entity\ShipmentItem;

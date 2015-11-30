@@ -29,6 +29,8 @@ twig:
         bpo_files_path: %bpo_files_path%
         invoice_files_path: %invoice_files_path%
         revision_files_path: %revision_files_path%
+        zip_files_path: %zip_files_path%
+        rma_files_path: %rma_files_path%
         pn_header: %pn_header%
         cust_pn_header: %cust_pn_header%
         desc_header: %desc_header%

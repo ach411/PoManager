@@ -84,7 +84,7 @@ class Bpo
      */
     private $filePath;
 	
-	private $rootpath;
+	private $rootPath;
 	
 	private $tempFile;
 	

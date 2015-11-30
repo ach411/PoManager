@@ -490,4 +490,9 @@ class Product
     {
         return $this->spareParts;
     }
+
+    public function getShortDescription()
+    {
+        return (str_pad($this->pn, 5, '0', STR_PAD_LEFT) . ' - ' .  $this->description);
+    }
 }

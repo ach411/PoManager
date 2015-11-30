@@ -133,7 +133,7 @@ To update database with latest Entity config (doctrine):
 
 To generate an entity (doctrine):
 
-    php app/console generate:doctrine:doctrine:entity
+    php app/console generate:doctrine:entity
 
 To modify an entity (doctrine):
 
