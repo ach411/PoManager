@@ -1,0 +1,106 @@
+{% block collection_widget %}
+{% spaceless %}
+{% if prototype is defined %} 
+  {% set attr = attr|merge({'data-prototype': block('collection_item_widget') }) %} 
+{% endif %} 
+  <div {{ block('widget_container_attributes') }}>
+  {% for row in form %}
+  <br />
+  <div class="form-group" id="Po-item-{{ loop.index - 1 }}"> 
+    <div class="row">
+      <div class="col-lg-6 col-lg-offset-1">
+	{{ form_label(row.product, "Choose Part to replace *", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6 col-lg-offset-1">
+	{{ form_errors(row.product) }}
+	{{ form_widget(row.product, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>
+    <br />
+    <div class="row">
+      <div class="col-lg-3">
+	{{ form_label(row.oldPart, "Enter S/N of old part (if applicable)", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-3">
+	{{ form_label(row.newPart, "Enter S/N of new part (if applicable)", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3">
+	{{ form_errors(row.oldPart) }}
+	{{ form_widget(row.oldPart, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-3">
+	{{ form_errors(row.newPart) }}
+	{{ form_widget(row.newPart, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>    
+    <div class="row">
+      <div class="col-lg-5 col-lg-offset-1">
+	{{ form_label(row.comment, "Comment", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-5 col-lg-offset-1">
+	{{ form_errors(row.comment) }}
+	{{ form_widget(row.comment, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+
+{% endspaceless %}
+{% endblock collection_widget %}
+
+{% block collection_item_widget %} 
+{% spaceless %} 
+<br /> 
+<div class="form-group" id="Po-item-__name__"> 
+    <div class="row">
+      <div class="col-lg-6 col-lg-offset-1">
+	{{ form_label(prototype.product, "Choose Part to replace *", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6 col-lg-offset-1">
+	{{ form_errors(prototype.product) }}
+	{{ form_widget(prototype.product, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>
+    <br />
+    <div class="row">
+      <div class="col-lg-4 col-lg-offset-1">
+	{{ form_label(prototype.oldPart, "Enter S/N of old part (if applicable)", {'attr': {'class': 'control-label'}}) }}
+      </div>
+      <div class="col-lg-4">
+	{{ form_label(prototype.newPart, "Enter S/N of new part (if applicable)", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-3 col-lg-offset-1">
+	{{ form_errors(prototype.oldPart) }}
+	{{ form_widget(prototype.oldPart, {'attr': {'class': 'form-control'}}) }}
+      </div>
+      <div class="col-lg-3 col-lg-offset-1">
+	{{ form_errors(prototype.newPart) }}
+	{{ form_widget(prototype.newPart, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>    
+    <div class="row">
+      <div class="col-lg-5 col-lg-offset-1">
+	{{ form_label(prototype.comment, "Comment", {'attr': {'class': 'control-label'}}) }}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-5 col-lg-offset-1">
+	{{ form_errors(prototype.comment) }}
+	{{ form_widget(prototype.comment, {'attr': {'class': 'form-control'}}) }}
+      </div>
+    </div>
+</div> 
+
+{% endspaceless %} 
+{% endblock collection_item_widget %} 

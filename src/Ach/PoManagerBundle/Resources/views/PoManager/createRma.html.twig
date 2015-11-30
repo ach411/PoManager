@@ -1,0 +1,104 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Create RMA{% endblock %}
+
+{% block body %}
+
+  <h2>Create a Rma</h2>
+  
+  <div class="well">
+    <form class="form-horizontal" method="post" {{ form_enctype(form) }}>
+      <div class="form-group">
+	<div class="row">
+	  <div class="col-lg-2">
+	    {{ form_label(form.serialNumF, "Serial Number *", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	  <div class="col-lg-2">
+	    {{ form_label(form.repairLocation, "Search Repair Center *", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	  <div class="col-lg-3">
+	    {{ form_label(form.contactEmail, "Customer Contact Email *", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	  <div class="col-lg-2"> 
+	    {{ form_label(form.custSerialNum, "Customer Serial Number", {'attr': {'class': 'control-label'}}) }} 
+	  </div> 
+	</div>
+	<div class="row">
+	  <div class="col-lg-2">
+	    {{ form_errors(form.serialNumF) }}
+	    {{ form_widget(form.serialNumF, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	  <div class="col-lg-2">
+	    {{ form_errors(form.repairLocation) }}
+	    {{ form_widget(form.repairLocation, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	  <div class="col-lg-2">
+	    {{ form_errors(form.contactEmail) }}
+	    {{ form_widget(form.contactEmail, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	  <div class="col-lg-2 col-lg-offset-1"> 
+	    {{ form_errors(form.custSerialNum) }} 
+	    {{ form_widget(form.custSerialNum, {'attr': {'class': 'form-control'} } ) }} 
+	  </div> 
+	</div>
+      </div>
+      <div>
+	<div class="form-group">
+	  <div class="row">
+	    <div class="col-lg-2 col-lg-offset-1">
+	      {{ form_label(form.problemDescription, "Failure Description *", {'attr': {'class': 'control-label'} }) }} 
+	    </div>
+	  </div>
+	  <div class="row">
+	    <div class="col-lg-6 col-lg-offset-1">
+	      {{ form_errors(form.problemDescription) }} 
+	      {{ form_widget(form.problemDescription, {'attr': {'class': 'form-control', 'placeholder': 'Please provide a short and precise description of issue customer is experiencing '} } ) }} 
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <div class="form-group">
+	<div class="row">
+	</div>
+	<div class="row">
+	  <div class="col-lg-2 col-lg-offset-1">
+	    {{ form_label(form.comment, "Comment", {'attr': {'class': 'control-label'}}) }} 
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-lg-4 col-lg-offset-1">
+	    {{ form_errors(form.comment) }} 
+	    {{ form_widget(form.comment, {'attr': {'class': 'form-control'} } ) }} 
+	  </div>
+	</div>
+      </div>
+      <div class="group-form">
+	<div class="row">
+	  <div class="col-lg-3">
+	    {{ form_label(form.rpoFile, "Repair PO from Customer", {'attr': {'class': 'control-label'}}) }} 
+	  </div>
+	  <div class="col-lg-3 col-lg-offset-1">
+	    {{ form_label(form.rpoFile, "Additional documentation from Customer", {'attr': {'class': 'control-label'}}) }} 
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-lg-3">
+	    {{ form_errors(form.rpoFile) }} 
+	    {{ form_widget(form.rpoFile, {'attr': {'class': 'form-control'} } ) }} 
+	  </div>
+	  <div class="col-lg-3 col-lg-offset-1">
+	    {{ form_errors(form.custFile) }} 
+	    {{ form_widget(form.custFile, {'attr': {'class': 'form-control'} } ) }} 
+	  </div>
+	</div>
+      </div>
+      <br />
+      {{ form_rest(form) }}
+      <input type="submit" class="btn btn-primary" />
+    </form>
+  </div>
+
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/createRma.js') }}"></script> 
+  
+{% endblock %}

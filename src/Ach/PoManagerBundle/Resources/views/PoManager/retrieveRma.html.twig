@@ -1,0 +1,29 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Retrieve a RMA{% endblock %}
+
+{% block body %}
+
+  <h2>Retrieve a RMA for repair</h2>
+  
+  <div class="well">
+    <form class="form-horizontal" method="post" {{ form_enctype(form) }}>
+      <div class="form-group">
+	<div class="row">
+	  <div class="col-lg-2">
+	    {{ form_label(form.serialNumF, "Enter Serial Number", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-lg-2">
+	    {{ form_errors(form.serialNumF) }}
+	    {{ form_widget(form.serialNumF, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	</div>
+      </div>
+      {{ form_rest(form) }}
+      <input type="submit" class="btn btn-primary" />
+    </form>
+  </div>
+
+{% endblock %}

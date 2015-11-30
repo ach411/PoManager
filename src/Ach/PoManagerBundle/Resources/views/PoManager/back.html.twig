@@ -1,0 +1,7 @@
+<p>
+  {% if repairLocation is defined %}
+    <a class="btn btn-primary btn-large" href="{{ path( returnPath, { 'location' : repairLocation } ) }}">Back to main menu</a>
+  {% else %}
+    <a class="btn btn-primary btn-large" href="{{ path( returnPath ) }}">Back to main menu</a>
+  {% endif %}
+</p>
