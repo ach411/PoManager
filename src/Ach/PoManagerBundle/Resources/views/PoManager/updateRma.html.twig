@@ -6,9 +6,9 @@
 
 {% form_theme form 'AchPoManagerBundle:PoManager:_field-prototype-Rma.html.twig' %} 
 
-  <div class="well">
+  <div class="alert alert-info" role="alert">
     {% if rmaInstance.serialNum.shipmentBatch.ShipmentItem is not null %}
-      <h4>This unit was originally shipped to customer on {{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date('M d, Y' )}} as part of PO #{{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.PoItem.Po.num}}:
+      <h4>This unit was originally shipped to customer on {{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date('M d, Y' )}} under PO #{{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.PoItem.Po.num}}:
 	{% if rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date_modify('+1 year')|date('Y-m-d') > rmaInstance.creationDate|date('Y-m-d') %}
 	  <b>Unit is still under warranty.</b>
 	{% else %}

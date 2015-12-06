@@ -1,0 +1,17 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - {{ pageTitle }} {% endblock %}
+
+{% block body %}
+
+  <div class="alert alert-success" role="alert">
+    <p> {{ message1 }} </p>
+    {% if message2 is defined %}
+      <p> {{ message2 }} </p>
+    {% endif %}
+  </div>
+  
+{% include "AchPoManagerBundle:PoManager:back.html.twig" %}
+
+{% endblock %}
+

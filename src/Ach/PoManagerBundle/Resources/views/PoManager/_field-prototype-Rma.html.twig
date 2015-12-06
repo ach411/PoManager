@@ -6,7 +6,7 @@
   <div {{ block('widget_container_attributes') }}>
   {% for row in form %}
   <br />
-  <div class="form-group" id="Po-item-{{ loop.index - 1 }}"> 
+  <div class="form-group" id="Replacement-item-{{ loop.index - 1 }}"> 
     <div class="row">
       <div class="col-lg-6 col-lg-offset-1">
 	{{ form_label(row.product, "Choose Part to replace *", {'attr': {'class': 'control-label'}}) }}
@@ -20,19 +20,19 @@
     </div>
     <br />
     <div class="row">
-      <div class="col-lg-3">
+      <div class="col-lg-3 col-lg-offset-1">
 	{{ form_label(row.oldPart, "Enter S/N of old part (if applicable)", {'attr': {'class': 'control-label'}}) }}
       </div>
-      <div class="col-lg-3">
+      <div class="col-lg-3 col-lg-offset-1">
 	{{ form_label(row.newPart, "Enter S/N of new part (if applicable)", {'attr': {'class': 'control-label'}}) }}
       </div>
     </div>
     <div class="row">
-      <div class="col-lg-3">
+      <div class="col-lg-3 col-lg-offset-1">
 	{{ form_errors(row.oldPart) }}
 	{{ form_widget(row.oldPart, {'attr': {'class': 'form-control'}}) }}
       </div>
-      <div class="col-lg-3">
+      <div class="col-lg-3 col-lg-offset-1">
 	{{ form_errors(row.newPart) }}
 	{{ form_widget(row.newPart, {'attr': {'class': 'form-control'}}) }}
       </div>
@@ -48,6 +48,7 @@
 	{{ form_widget(row.comment, {'attr': {'class': 'form-control'}}) }}
       </div>
     </div>
+  </div>
   {% endfor %}
 </div>
 
@@ -58,7 +59,7 @@
 {% block collection_item_widget %} 
 {% spaceless %} 
 <br /> 
-<div class="form-group" id="Po-item-__name__"> 
+<div class="form-group" id="Replacement-item-__name__"> 
     <div class="row">
       <div class="col-lg-6 col-lg-offset-1">
 	{{ form_label(prototype.product, "Choose Part to replace *", {'attr': {'class': 'control-label'}}) }}

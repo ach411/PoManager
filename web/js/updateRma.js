@@ -22,8 +22,8 @@ $(document).ready(function() {
     });
 
   // dynamic counter
-    var index = $container.find(':input').length;
-    //var index = $container.find('[id*="Po-item-"]').length;
+    //var index = $container.find(':input').length;
+    var index = $container.find('[id*="Replacement-item-"]').length;
     var counter = index;
 
   // automatically add one item

@@ -19,8 +19,8 @@ class PoManagerProcessRmaController extends Controller
     /* Manage the PO Item with the product manager */
     public function createRmaAction()
     {
-        $rma = new Rma($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('rma_files_path'));
-        $formRma = $this->createForm(new RmaType, $rma);
+        $rmaInstance = new Rma($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('rma_files_path'));
+        $formRma = $this->createForm(new RmaType, $rmaInstance);
 
         $request = $this->get('request');
         
@@ -32,29 +32,29 @@ class PoManagerProcessRmaController extends Controller
 
                 //check if no other RMA is open for the same unit
                 $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
-                $rmaDouble = $repoRma->findOpenedBySn($rma->getSerialNumF());
+                $rmaDouble = $repoRma->findOpenedBySn($rmaInstance->getSerialNumF());
                 if(!empty($rmaDouble)) {
-                    $message = "RMA is already currently opened for this S/N, check RMA number " . $rmaDouble->getRmaNum();
+                    $message = "RMA is already currently opened for this S/N, check RMA number " . $rmaDouble->getNum();
                     return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_create'));
                 }
 
                 // link rma to serial number concerned
                 $repoSerialNumber = $this->getDoctrine()->getRepository('AchPoManagerBundle:SerialNumber');
-                $serialNumInstance = $repoSerialNumber->findOneBySerialNumber($rma->getSerialNumF());
+                $serialNumInstance = $repoSerialNumber->findOneBySerialNumber($rmaInstance->getSerialNumF());
                 if(is_null($serialNumInstance)) {
                     $message = 'S/N entry does not match any recorded units. Please make sure you enter complete serial number. Example: IP1-SYS D1515050';
                     return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_create'));
                 }
-                $rma->setSerialNum($serialNumInstance);
+                $rmaInstance->setSerialNum($serialNumInstance);
 
                 //auto generate the RMA number
                 $currentDate = new \DateTime();
-                $rma->setRmaNum(strtoupper(substr($rma->getRepairLocation()->getName(),0,3)).$currentDate->format('ymd').str_pad($serialNumInstance->getId(), 8, '0', STR_PAD_LEFT));
+                $rmaInstance->setNum(strtoupper(substr($rmaInstance->getRepairLocation()->getName(),0,3)).$currentDate->format('ymd').str_pad($serialNumInstance->getId(), 8, '0', STR_PAD_LEFT));
 
                 // set status of repair to waiting for reception
                 $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
-                $repairStatusInstance = $repoRepairStatus->find(1);
-                $rma->setRepairStatus($repairStatusInstance);
+                $repairStatusInstance = $repoRepairStatus->findOneByName('Waiting_for_Reception');
+                $rmaInstance->setRepairStatus($repairStatusInstance);
                 
                 //determination of warranty expiration
                 //first make sure there's a record for the shipment
@@ -63,11 +63,12 @@ class PoManagerProcessRmaController extends Controller
                 if(is_null($serialNumInstance->getShipmentBatch()->getShipmentItem()))
                     return new Response("S/N does not seem to have shipped yet");
                         
-                $em->persist($rma);
+                $em->persist($rmaInstance);
                 $em->flush();
                 
                 if(is_null($serialNumInstance->getShipmentBatch()->getShipmentItem()->getShipment()->getShippingDate() ))
-                    return new Response("RMA recorded. Warranty Status unknown since shipping date is undetermined");
+                    $message = "RMA recorded. Warranty Status unknown since shipping date is undetermined";
+                    //return new Response("RMA recorded. Warranty Status unknown since shipping date is undetermined");
                 else {
                     $warrantyExpiration = $serialNumInstance->getShipmentBatch()
                                                             ->getShipmentItem()
@@ -75,10 +76,15 @@ class PoManagerProcessRmaController extends Controller
                                                             ->getShippingDate()
                                                             ->add(new \DateInterval('P1Y'));
                     if ($currentDate > $warrantyExpiration )
-                        return new Response("RMA recorded. Warranty has expired since ".$warrantyExpiration->format('Y-m-d'));
+                        $message = "Warranty has expired since ".$warrantyExpiration->format('Y-m-d');
+                    //return new Response("RMA recorded. Warranty has expired since ".$warrantyExpiration->format('Y-m-d'));
                     else
-                        return new Response("RMA recorded. Unit is still under warranty until ".$warrantyExpiration->format('Y-m-d'));
+                        $message = "Unit is still under warranty until ".$warrantyExpiration->format('Y-m-d');
+                        //return new Response("RMA recorded. Unit is still under warranty until ".$warrantyExpiration->format('Y-m-d'));
+                    
                 }
+                return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_rma_create', 'message1' => 'RMA # '.$rmaInstance->getNum().' on unit '.$rmaInstance->getSerialNum()->getSerialNumber().' has been created successfully!', 'message2' => $message, 'pageTitle' => 'RMA created!'));
+                //return $this->render('AchPoManagerBundle:PoManager:successRmaCreated.html.twig', array('rmaInstance' => $rmaInstance, 'returnPath' => 'ach_po_manager_process_rma_create', 'message' => $message ));
             }
         }
 
@@ -105,8 +111,8 @@ class PoManagerProcessRmaController extends Controller
             if ($formReceiveRma->isValid()) {
 
                 $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
-                $rma = $repoRma->findWaitingReceptionBySn($rmaReceive->getSerialNumF(), $repairLocationInstance->getId());
-                if(is_null($rma)) {
+                $rmaInstance = $repoRma->findWaitingReceptionBySn($rmaReceive->getSerialNumF(), $repairLocationInstance->getId());
+                if(is_null($rmaInstance)) {
                     $message = "There is currently no RMA waiting under this S/N";
                     return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_receive', 'repairLocation' => $repairLocationInstance->getName() ));
                 }
@@ -114,18 +120,19 @@ class PoManagerProcessRmaController extends Controller
                     // update the repair Status
                     $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
                     $repairStatus = $repoRepairStatus->findOneByName('Received');
-                    $rma->setRepairStatus($repairStatus);
+                    $rmaInstance->setRepairStatus($repairStatus);
 
                     // record date of reception
-                    $rma->setReceptionDate(new \Datetime());
+                    $rmaInstance->setReceptionDate(new \Datetime());
 
                     // cat comment
-                    $rma->setComment($rma->getComment() . 'Comment @reception: ' . $rmaReceive->getComment());
+                    $rmaInstance->setComment($rmaInstance->getComment() . 'Comment @reception: ' . $rmaReceive->getComment());
 
                     $em = $this->getDoctrine()->getManager();
                     $em->flush();
+
+                    return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('rmaInstance' => $rmaInstance, 'returnPath' => 'ach_po_manager_process_rma_receive', 'repairLocation'=> $location, 'message1' => "RMA received successfully", 'pageTitle' => 'RMA received'));
                     
-                    return new Response("RMA recorded as received");
                 }
                 
             }
@@ -192,9 +199,10 @@ class PoManagerProcessRmaController extends Controller
                      {
                          $partReplacement->setRma($rmaInstance);
                      }
-                 //$em->persist($rmaInstance);
+                 // record repairDate
+                 $rmaInstance->setRepairDate(new \Datetime());
                  $em->flush();
-                 return new Response("RMA Repair information updated!");
+                 return $this->render('AchPoManagerBundle:PoManager:successRmaUpdated.html.twig', array('rmaInstance' => $rmaInstance, 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation'=> $location, 'sn'=> $sn));
                  //return $this->redirect($this->generateUrl('ach_po_manager_process_rma_update', array('location' => $location, 'sn' => $rmaRetrieve->getSerialNumF() ) ) );
             }
         }
@@ -204,13 +212,67 @@ class PoManagerProcessRmaController extends Controller
         //return new Response('location: '.$location.' - sn: '.$sn);
 
     }
-    
-    
-    public function doesSerialNumberExistAction($sn)
-    {
-        $repositorySerialNumber = $this->getDoctrine()->getRepository('AchPoManagerBundle:SerialNumber');
 
-        return new Response();
+    public function endRepairRmaAction($location, $sn)
+    {
+        $repoRepairLocation = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairLocation');
+        $repairLocationInstance = $repoRepairLocation->findOneByName($location);
+        if(empty($repairLocationInstance)) {
+            return new Response("Location of repair could not be determined");
+        }
+        
+        $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+        $rmaInstance = $repoRma->findRepairedBySn($sn, $location);
+        if(empty($rmaInstance)) {
+            return new Response("Could not fine any RMA already investigated with this S/N at this location");
+        }
+
+        $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
+        $repairStatusInstance = $repoRepairStatus->findOneByName('Returned_to_Stock');
+        $rmaInstance->setRepairStatus($repairStatusInstance);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+
+        return new Response("RMA unit is now ready for final inspection");
     }
+
+    public function notRepairRmaAction($location, $sn)
+    {
+        $repoRepairLocation = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairLocation');
+        $repairLocationInstance = $repoRepairLocation->findOneByName($location);
+        if(empty($repairLocationInstance)) {
+            return new Response("Location of repair could not be determined");
+        }
+        
+        $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+        $rmaInstance = $repoRma->findRepairedBySn($sn, $location);
+        if(empty($rmaInstance)) {
+            return new Response("Could not fine any RMA already investigated with this S/N at this location");
+        }
+
+        $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
+        $repairStatusInstance = $repoRepairStatus->findOneByName('Not_Repairable');
+        $rmaInstance->setRepairStatus($repairStatusInstance);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->flush();
+        
+        return new Response("RMA unit now been decommissioned. Please set unit aside and mark it as non prod.");
+    }
+
+    public function addProblemCategory($pn)
+    {
+        
+
+    }
+    
+    /* public function doesSerialNumberExistAction($sn) */
+    /* { */
+    /*     $repositorySerialNumber = $this->getDoctrine()->getRepository('AchPoManagerBundle:SerialNumber'); */
+
+    /*     return new Response(); */
+    /* } */
+
 
 }

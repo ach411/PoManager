@@ -1,0 +1,22 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - RMA updated!{% endblock %}
+
+{% block body %}
+
+  <div class="alert alert-success" role="alert">
+    <p> RMA # {{ rmaInstance.num}} on unit {{ rmaInstance.serialNum.serialNumber }} has been updated successfully!</p>
+  </div>
+  
+  <p>
+    <a class="btn btn-primary btn-large" href="{{ path('ach_po_manager_process_rma_end_of_repair', { 'location' : repairLocation, 'sn' : sn } ) }}">Done with the repair</a> (Click this button to confirm unit is now good and ready for final inspection)
+  </p>
+  <br />
+  <p>
+    <a class="btn btn-primary btn-large" href="{{ path('ach_po_manager_process_rma_not_repair', { 'location' : repairLocation, 'sn' : sn } ) }}">Not repairable</a> (Click this button if this is impossible to fix unit)
+  </p>
+  <br />
+  
+{% include "AchPoManagerBundle:PoManager:back.html.twig" %}
+
+{% endblock %}

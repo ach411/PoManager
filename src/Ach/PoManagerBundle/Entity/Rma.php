@@ -26,9 +26,9 @@ class Rma
     /**
      * @var string
      *
-     * @ORM\Column(name="rmaNum", type="string", length=255)
+     * @ORM\Column(name="num", type="string", length=255)
      */
-    private $rmaNum;
+    private $num;
 
     /**
      * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\SerialNumber")
@@ -186,26 +186,26 @@ class Rma
     }
 
     /**
-     * Set rmaNum
+     * Set num
      *
-     * @param string $rmaNum
+     * @param string $num
      * @return Rma
      */
-    public function setRmaNum($rmaNum)
+    public function setNum($num)
     {
-        $this->rmaNum = $rmaNum;
+        $this->num = $num;
     
         return $this;
     }
 
     /**
-     * Get rmaNum
+     * Get num
      *
      * @return string 
      */
-    public function getRmaNum()
+    public function getNum()
     {
-        return $this->rmaNum;
+        return $this->num;
     }
 
     /**
@@ -746,7 +746,7 @@ class Rma
 			return;
 		}
 		
-		$filename = 'RPO_' . ($this->getRmaNum()) . '.pdf';
+		$filename = 'RPO_' . ($this->getNum()) . '.pdf';
 		$this->setRpoFilePath($filename);
 		
 		//echo $this->getFilePath();
@@ -854,7 +854,7 @@ class Rma
 			return;
 		}
 		
-		$filename = 'CUST_' . ($this->getRmaNum()) . '.pdf';
+		$filename = 'CUST_' . ($this->getNum()) . '.pdf';
 		$this->setCustFilePath($filename);
 		
 		//echo $this->getFilePath();
