@@ -32,7 +32,7 @@ $(function() {
 		    }
 		    else
 		    {
-			alert('il y a quelque chose');
+			// alert('il y a quelque chose');
 			// make sure that you are no longer handling the submit event; clear handler
 			this.off('submit');
 			// actually submit the form

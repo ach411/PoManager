@@ -2,6 +2,10 @@
   {% if repairLocation is defined %}
     <a class="btn btn-primary btn-large" href="{{ path( returnPath, { 'location' : repairLocation } ) }}">Back to main menu</a>
   {% else %}
-    <a class="btn btn-primary btn-large" href="{{ path( returnPath ) }}">Back to main menu</a>
+    {% if pn is defined %}
+      <a class="btn btn-primary btn-large" href="{{ path( returnPath, { 'pn' : pn } ) }}">Back to main menu</a>
+    {% else %}
+      <a class="btn btn-primary btn-large" href="{{ path( returnPath ) }}">Back to main menu</a>
+    {% endif %}
   {% endif %}
 </p>

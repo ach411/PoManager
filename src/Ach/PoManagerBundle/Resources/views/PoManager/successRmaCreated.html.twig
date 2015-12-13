@@ -1,0 +1,14 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - RMA created!{% endblock %}
+
+{% block body %}
+
+  <div class="alert alert-success" role="alert">
+    <p> RMA # {{ rmaInstance.num}} on unit {{ rmaInstance.serialNum.serialNumber }} has been created successfully!</p>
+    <p> {{ message }} </p>
+  </div>
+  
+{% include "AchPoManagerBundle:PoManager:back.html.twig" %}
+
+{% endblock %}

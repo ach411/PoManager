@@ -229,12 +229,19 @@ ach_po_manager_process_rma_not_repair:
     pattern: /notrepair/rma/{location}/{sn}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:notRepairRma }
 
-ach_po_manager_process_rma_not_repair:
-    pattern: /inspect/rma/{location}/{sn}
-    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:notRepairRma }
+ach_po_manager_process_create_problem_category:
+    pattern: /create/problemcategory/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:createProblemCategory }
 
+ach_po_manager_process_rma_inspection:
+    pattern: /inspect/rma/{location}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:inspectRma }
 
+ach_po_manager_process_rma_shipment:
+    pattern: /ship/rma/{location}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:shipRma }
 
+    
 # Others Section
 
 ach_po_manager_json_return_latest_active_rev:

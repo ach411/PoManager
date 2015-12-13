@@ -1,0 +1,55 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - index{% endblock %}
+
+{% block body %}
+
+  <h2>Repair Sheet</h2>
+  <div class="well">
+    <p>
+      <b>RMA number:</b> {{ rma.num }}
+      <br />
+      <br />
+      <b>Unit S/N:</b> {{ rma.serialNum.serialNumber }}
+      <br />
+      <br />
+      <b>Customer Unit S/N:</b> {{ rma.custSerialNum }}
+      <br />
+      <b>Customer contact:</b> {{ rma.contactEmail }}
+      <br />
+      <b>Rma created on:</b> {{ rma.creationDate|date('M d, Y')}}
+      <br />
+      <b>Customer reported issue:</b> {{ rma.problemDescription}}</b>
+      <br />
+      <br />
+      <b>Rma received at VITEC on:</b> {{ rma.receptionDate|date('M d, Y')}}
+      <br />
+      <b>Investigation result:</b> {{ rma.investigationResult }}
+      <br />
+      <b>NC classified as:</b> {{ rma.problemCategory.name }} / {{ rma.problemCategory.description }}
+      <br />
+      <br />
+      <b>Rma repaired on:</b> {{ rma.repairDate|date('M d, Y')}}
+      <br />
+      {% for item in rma.partReplacements %}
+	<b>Swapped:</b> P/N {{ item.product.pn }}/{{ item.product.custPn }} - {{ item.product.description }}
+	<br />
+      {% endfor %}
+      <br />
+      <br />
+      <b> Repair technicien name/signature/date:</b>
+      <br />
+      <br />
+      <br />
+      <br />
+      <b> Shipping inspection manager name/signature/date:</b>
+      <br />
+      <br />
+      <br />
+      <br />
+    </p>
+</div>
+
+<i>[Please print sheet and apply on unit]<i>
+
+{% endblock %}

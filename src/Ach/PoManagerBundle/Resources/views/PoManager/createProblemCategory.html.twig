@@ -1,0 +1,41 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Create Problem Category{% endblock %}
+
+{% block body %}
+
+<h2>Create new Problem Category:</h2>
+
+<div class="well">
+  <form  method="post" {{ form_enctype(form) }}>
+    <div class="form-group">
+      <div class="row">
+	<div class="col-lg-4">
+	  {{ form_label(form.name, "Give name to Category *", {'attr': {'class': 'control-label'}}) }}
+	</div>
+      </div>
+      <div class="row">
+	<div class="col-lg-4">
+	  {{ form_errors(form.name) }}
+	  {{ form_widget(form.name, {'attr': {'class': 'form-control'} } ) }}
+	</div>
+      </div>
+      <br />
+      <div class="row">
+	<div class="col-lg-7">
+	  {{ form_label(form.description, "Provide detailed description of the issue *", {'attr': {'class': 'control-label'}}) }}
+	</div>
+      </div>
+      <div class="row">
+	<div class="col-lg-7">
+	  {{ form_errors(form.description) }}
+	  {{ form_widget(form.description, {'attr': {'class': 'form-control'} } ) }}
+	</div>
+      </div>
+    </div>
+    {{ form_widget(form) }}
+  <input type="submit" class="btn btn-primary" value="Create Category" />
+  </form>
+</div>
+
+{% endblock %}

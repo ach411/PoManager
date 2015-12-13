@@ -8,10 +8,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 use Ach\PoManagerBundle\Entity\Rma;
+use Ach\PoManagerBundle\Entity\ProblemCategory;
 use Ach\PoManagerBundle\Form\RmaType;
 use Ach\PoManagerBundle\Form\RmaReceiveType;
 use Ach\PoManagerBundle\Form\RmaRetrieveType;
 use Ach\PoManagerBundle\Form\RmaUpdateType;
+use Ach\PoManagerBundle\Form\ProblemCategoryType;
 
 class PoManagerProcessRmaController extends Controller
 {
@@ -179,7 +181,8 @@ class PoManagerProcessRmaController extends Controller
         $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
         $rmaInstance = $repoRma->findReceivedBySn($sn, $location);
         if(empty($rmaInstance)) {
-            return new Response("Could not fine any RMA to be repaired with this S/N at this location");
+            return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => "Could not fine any RMA to be repaired with this S/N at this location", 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation' => $location));
+            //return new Response("Could not fine any RMA to be repaired with this S/N at this location");
         }
 
         $rmaInstance->setSerialNumF($sn);
@@ -224,7 +227,7 @@ class PoManagerProcessRmaController extends Controller
         $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
         $rmaInstance = $repoRma->findRepairedBySn($sn, $location);
         if(empty($rmaInstance)) {
-            return new Response("Could not fine any RMA already investigated with this S/N at this location");
+            return new Response('Could not fine any RMA already investigated with this S/N at this location');
         }
 
         $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
@@ -234,7 +237,8 @@ class PoManagerProcessRmaController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        return new Response("RMA unit is now ready for final inspection");
+        return $this->render('AchPoManagerBundle:PoManager:recapRepair.html.twig', array('rma' => $rmaInstance));
+        //return new Response("RMA unit is now ready for final inspection");
     }
 
     public function notRepairRmaAction($location, $sn)
@@ -261,18 +265,111 @@ class PoManagerProcessRmaController extends Controller
         return new Response("RMA unit now been decommissioned. Please set unit aside and mark it as non prod.");
     }
 
-    public function addProblemCategory($pn)
+    public function createProblemCategoryAction($pn)
     {
+        $problemCategoryInstance = new ProblemCategory();
+        $formProblemCategory = $this->createForm(new ProblemCategoryType(),$problemCategoryInstance);
+
+        $request = $this->get('request');
         
+        if($request->getMethod() == 'POST') {
+            $formProblemCategory->bind($request);
+             if ($formProblemCategory->isValid()) {
+                 $em = $this->getDoctrine()->getManager();
+                 $em->persist($problemCategoryInstance);
+                 $em->flush();
+                 return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_create_problem_category', 'message1' => "New Problem Category created successfully", 'message2' => 'Name: ' . $problemCategoryInstance->getName() . ' - Description: ' . $problemCategoryInstance->getDescription(),'pageTitle' => 'New Problem Category created!', 'pn' => $pn));
+                 //return new Response("new Problem Category created!");
+             }
+        }
 
+        return $this->render('AchPoManagerBundle:PoManager:createProblemCategory.html.twig', array('form' => $formProblemCategory->createView()));
     }
-    
-    /* public function doesSerialNumberExistAction($sn) */
-    /* { */
-    /*     $repositorySerialNumber = $this->getDoctrine()->getRepository('AchPoManagerBundle:SerialNumber'); */
 
-    /*     return new Response(); */
-    /* } */
+    public function inspectRmaAction($location)
+    {
+        $repoRepairLocation = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairLocation');
+        $repairLocationInstance = $repoRepairLocation->findOneByName($location);
+        if(empty($repairLocationInstance)) {
+            return new Response("Location of repair could not be determined");
+        }
 
+        $rmaInspect = new Rma();
+        $formRetrieveRma = $this->createForm(new RmaRetrieveType, $rmaInspect);
+
+        $request = $this->get('request');
+        
+        if($request->getMethod() == 'POST') {
+            $formRetrieveRma->bind($request);
+            if ($formRetrieveRma->isValid()) {
+
+                $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+                $rmaInstance = $repoRma->findBackToStockBySn($rmaInspect->getSerialNumF(), $location);
+                if(is_null($rmaInstance)) {
+                    $message = "There is currently no repaired unit waiting under this S/N";
+                    return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_inspection', 'repairLocation' => $repairLocationInstance->getName() ));
+                }
+                else {
+                    $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
+                    $repairStatusInstance = $repoRepairStatus->findOneByName('Ready_to_Ship');
+                    $rmaInstance->setRepairStatus($repairStatusInstance);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->flush();
+
+                    return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_rma_inspection', 'message1' => "System has passed final inspection and is now recorded as 'Ready to Ship'",'pageTitle' => 'Unit Inspected!', 'repairLocation' => $repairLocationInstance->getName()));
+
+                }
+
+            }
+
+        }                
+
+        return $this->render('AchPoManagerBundle:PoManager:inspectRma.html.twig', array('form' => $formRetrieveRma->createView()));
+        
+    }
+
+    public function shipRmaAction($location)
+    {
+        $repoRepairLocation = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairLocation');
+        $repairLocationInstance = $repoRepairLocation->findOneByName($location);
+        if(empty($repairLocationInstance)) {
+            return new Response("Location of repair could not be determined");
+        }
+
+        $rmaShip = new Rma();
+        $formRetrieveRma = $this->createForm(new RmaRetrieveType, $rmaShip);
+
+        $request = $this->get('request');
+        
+        if($request->getMethod() == 'POST') {
+            $formRetrieveRma->bind($request);
+            if ($formRetrieveRma->isValid()) {
+
+                $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+                $rmaInstance = $repoRma->findReadyToShipBySn($rmaShip->getSerialNumF(), $location);
+                if(is_null($rmaInstance)) {
+                    $message = "There is currently no unit awaiting shipment under this S/N";
+                    return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_shipment', 'repairLocation' => $repairLocationInstance->getName() ));
+                }
+                else {
+                    $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
+                    $repairStatusInstance = $repoRepairStatus->findOneByName('Returned_to_Customer');
+                    $rmaInstance->setRepairStatus($repairStatusInstance);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->flush();
+
+                    return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_rma_shipment', 'message1' => "System is now recorded as 'Return to Customer'",'pageTitle' => 'Unit returned to customer!', 'repairLocation' => $repairLocationInstance->getName()));
+
+                }
+
+            }
+
+        }                
+
+        return $this->render('AchPoManagerBundle:PoManager:shipmentRma.html.twig', array('form' => $formRetrieveRma->createView()));
+        
+    }
 
 }
