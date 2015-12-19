@@ -5,6 +5,7 @@ namespace Ach\PoManagerBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Hackzilla\BarcodeBundle\Utility\Barcode;
 
 use Ach\PoManagerBundle\Entity\Product;
 use Ach\PoManagerBundle\Entity\Po;
@@ -432,5 +433,26 @@ class PoManagerController extends Controller
 		
 		return new Response('Comment updated: ' . $comment);
 	}
-    
+
+    public function genBarcodeAction($code)
+    {
+        $barcode = $this->get('hackzilla_barcode');
+        $barcode->setGenbarcodeLocation($this->container->getParameter('barcode_gen_bin'));
+        
+        $barcode->setScale(1);
+        $barcode->setHeight(30);
+        
+        /* $headers = array( */
+        /* ); */
+
+        /* return new Response($barcode->outputHtml($code), 200, $headers); */
+        $barcode->setMode(Barcode::MODE_PNG);
+
+        $headers = array(
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'inline; filename="'.$code.'.png"'
+        );
+
+        return new Response($barcode->outputImage($code), 200, $headers);
+    }
 }

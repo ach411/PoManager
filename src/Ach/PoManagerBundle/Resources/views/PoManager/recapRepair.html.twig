@@ -1,16 +1,29 @@
 {% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
 
-{% block title %}{{ parent() }} - index{% endblock %}
+{% block title %}{{ parent() }} - Repair Sheet{% endblock %}
 
 {% block body %}
 
   <h2>Repair Sheet</h2>
   <div class="well">
     <p>
-      <b>RMA number:</b> {{ rma.num }}
+      <div class="row">
+	<div class="col-lg-1">
+	  <b>RMA number:</b> {# {{ rma.num }} #}
+	</div>
+	<div class="col-lg-1">
+	  <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.num } ) }}" alt="{{ rma.num }}">
+	</div>
+      </div>
       <br />
-      <br />
-      <b>Unit S/N:</b> {{ rma.serialNum.serialNumber }}
+      <div class="row">
+	<div class="col-lg-1">
+	  <b>Unit S/N:</b>     {# {{ rma.serialNum.serialNumber }} #}
+	</div>
+	<div class="col-lg-1">
+	  <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.serialNum.serialNumber } ) }}" alt="{{ rma.serialNum.serialNumber }}">
+	</div>
+      </div>
       <br />
       <br />
       <b>Customer Unit S/N:</b> {{ rma.custSerialNum }}
@@ -50,6 +63,9 @@
     </p>
 </div>
 
-<i>[Please print sheet and apply on unit]<i>
-
+<i>[Please print sheet and apply on unit]</i>
+<br />
+<br />
+<b>Ship under repair PO:</b>
+<img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : 'FAKE PO' } ) }}" alt="RMA# Barcode">
 {% endblock %}

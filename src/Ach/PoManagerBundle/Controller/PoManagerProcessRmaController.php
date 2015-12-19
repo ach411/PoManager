@@ -372,4 +372,20 @@ class PoManagerProcessRmaController extends Controller
         
     }
 
+    public function manageProblemCategoryAction($pn)
+    {
+        $repoProblemCategory = $this->getDoctrine()->getRepository('AchPoManagerBundle:ProblemCategory');
+        $allCategories = $repoProblemCategory->findAll();
+
+        return $this->render('AchPoManagerBundle:PoManager:manageProblemCategory.html.twig', array('allCategories' => $allCategories));
+
+        /*$message = ' ';
+        foreach($allCategories as $category) {
+            $message .= $category->getName() . ' - ';
+        }
+
+        return new Response($message); */
+    }
+    
+
 }

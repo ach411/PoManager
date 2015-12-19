@@ -241,8 +241,16 @@ ach_po_manager_process_rma_shipment:
     pattern: /ship/rma/{location}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:shipRma }
 
+ach_po_manager_manage_problem_category:
+    pattern: /manage/problemcategory/{pn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:manageProblemCategory }
+
     
 # Others Section
+
+ach_po_manager_generate_barcode:
+    pattern: /gen/barcode/{code}
+    defaults: { _controller: AchPoManagerBundle:PoManager:genBarcode }
 
 ach_po_manager_json_return_latest_active_rev:
     pattern:  /json/latestactiverev/{pn}

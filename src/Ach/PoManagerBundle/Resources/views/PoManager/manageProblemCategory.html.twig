@@ -1,0 +1,32 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Manage Problem Categories{% endblock %}
+
+{% block body %}
+
+  
+  <h2>List of Problem Categories</h2>
+  
+  <div class="well">
+
+    {% for category in allCategories %}
+
+      <div class="row" id="{{ category.id }}">
+	<div class="col-lg-3">
+	  <input type="text" id="name_{{ category.id }}" required="required" maxlength="255" class="form-control" value="{{ category.name }}"/>
+	</div>
+	<div class="col-lg-8">
+	  <textarea type="text" id="description_{{ category.id }}" required="required" maxlength="255" class="form-control">{{ category.description }}</textarea>
+	</div>
+	<div class="col-lg-1">
+	  <button type="button" class="btn btn-primary" id="update_{{ category.id }}" disabled="disabled">Update</button>
+	</div>
+      </div>
+
+      <br />
+      
+    {% endfor %}
+
+  </div>
+
+{% endblock %}
