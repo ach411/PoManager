@@ -13,6 +13,7 @@ use Ach\PoManagerBundle\Form\RmaType;
 use Ach\PoManagerBundle\Form\RmaReceiveType;
 use Ach\PoManagerBundle\Form\RmaRetrieveType;
 use Ach\PoManagerBundle\Form\RmaUpdateType;
+use Ach\PoManagerBundle\Form\RmaInspectType;
 use Ach\PoManagerBundle\Form\ProblemCategoryType;
 
 class PoManagerProcessRmaController extends Controller
@@ -181,7 +182,7 @@ class PoManagerProcessRmaController extends Controller
         $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
         $rmaInstance = $repoRma->findReceivedBySn($sn, $location);
         if(empty($rmaInstance)) {
-            return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => "Could not fine any RMA to be repaired with this S/N at this location", 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation' => $location));
+            return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => "Could not find any RMA to be repaired with this S/N at this location", 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation' => $location));
             //return new Response("Could not fine any RMA to be repaired with this S/N at this location");
         }
 
@@ -237,7 +238,7 @@ class PoManagerProcessRmaController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        return $this->render('AchPoManagerBundle:PoManager:recapRepair.html.twig', array('rma' => $rmaInstance));
+        return $this->render('AchPoManagerBundle:PoManager:recapRepair.html.twig', array('rma' => $rmaInstance, 'repairHashCode' => $this->computeMd5OverRma($rmaInstance)));
         //return new Response("RMA unit is now ready for final inspection");
     }
 
@@ -295,13 +296,13 @@ class PoManagerProcessRmaController extends Controller
         }
 
         $rmaInspect = new Rma();
-        $formRetrieveRma = $this->createForm(new RmaRetrieveType, $rmaInspect);
+        $formInspectRma = $this->createForm(new RmaInspectType, $rmaInspect);
 
         $request = $this->get('request');
         
         if($request->getMethod() == 'POST') {
-            $formRetrieveRma->bind($request);
-            if ($formRetrieveRma->isValid()) {
+            $formInspectRma->bind($request);
+            if ($formInspectRma->isValid()) {
 
                 $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
                 $rmaInstance = $repoRma->findBackToStockBySn($rmaInspect->getSerialNumF(), $location);
@@ -310,22 +311,29 @@ class PoManagerProcessRmaController extends Controller
                     return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_inspection', 'repairLocation' => $repairLocationInstance->getName() ));
                 }
                 else {
-                    $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
-                    $repairStatusInstance = $repoRepairStatus->findOneByName('Ready_to_Ship');
-                    $rmaInstance->setRepairStatus($repairStatusInstance);
-
-                    $em = $this->getDoctrine()->getManager();
-                    $em->flush();
-
-                    return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_rma_inspection', 'message1' => "System has passed final inspection and is now recorded as 'Ready to Ship'",'pageTitle' => 'Unit Inspected!', 'repairLocation' => $repairLocationInstance->getName()));
-
+                    // echo $formInspectRma->get("hashCode")->getData() . "\n";
+                    // echo $this->computeMd5OverRma($rmaInstance);
+                    if(strcmp($formInspectRma->get("hashCode")->getData(), $this->computeMd5OverRma($rmaInstance) ) === 0 or strcmp($formInspectRma->get("hashCode")->getData(), 'WILDCARD') === 0 ) {
+                        
+                        $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
+                        $repairStatusInstance = $repoRepairStatus->findOneByName('Ready_to_Ship');
+                        $rmaInstance->setRepairStatus($repairStatusInstance);
+                        
+                        $em = $this->getDoctrine()->getManager();
+                        //$em->flush();
+                        
+                        return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_rma_inspection', 'message1' => "System has passed final inspection and is now recorded as 'Ready to Ship'",'pageTitle' => 'Unit Inspected!', 'repairLocation' => $repairLocationInstance->getName()));
+                    }
+                    else {
+                        return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => 'Hash code does not match with the actual information recorded of the S/N', 'returnPath' => 'ach_po_manager_process_rma_inspection', 'repairLocation' => $repairLocationInstance->getName() ));
+                    }
                 }
 
             }
 
         }                
 
-        return $this->render('AchPoManagerBundle:PoManager:inspectRma.html.twig', array('form' => $formRetrieveRma->createView()));
+        return $this->render('AchPoManagerBundle:PoManager:inspectRma.html.twig', array('form' => $formInspectRma->createView()));
         
     }
 
@@ -387,5 +395,18 @@ class PoManagerProcessRmaController extends Controller
         return new Response($message); */
     }
     
-
+    private function computeMd5OverRma($rmaInstance)
+    {
+        $subStringToEncode = "";
+        foreach($rmaInstance->getPartReplacements() as $partReplacement)
+            {
+                $subStringToEncode .= $partReplacement->getProduct()->getPn() . '-';
+                $subStringToEncode .= $partReplacement->getOldPart() . '->';
+                $subStringToEncode .= $partReplacement->getNewPart() . '&';
+            }
+        $stringToEncode = $rmaInstance->getNum() . '&' . $rmaInstance->getSerialNum()->getSerialNumber() . '&' . $rmaInstance->getInvestigationResult() . '&' . $rmaInstance->getProblemDescription() . '&' . $subStringToEncode . $rmaInstance->getRepairDate()->format('Y-m-d') . '&' . $rmaInstance->getProblemCategory()->getName() . '&' . $rmaInstance->getProblemCategory()->getDescription();
+        //echo $stringToEncode;
+        return md5($stringToEncode);
+    }
+    
 }

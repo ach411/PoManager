@@ -4,20 +4,33 @@
 
 {% block body %}
 
-  <h2>Enter unit S/N to confirm inspection has passed</h2>
+  <h2>Confirm inspection has passed</h2>
   
   <div class="well">
     <form class="form-horizontal" method="post" {{ form_enctype(form) }}>
       <div class="form-group">
 	<div class="row">
-	  <div class="col-lg-2">
-	    {{ form_label(form.serialNumF, "Enter Serial Number", {'attr': {'class': 'control-label'}}) }}
+	  <div class="col-lg-4">
+	    {{ form_label(form.serialNumF, "Enter Serial Number (may be scanned directly on unit barcode)", {'attr': {'class': 'control-label'}}) }}
 	  </div>
 	</div>
 	<div class="row">
 	  <div class="col-lg-2">
 	    {{ form_errors(form.serialNumF) }}
 	    {{ form_widget(form.serialNumF, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	</div>
+      </div>
+      <div class="form-group">
+	<div class="row">
+	  <div class="col-lg-4">
+	    {{ form_label(form.hashCode, "Enter hash code (may be scanned directly on the repair sheet barcode)", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-lg-3">
+	    {{ form_errors(form.hashCode) }}
+	    {{ form_widget(form.hashCode, {'attr': {'class': 'form-control'} } ) }}
 	  </div>
 	</div>
       </div>

@@ -249,7 +249,7 @@ ach_po_manager_manage_problem_category:
 # Others Section
 
 ach_po_manager_generate_barcode:
-    pattern: /gen/barcode/{code}
+    pattern: /gen/barcode/{code}/{height}
     defaults: { _controller: AchPoManagerBundle:PoManager:genBarcode }
 
 ach_po_manager_json_return_latest_active_rev:

@@ -434,13 +434,13 @@ class PoManagerController extends Controller
 		return new Response('Comment updated: ' . $comment);
 	}
 
-    public function genBarcodeAction($code)
+    public function genBarcodeAction($code, $height)
     {
         $barcode = $this->get('hackzilla_barcode');
         $barcode->setGenbarcodeLocation($this->container->getParameter('barcode_gen_bin'));
         
         $barcode->setScale(1);
-        $barcode->setHeight(30);
+        $barcode->setHeight($height);
         
         /* $headers = array( */
         /* ); */

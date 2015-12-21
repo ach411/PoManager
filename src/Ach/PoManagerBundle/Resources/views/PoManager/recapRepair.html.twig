@@ -4,27 +4,10 @@
 
 {% block body %}
 
-  <h2>Repair Sheet</h2>
+  <h2>Repair Sheet for RMA # <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.num, 'height' : 40 } ) }}" alt="{{ rma.num }}"></h2>
   <div class="well">
     <p>
-      <div class="row">
-	<div class="col-lg-1">
-	  <b>RMA number:</b> {# {{ rma.num }} #}
-	</div>
-	<div class="col-lg-1">
-	  <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.num } ) }}" alt="{{ rma.num }}">
-	</div>
-      </div>
-      <br />
-      <div class="row">
-	<div class="col-lg-1">
-	  <b>Unit S/N:</b>     {# {{ rma.serialNum.serialNumber }} #}
-	</div>
-	<div class="col-lg-1">
-	  <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.serialNum.serialNumber } ) }}" alt="{{ rma.serialNum.serialNumber }}">
-	</div>
-      </div>
-      <br />
+      <b>Unit S/N:</b> {{ rma.serialNum.serialNumber }} 
       <br />
       <b>Customer Unit S/N:</b> {{ rma.custSerialNum }}
       <br />
@@ -32,10 +15,12 @@
       <br />
       <b>Rma created on:</b> {{ rma.creationDate|date('M d, Y')}}
       <br />
-      <b>Customer reported issue:</b> {{ rma.problemDescription}}</b>
+      <b>Customer reported issue:</b> {{ rma.problemDescription}}
       <br />
       <br />
-      <b>Rma received at VITEC on:</b> {{ rma.receptionDate|date('M d, Y')}}
+      <b>Repair Center:</b> {{ rma.repairLocation.name }}
+      <br />
+      <b>Rma received at the repair center on:</b> {{ rma.receptionDate|date('M d, Y')}}
       <br />
       <b>Investigation result:</b> {{ rma.investigationResult }}
       <br />
@@ -49,8 +34,7 @@
 	<br />
       {% endfor %}
       <br />
-      <br />
-      <b> Repair technicien name/signature/date:</b>
+      <b> Repair technician name/signature/date:</b>
       <br />
       <br />
       <br />
@@ -60,12 +44,14 @@
       <br />
       <br />
       <br />
+      <b>Ship under repair PO:</b><img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : 'RPO 123107', 'height' : 40 } ) }}" alt="RMA# Barcode">
     </p>
 </div>
-
 <i>[Please print sheet and apply on unit]</i>
 <br />
 <br />
-<b>Ship under repair PO:</b>
-<img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : 'FAKE PO' } ) }}" alt="RMA# Barcode">
+<i>Hash code:</i><br />
+<img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : repairHashCode, 'height' : 60 } ) }}" alt="{{ rma.num }}">
+<br />
+<br />
 {% endblock %}
