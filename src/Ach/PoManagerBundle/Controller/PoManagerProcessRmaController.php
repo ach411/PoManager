@@ -67,6 +67,11 @@ class PoManagerProcessRmaController extends Controller
                     return new Response("S/N does not seem to have shipped yet");
                         
                 $em->persist($rmaInstance);
+
+                // create a new notification with category "NEW RMA APPROVED"
+                $notification = $this->get('ach_po_manager.notification_creator')->createNotification($rmaInstance, "NEW RMA APPROVED");
+                $em->persist($notification);
+                
                 $em->flush();
                 
                 if(is_null($serialNumInstance->getShipmentBatch()->getShipmentItem()->getShipment()->getShippingDate() ))
@@ -129,7 +134,7 @@ class PoManagerProcessRmaController extends Controller
                     $rmaInstance->setReceptionDate(new \Datetime());
 
                     // cat comment
-                    $rmaInstance->setComment($rmaInstance->getComment() . 'Comment @reception: ' . $rmaReceive->getComment());
+                    $rmaInstance->setComment($rmaInstance->getComment() . ' @reception: ' . $rmaReceive->getComment());
 
                     $em = $this->getDoctrine()->getManager();
                     $em->flush();
@@ -366,6 +371,11 @@ class PoManagerProcessRmaController extends Controller
                     $rmaInstance->setRepairStatus($repairStatusInstance);
 
                     $em = $this->getDoctrine()->getManager();
+
+                    // create a new notification with category "RMA SHIPPED BACK"
+                    $notification = $this->get('ach_po_manager.notification_creator')->createNotification($rmaInstance, "RMA SHIPPED BACK");
+                    $em->persist($notification);
+                    
                     $em->flush();
 
                     return $this->render('AchPoManagerBundle:PoManager:successGeneric.html.twig', array('returnPath' => 'ach_po_manager_process_rma_shipment', 'message1' => "System is now recorded as 'Return to Customer'",'pageTitle' => 'Unit returned to customer!', 'repairLocation' => $repairLocationInstance->getName()));

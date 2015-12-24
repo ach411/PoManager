@@ -164,6 +164,13 @@ class Rma
     /**
      * @var string
      *
+     * @ORM\Column(name="rpoNum", type="string", length=255, nullable=true)
+     */
+    private $rpoNum;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="custFilePath", type="string", length=255, nullable=true)
      */
     private $custFilePath;
@@ -745,6 +752,8 @@ class Rma
 			//echo '---NO FILE---';
 			return;
 		}
+
+        $this->parseRpoFile();
 		
 		$filename = 'RPO_' . ($this->getNum()) . '.pdf';
 		$this->setRpoFilePath($filename);
@@ -894,4 +903,50 @@ class Rma
 		$this->custFile->move($this->rootPath, $this->custFilePath);
     }
 
+    /**
+     * Set rpoNum
+     *
+     * @param string $rpoNum
+     * @return Bpo
+     */
+    public function setRpoNum($rpoNum)
+    {
+		//echo 'Set file path';
+        $this->rpoNum = $rpoNum;
+    
+        return $this;
+    }
+
+    /**
+     * Get rpoNum
+     *
+     * @return string 
+     */
+    public function getRpoNum()
+    {
+        return $this->rpoNum;
+    }
+
+
+    public function parseRpoFile()
+    {
+        // get PDF parser object
+        $parser = new \Smalot\PdfParser\Parser();
+
+        // parse file
+        $pdf = $parser->parseFile($this->rpoFile);
+
+        // get text version of PDF
+        $po_text = $pdf->getText();
+
+        // remove all unpredictable spare characters
+        // $subject = preg_replace('/\s+/', '', $po_text);
+
+        // get the Po Number
+        preg_match('/PO Number (.+)PO Revision/', $po_text, $infoNumber);
+        $this->setRpoNum(preg_replace('/\s+/', '', $infoNumber[1]));
+        //$this->RpoNum = preg_replace('/\s+/', '', $infoNumber[1]);
+            
+    }
+    
 }

@@ -1,10 +1,10 @@
 {% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
 
-{% block title %}{{ parent() }} - Repair Sheet{% endblock %}
+{% block title %}{{ parent() }} - Service Sheet{% endblock %}
 
 {% block body %}
 
-  <h2>Repair Sheet for RMA # <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.num, 'height' : 40 } ) }}" alt="{{ rma.num }}"></h2>
+  <h2>Service Sheet for RMA # <img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : rma.num, 'height' : 40 } ) }}" alt="{{ rma.num }}"></h2>
   <div class="well">
     <p>
       <b>Unit S/N:</b> {{ rma.serialNum.serialNumber }} 
@@ -30,7 +30,7 @@
       <b>Rma repaired on:</b> {{ rma.repairDate|date('M d, Y')}}
       <br />
       {% for item in rma.partReplacements %}
-	<b>Swapped:</b> P/N {{ item.product.pn }}/{{ item.product.custPn }} - {{ item.product.description }}
+	<b>Replaced:</b> P/N {{ item.product.pn }}/{{ item.product.custPn }} - {{ item.product.description }}
 	<br />
       {% endfor %}
       <br />
@@ -44,14 +44,14 @@
       <br />
       <br />
       <br />
-      <b>Ship under repair PO:</b><img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : 'RPO 123107', 'height' : 40 } ) }}" alt="RMA# Barcode">
+      <b>Ship under repair PO:</b><img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : 'PO ' ~ rma.rpoNum, 'height' : 40 } ) }}" alt="PO {{ rma.rpoNum }}">
     </p>
 </div>
 <i>[Please print sheet and apply on unit]</i>
 <br />
 <br />
-<i>Hash code:</i><br />
-<img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : repairHashCode, 'height' : 60 } ) }}" alt="{{ rma.num }}">
+<i>Sheet hash code:</i><br />
+<img src="{{ path( 'ach_po_manager_generate_barcode', { 'code' : repairHashCode, 'height' : 60 } ) }}" alt="{{ repairHashCode }}">
 <br />
 <br />
 {% endblock %}

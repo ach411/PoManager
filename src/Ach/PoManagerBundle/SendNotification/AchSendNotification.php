@@ -347,7 +347,47 @@ class AchSendNotification
 				);
 				
 				break;
+                
+            case "Rma":
+
+                // get the collection
+				$listItems = $notification->getRma()->getPartReplacements();
 				
+				// get the list message pattern
+				$listMessagePattern = $notification->getNotificationCategory()->getListMessage();
+				
+				// prepare var to store concatenate item list
+				$listItemResolved = "";
+				
+				// resolve variable for each item of the list and concatenate them to a single string to form the message body
+				foreach($listItems as $item)
+				{
+                    $variableItemDefArray = array(
+                        'pn'                    => $item->getProduct()->getPn(),
+                        'custPn'                => $item->getProduct()->getCustPn(),
+                        'productDescription'    => $item->getProduct()->getDescription()
+                    );
+
+                    $listItemResolved .= $this->resolveVariable($variableItemDefArray, $listMessagePattern);
+					$listItemResolved .= "\n";
+                }
+
+                $variableDefArray = array(
+					'notificationCategory'		  => $notification->getNotificationCategory()->getName(),
+                    'listItem'					  => $listItemResolved,
+                    'rmaSerialNumber'             => $notification->getRma()->getSerialNum()->getSerialNumber(),
+                    'repairLocation'              => $notification->getRma()->getRepairLocation()->getAddress(),
+                    'rmaNum'                      => $notification->getRma()->getNum(),
+                    'RmaContactEmail'             => $notification->getRma()->getContactEmail(),
+                    'comment'                     => $notification->getRma()->getComment(),
+                    'investigationResult'         => $notification->getRma()->getInvestigationResult(),
+                    'problemCategoryName'         => $notification->getRma()->getProblemCategory()->getName(),
+                    'problemCategoryDescription'  => $notification->getRma()->getProblemCategory()->getDescription(),
+                    'repairPo'                    => $notification->getRma()->getRpoNum()
+
+                );
+
+                break;				
 				
 			default:
 				echo "Error: notificationSource can't be identified";
@@ -522,7 +562,7 @@ class AchSendNotification
                 unlink($ftemp);
             
             $nowDate = new \DateTime('NOW');
-            $log .= $nowDate->format('Y-m-d H:i:s') . " : Notification ID #".$notification->getId()." sent successfully";
+            $log .= $nowDate->format('Y-m-d H:i:s') . " : " . $notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " sent successfully";
             /* $log = $nowDate->format('Y-m-d H:i:s') . " ---EMAIL SENT TO " . $emailFields['sendTo']; */
             /* // $log = "---EMAIL SENT TO " . $emailFields['sendTo']; */
             /* // $log .= "\n---CC TO: " . $emailFields['ccTo']; */

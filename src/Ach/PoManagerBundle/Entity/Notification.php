@@ -57,7 +57,13 @@ class Notification
 	 * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
 	 */
 	private $bpo;
-	
+
+	/**
+	 * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Rma")
+	 * @ORM\JoinColumn(nullable=true, onDelete="CASCADE")
+	 */
+	private $rma;
+    
 	/**
 	 * Get id
 	 *
@@ -187,7 +193,7 @@ class Notification
 	/**
 	 * Get bpo
 	 *
-	 * @return \Ach\PoManagerBundle\Entity\Invoice 
+	 * @return \Ach\PoManagerBundle\Entity\Bpo 
 	 */
 	public function getBpo()
 	{
@@ -203,6 +209,29 @@ class Notification
 	public function setBpo(\Ach\PoManagerBundle\Entity\Bpo $bpo)
 	{
 		$this->bpo = $bpo;
+		
+		return $this;
+	}
+
+    /**
+	 * Get rma
+	 *
+	 * @return \Ach\PoManagerBundle\Entity\Rma 
+	 */
+	public function getRma()
+	{
+		return $this->rma;
+	}
+	
+	/**
+	 * Set rma
+	 *
+	 * @param \Ach\PoManagerBundle\Entity\Rma $rma
+	 * @return Notification
+	 */
+	public function setRma(\Ach\PoManagerBundle\Entity\Rma $rma)
+	{
+		$this->rma = $rma;
 		
 		return $this;
 	}
@@ -247,5 +276,30 @@ class Notification
 		//echo (is_null($this->poItem)? 'poItem null' : 'poItem not null');
 		
 	}
+
+    // get the ID of the RMA source (for debug purpose)
+    public function getSourceId()
+    {
+        if(isset($this->poItem)) {
+            return $this->getPoItem()->getId();
+        }
+
+        if(isset($this->shipment)) {
+            return $this->getShipment()->getId();
+        }
+
+        if(isset($this->invoice)) {
+            return $this->getInvoice()->getId();
+        }
+
+        if(isset($this->bpo)) {
+            return $this->getBpo()->getId();
+        }
+
+        if(isset($this->rma)) {
+            return $this->getRma()->getId();
+        }
+
+    }
 	
 }
