@@ -120,7 +120,7 @@ class Rma
     private $repairFindings;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Shipment")
+     * @ORM\ManyToOne(targetEntity="Ach\PoManagerBundle\Entity\Shipment", cascade={"persist"})
      * @ORM\JoinColumn(nullable=true)
      */
     private $shipment;
@@ -181,6 +181,7 @@ class Rma
     
 
     private $rootPath;
+
     
     /**
      * Get id
@@ -666,7 +667,7 @@ class Rma
      * Set rootPath
      *
      * @param string $rootPath
-     * @return Bpo
+     * @return Rma
      */
     public function setRootPath($rootPath)
     {
@@ -689,7 +690,7 @@ class Rma
      * Set rpoFilePath
      *
      * @param string $rpoFilePath
-     * @return Bpo
+     * @return Rma
      */
     public function setRpoFilePath($rpoFilePath)
     {
@@ -799,7 +800,7 @@ class Rma
      * Set custFilePath
      *
      * @param string $custFilePath
-     * @return Bpo
+     * @return Rma
      */
     public function setCustFilePath($custFilePath)
     {
@@ -907,7 +908,7 @@ class Rma
      * Set rpoNum
      *
      * @param string $rpoNum
-     * @return Bpo
+     * @return Rma
      */
     public function setRpoNum($rpoNum)
     {

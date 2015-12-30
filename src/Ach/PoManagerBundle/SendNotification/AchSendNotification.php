@@ -381,9 +381,12 @@ class AchSendNotification
                     'RmaContactEmail'             => $notification->getRma()->getContactEmail(),
                     'comment'                     => $notification->getRma()->getComment(),
                     'investigationResult'         => $notification->getRma()->getInvestigationResult(),
-                    'problemCategoryName'         => $notification->getRma()->getProblemCategory()->getName(),
-                    'problemCategoryDescription'  => $notification->getRma()->getProblemCategory()->getDescription(),
-                    'repairPo'                    => $notification->getRma()->getRpoNum()
+                    'problemCategoryName'         => (null !== $notification->getRma()->getProblemCategory()) ? $notification->getRma()->getProblemCategory()->getName() : "",
+                    'problemCategoryDescription'  => (null !== $notification->getRma()->getProblemCategory()) ? $notification->getRma()->getProblemCategory()->getDescription() : "",
+                    'repairPo'                    => $notification->getRma()->getRpoNum(),
+                    'trackingNum'				  => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getTrackingNum() : "",
+					'carrierName'				  => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getName() : "",
+                    'carrierLink'                 => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getLink() : ""
 
                 );
 

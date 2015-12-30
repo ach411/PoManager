@@ -1,10 +1,10 @@
 {% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
 
-{% block title %}{{ parent() }} - Retrieve a RMA{% endblock %}
+{% block title %}{{ parent() }} - Ship a RMA back{% endblock %}
 
 {% block body %}
 
-  <h2>Enter unit S/N to confirm it has shipped</h2>
+  <h2>Enter unit S/N and tracking information</h2>
   
   <div class="well">
     <form class="form-horizontal" method="post" {{ form_enctype(form) }}>
@@ -18,6 +18,26 @@
 	  <div class="col-lg-2">
 	    {{ form_errors(form.serialNumF) }}
 	    {{ form_widget(form.serialNumF, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	</div>
+      </div>
+      <div class="form-group">
+	<div class="row">
+	  <div class="col-lg-1">
+	    {{ form_label(form.shipment.carrier, "Select Carrier", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	  <div class="col-lg-2">
+	    {{ form_label(form.shipment.trackingNum, "Enter tracking number", {'attr': {'class': 'control-label'}}) }}
+	  </div>
+	</div>
+	<div class="row">
+	  <div class="col-lg-1">
+	    {{ form_errors(form.shipment.carrier) }}
+	    {{ form_widget(form.shipment.carrier, {'attr': {'class': 'form-control'} } ) }}
+	  </div>
+	  <div class="col-lg-2">
+	    {{ form_errors(form.shipment.trackingNum) }}
+	    {{ form_widget(form.shipment.trackingNum, {'attr': {'class': 'form-control'} } ) }}
 	  </div>
 	</div>
       </div>

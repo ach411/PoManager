@@ -73,7 +73,7 @@ class Shipment
 	 * @param \DateTime $shippingDate
 	 * @return Shipment
 	 */
-	public function setShippingDate($shippingdate)
+	public function setShippingDate($shippingDate)
 	{
 		$this->shippingdate = $shippingDate;
 	
@@ -223,7 +223,14 @@ class Shipment
     {
 		//$this->createdDate = new \Datetime;
 		$this->trackingNum = $trackingNum;
-		$this->shippingDate = $shippingDate;
+
+        if(is_null($shippingDate)) {
+            $this->shippingDate = new \DateTime('now');
+        }
+        else {
+            $this->shippingDate = $shippingDate;
+        }
+
 		$this->shippingDateF = date_format(new \DateTime('now'),'Y-m-d');
 		$this->carrier = $carrier;
 		$this->shipmentItems = new \Doctrine\Common\Collections\ArrayCollection();
