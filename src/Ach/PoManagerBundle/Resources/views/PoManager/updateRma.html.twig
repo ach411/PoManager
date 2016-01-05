@@ -7,7 +7,7 @@
 {% form_theme form 'AchPoManagerBundle:PoManager:_field-prototype-Rma.html.twig' %} 
 
   <div class="alert alert-info" role="alert">
-    {% if rmaInstance.serialNum.shipmentBatch.ShipmentItem is not null %}
+    {% if rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate is not null %}
       <h4>This unit was originally shipped to customer on {{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date('M d, Y' )}} under PO #{{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.PoItem.Po.num}}:
 	{% if rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date_modify('+1 year')|date('Y-m-d') > rmaInstance.creationDate|date('Y-m-d') %}
 	  <b>Unit is still under warranty.</b>
@@ -15,6 +15,8 @@
 	  <b>Unit is no longer under warranty.</b>
 	{% endif %}
       </h4>
+    {% else %}
+      <h4>This unit was shipped under PO #{{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.PoItem.Po.num}}, however shipment date is unkown: <b>warranty status cannot be determined</b></h4>
     {% endif %}
     {% if rmaInstance.custFilePath is not null %}
       <a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{rmaInstance.custFilePath}}" target="_blank">See customer document</a>

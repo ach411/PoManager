@@ -11,7 +11,7 @@ from multiple customers.
 - Email notification. You can configure PoManager to send automatic emails at different stages
 
 PoManager is a PHP Symfony Project.
-It includes a SQL database using [Doctrine][1] ORM, sends email using [Swiftmailer][2] and parse PDF using [PDF parser][3]. Some pages create barcode images using barcodeBundle[4]
+It includes a SQL database using [Doctrine][1] ORM, sends email using [Swiftmailer][2] and parse PDF using [PDF parser][3]. Some pages create barcode images using [barcodeBundle][4]
 
 This version is tested with:
 - Apache/2.2.22 (Ubuntu)
@@ -29,7 +29,7 @@ To install them:
     sudo apt-get install php5-intl
     sudo service apache2 restart
 
-Also make sure that GNU-Barcode and the small genbarcode utitity is installed as explained in barcodeBundle[4]
+Also make sure that GNU-Barcode and the small genbarcode utitity is installed as explained in [barcodeBundle][4]
 
 Go to your web server root document folder (e.g. /var/www) and create the following 4 folders:
 
