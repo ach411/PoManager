@@ -377,20 +377,19 @@ class PoManagerProcessPoItemController extends Controller
 			*/
 
             // manage lots (ShipmentBatch)
-            $lotType =  $poItem->getRevision()->getProduct()->getLotConfig();
-            if($lotType != null)
+            $prodName =  $poItem->getRevision()->getProduct()->getProdName();
+            if($prodName != null)
             {
-                $productName = str_replace("lot_", "", $lotType);
                 $repositoryShipmentBatch = $this->getDoctrine()
 						->getManager()
 						->getRepository('AchPoManagerBundle:ShipmentBatch');
                 
-                $shipmentBatchInstances = $repositoryShipmentBatch->findWaitingForRemovalByProductName($productName);
+                $shipmentBatchInstances = $repositoryShipmentBatch->findWaitingForRemovalByProductName($prodName);
                 $lotNumber = count($shipmentBatchInstances);
                 if(empty($shipmentBatchInstances))
-                    return new Response("Error: lot type is not defined properly in parameter file");
-                if(count($shipmentBatchInstances) * intval($this->container->getParameter($lotType)) != $shippedQty)
-                    return new Response("Error: the $lotNumber $productName lot(s) previously selected for that shipment do not match with entered quantity of $shippedQty!");
+                    return new Response("Error: No lot is currently selected for shipment, please select lot(s) for removal first");
+                if(count($shipmentBatchInstances) * intval($this->container->getParameter('lot_' . $prodName)) != $shippedQty)
+                    return new Response("Error: the $lotNumber $prodName lot(s) previously selected for that shipment do not match with entered quantity of $shippedQty!");
                 foreach($shipmentBatchInstances as $shipmentBatchInstance)
                 {
                     //$shipmentBatchInstance->setShipment($shipment);

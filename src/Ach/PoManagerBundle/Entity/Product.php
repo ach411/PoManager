@@ -104,9 +104,9 @@ class Product
     /**
      * @var string
      *
-     * @ORM\Column(name="lotConfig", type="string", length=255, nullable=true)
+     * @ORM\Column(name="prodName", type="string", length=255, nullable=true)
      */
-    private $lotConfig;
+    private $prodName;
 
     /**
      * @var string
@@ -436,26 +436,26 @@ class Product
     }
 
     /**
-     * Set lotConfig
+     * Set prodName
      *
-     * @param string $lotConfig
+     * @param string $prodName
      * @return Product
      */
-    public function setLotConfig($lotConfig)
+    public function setProdName($prodName)
     {
-        $this->lotConfig = $lotConfig;
+        $this->prodName = $prodName;
     
         return $this;
     }
 
     /**
-     * Get lotConfig
+     * Get prodName
      *
      * @return string 
      */
-    public function getLotConfig()
+    public function getProdName()
     {
-        return $this->lotConfig;
+        return $this->prodName;
     }
 
     /**

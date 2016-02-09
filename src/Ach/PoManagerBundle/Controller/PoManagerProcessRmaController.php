@@ -223,7 +223,27 @@ class PoManagerProcessRmaController extends Controller
 
     }
 
-    public function endRepairRmaAction($location, $sn)
+    public function productInspectionRmaAction($location, $sn)
+    {
+        $repoRepairLocation = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairLocation');
+        $repairLocationInstance = $repoRepairLocation->findOneByName($location);
+        if(empty($repairLocationInstance)) {
+            return new Response("Location of repair could not be determined");
+        }
+
+        $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+        $rmaInstance = $repoRma->findRepairedBySn($sn, $location);
+        if(empty($rmaInstance)) {
+            $message = "There is currently no repaired unit waiting under this S/N";
+            return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation' => $repairLocationInstance->getName() ));
+            //return new Response('Could not fine any RMA already investigated with this S/N at this location');
+        }
+
+        return $this->render('AchPoManagerBundle:PoManager:productInspection.html.twig', array('rmaInstance' => $rmaInstance, 'repairHashCode' => $this->computeMd5OverRma($rmaInstance), 'inspection_form' => $this->container->getParameter('inspection_form_' . $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getProdName()) ));
+
+    }
+    
+    public function serviceSheetRmaAction($location, $sn, $hash)
     {
         $repoRepairLocation = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairLocation');
         $repairLocationInstance = $repoRepairLocation->findOneByName($location);
@@ -237,6 +257,11 @@ class PoManagerProcessRmaController extends Controller
             $message = "There is currently no repaired unit waiting under this S/N";
             return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation' => $repairLocationInstance->getName() ));
             //return new Response('Could not fine any RMA already investigated with this S/N at this location');
+        }
+
+        if($hash !== $this->computeMd5OverRma($rmaInstance)) {
+            $message = "Wrong Hash code, please perform inspection";
+            return $this->render('AchPoManagerBundle:PoManager:error.html.twig', array('message' => $message, 'returnPath' => 'ach_po_manager_process_rma_repair', 'repairLocation' => $repairLocationInstance->getName() ));
         }
 
         $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');

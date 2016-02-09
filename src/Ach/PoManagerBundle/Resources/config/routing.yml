@@ -221,9 +221,13 @@ ach_po_manager_process_rma_update:
     pattern: /update/rma/{location}/{sn}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:updateRma }
 
-ach_po_manager_process_rma_end_of_repair:
-    pattern: /endrepair/rma/{location}/{sn}
-    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:endRepairRma }
+ach_po_manager_process_rma_product_inspection:
+    pattern: /product/inspection/rma/{location}/{sn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:productInspectionRma }
+
+ach_po_manager_process_rma_service_sheet:
+    pattern: /servicesheet/rma/{location}/{sn}/{hash}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:serviceSheetRma }
 
 ach_po_manager_process_rma_not_repair:
     pattern: /notrepair/rma/{location}/{sn}

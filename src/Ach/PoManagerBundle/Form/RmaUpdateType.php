@@ -16,7 +16,7 @@ class RmaUpdateType extends AbstractType
     {
         $builder
             ->add('serialNumF', 'text', array('read_only' => true))
-            ->add('custSerialNum', 'text', array('required' => false, 'read_only' => true))
+            ->add('custSerialNum', 'text', array('required' => false))
             ->add('problemDescription', 'textarea', array('required' => true, 'read_only' => true))
             ->add('creationDate', 'date', array('widget' => 'single_text', 'read_only' => true))
             ->add('receptionDate', 'date', array('widget' => 'single_text', 'read_only' => true))

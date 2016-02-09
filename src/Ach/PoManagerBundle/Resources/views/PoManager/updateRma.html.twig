@@ -10,9 +10,9 @@
     {% if rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate is not null %}
       <h4>This unit was originally shipped to customer on {{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date('M d, Y' )}} under PO #{{ rmaInstance.serialNum.shipmentBatch.ShipmentItem.PoItem.Po.num}}:
 	{% if rmaInstance.serialNum.shipmentBatch.ShipmentItem.Shipment.shippingDate|date_modify('+1 year')|date('Y-m-d') > rmaInstance.creationDate|date('Y-m-d') %}
-	  <b>Unit is still under warranty.</b>
+	  <b>Unit is returned under warranty.</b>
 	{% else %}
-	  <b>Unit is no longer under warranty.</b>
+	  <b>Unit is returned out of warranty.</b>
 	{% endif %}
       </h4>
     {% else %}
