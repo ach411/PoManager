@@ -1,0 +1,24 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - Product Inspection{% endblock %}
+
+{% block body %}
+
+  <h3> Please proceed with the product inspection of {{ rmaInstance.serialNum.serialNumber }} </h3>
+    
+  <div class="well">
+    <form action="{{ path('ach_po_manager_process_rma_service_sheet', { 'location' : rmaInstance.repairLocation.name, 'sn' : rmaInstance.serialNum.serialNumber, 'hash' : repairHashCode } ) }}" method="get">
+    
+      {# {% set form = 'inspection_form_' ~ stance.serialNum.shipmentBatch.shipmentItem.poItem.revision.product.prodName %}  #}
+      
+      {# {{ _context[form]|raw }} #}
+
+      {{ inspection_form|raw }} 
+
+      <input type="submit" value="Inspection passed successfully!" class="btn btn-primary btn-large">
+    </form>
+  </div>
+  
+{# {% include "AchPoManagerBundle:PoManager:back.html.twig" %} #}
+
+{% endblock %}
