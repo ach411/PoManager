@@ -24,9 +24,22 @@ class PoManagerProcessRmaController extends Controller
     public function createRmaAction()
     {
         $rmaInstance = new Rma($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('rma_files_path'));
-        $formRma = $this->createForm(new RmaType, $rmaInstance);
 
         $request = $this->get('request');
+        if($request->query->has('sn')) {
+            $rmaInstance->setSerialNumF($request->query->get('sn'));
+        }
+
+        if($request->query->has('custsn')) {
+            $rmaInstance->setCustSerialNum($request->query->get('custsn'));
+        }
+
+        if($request->query->has('contactemail')) {
+            $rmaInstance->setContactEmail($request->query->get('contactemail'));
+        }
+
+
+        $formRma = $this->createForm(new RmaType, $rmaInstance);
         
         if($request->getMethod() == 'POST') {
             $formRma->bind($request);
