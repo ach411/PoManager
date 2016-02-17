@@ -14,6 +14,7 @@
 	<th>Description</th>
 	<th>Price</th>
 	<th>Currency</th>
+	<th>Rev. & drawings</th>
 	<th>Comment</th>
 	
       </tr>
@@ -28,6 +29,7 @@
 	    <td>{{item.description}}</td>
 	    <td>{{item.price.price}}</td>
 	    <td>{{item.price.currency.tla}}</td>
+	    <td><a href="{{ path('ach_po_manager_search_revision_pn', {'pn': item.pn} ) }}">view</td>
 	    <td class="input-group col-lg-4"><div class="input-group">
 		<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}">
 		  <span class="input-group-btn">
