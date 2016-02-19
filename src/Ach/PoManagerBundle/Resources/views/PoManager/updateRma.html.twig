@@ -123,6 +123,9 @@
 	<div id="number_replacement">
       {{ form_label(form.partReplacements, "%s part swap(s) have been made during repair:"|format( form.partReplacements|length )) }}
 	</div>
+	<div class="col-lg-2">
+	<a href="{{path('ach_po_manager_dump_spare_parts_product', { 'pn' : rmaInstance.serialNum.shipmentBatch.shipmentItem.poItem.revision.product.pn })}}" target="_blank">see detailed list of spare parts</a>
+      </div>
 	<div id="replacement_section">
 	  {{ form_errors(form.partReplacements) }}
 	  {{ form_widget(form.partReplacements) }}
