@@ -60,4 +60,11 @@ class RmaRepository extends EntityRepository
         return $query->getOneOrNullResult();
     }
 
+    public function findBySn($sn)
+    {
+        $query = $this->_em->createQuery('SELECT r FROM AchPoManagerBundle:Rma r JOIN r.serialNum s WHERE s.serialNumber like :sn');
+        $query->setParameter('sn', $sn);
+        return $query->getResult();
+    }
+
 }

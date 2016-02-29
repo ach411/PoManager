@@ -182,6 +182,12 @@ class Rma
 
     private $rootPath;
 
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="credited", type="boolean", nullable=false)
+     */
+    private $credited;
     
     /**
      * Get id
@@ -950,4 +956,27 @@ class Rma
             
     }
     
+
+    /**
+     * Set credited
+     *
+     * @param boolean $credited
+     * @return Rma
+     */
+    public function setCredited($credited)
+    {
+        $this->credited = $credited;
+    
+        return $this;
+    }
+
+    /**
+     * Get credited
+     *
+     * @return boolean 
+     */
+    public function getCredited()
+    {
+        return $this->credited;
+    }
 }

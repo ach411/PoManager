@@ -186,7 +186,7 @@ class PoManagerProcessRmaController extends Controller
             }
         }
 
-        return $this->render('AchPoManagerBundle:PoManager:retrieveRma.html.twig', array('form' => $formRetrieveRma->createView()));
+        return $this->render('AchPoManagerBundle:PoManager:retrieveRma.html.twig', array('form' => $formRetrieveRma->createView(), 'message' => 'Retrieve a RMA for repair' ));
                
     }
 
@@ -452,6 +452,27 @@ class PoManagerProcessRmaController extends Controller
 
         return new Response($message); */
     }
+
+    public function viewRmaBySnAction()
+    {
+        $rmaRetrieve = new Rma();
+        $formRetrieveRma = $this->createForm(new RmaRetrieveType, $rmaRetrieve);
+
+        $location = 'Sunnyvale';
+
+        $request = $this->get('request');
+        
+        if($request->getMethod() == 'POST') {
+            $formRetrieveRma->bind($request);
+            if ($formRetrieveRma->isValid()) {
+                $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+                $rmaInstances = $repoRma->findBySn($rmaRetrieve->getSerialNumF());
+                return $this->render('AchPoManagerBundle:PoManager:displayListRmaStatus.html.twig', array('rmas' => $rmaInstances) );
+            }
+        }
+
+        return $this->render('AchPoManagerBundle:PoManager:retrieveRma.html.twig', array('form' => $formRetrieveRma->createView(), 'message' => 'View status of RMA' ));
+    }   
     
     private function computeMd5OverRma($rmaInstance)
     {

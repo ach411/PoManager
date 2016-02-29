@@ -49,7 +49,7 @@
 					<td>{{item.shipmentBatch.shipmentItem.poItem.po.relNum}}</td>
 					<td>{{item.shipmentBatch.shipmentItem.poItem.lineNum}}</td>
 					<td>{{item.shipmentBatch.shipmentItem.poItem.dueDate|date('Y-m-d')}}</td>
-					<td>{{item.shipmentBatch.shipmentItem.shipment.shippingDate|date('Y-m-d')}}</td>
+					<td>{{item.shipmentBatch.shipmentItem.shipment.shippingDate is empty ? "unknown" : item.shipmentBatch.shipmentItem.shipment.shippingDate|date('Y-m-d')}}</td>
 					<td>
 					  <a href="{{ path('ach_po_manager_search_shipmentitem_tracking', {'tracking': item.shipmentBatch.shipmentItem.shipment.trackingNum} ) }}">{{item.shipmentBatch.shipmentItem.shipment.trackingNum}}</a>
 					  <br />
@@ -62,7 +62,7 @@
 				      {% else %}
 					
 					<td>{{item.shipmentBatch.num}}</td>
-					<td>{{item.shipmentBatch.productName}}</td>
+					<td>{{item.shipmentBatch.productName}}: in stock</td>
 					<td></td>
 					<td></td>
 					<td></td>

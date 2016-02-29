@@ -148,9 +148,9 @@ To generate an entity (doctrine):
 
     php app/console generate:doctrine:entity
 
-To modify an entity (doctrine):
+To add the getter/setter functions to a modified entity (doctrine):
 
-    php app/console doctrine:generate:entities
+    php app/console doctrine:generate:entities AchPoManagerBundle:<EntityName>
 
 To generate a form:
 
