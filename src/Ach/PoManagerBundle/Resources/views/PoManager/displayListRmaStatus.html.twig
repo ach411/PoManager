@@ -5,97 +5,73 @@
 {% block body %}
 
 <h2>List of Rma(s) matching request:</h2>
-	<p>
-		<table id="sortable" class="table table-bordered table-hover tablesorter">
-			<thead>
-				<tr>
-					<th>RMA #</th>
-					<th>S/N</th>
-					<th>Cust. Rev.</th>
-					<th>Original Ship. date</th>
-					<th>on PO #</th>
-					<th>Rel. #</th>
-					<th>Line #</th>
-					<th>Returned for</th>
-					<th>Cust. doc</th>
-					<th>Repair Center</th>
-					<th>Rma status</th>
-					<th>Investigation result</th>
-					<th>Problem category</th>
-					<th>Comment</th>
-					<th>Credited to Cust.</th>
-					<th>Repair PO</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for item in rmas %}
-				  <tr>
-				    <td>{{item.num}}</td>
-				    <td>{{item.serialNum.serialNumber}}<br /><a href="{{ path('ach_po_manager_search_serial_number', {'sn': item.serialNum.serialNumber}) }}">(see S/N details)</a></td>
-
-				    {% if item.serialNum.shipmentBatch is not null %}
-				      
-				      {% if item.serialNum.shipmentBatch.shipmentItem is not null %}	      
-
-					<td>
-					  {{item.serialNum.shipmentBatch.shipmentItem.poItem.revision.revisionCust}}
-					  <br />
-					  <a href="{{ path('ach_po_manager_search_revision_pn', {'pn': item.serialNum.shipmentBatch.shipmentItem.poItem.revision.product.pn} ) }}">(see all rev.)</a>
-					</td>
-					<td>{{item.serialNum.shipmentBatch.shipmentItem.shipment.shippingDate is empty ? "unknown" : item.serialNum.shipmentBatch.shipmentItem.shipment.shippingDate|date('Y-m-d')}} <br /> <a href="{{ path('ach_po_manager_search_shipmentitem_tracking', {'tracking': item.serialNum.shipmentBatch.shipmentItem.shipment.trackingNum} ) }}">(See shipment details)</a></td>
-					<td>{{item.serialNum.shipmentBatch.shipmentItem.poItem.po.num}}</td>
-					<td>{{item.serialNum.shipmentBatch.shipmentItem.poItem.po.relNum}}</td>
-					<td>{{item.serialNum.shipmentBatch.shipmentItem.poItem.lineNum}}</td>
-					<td>{{item.problemDescription}}</td>
-					<td><a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{item.custFilePath}}" target="_blank">See cust. doc</a></td>
-					<td>{{item.repairLocation.name}}</td>
-					<td>{{item.repairStatus.name}}</td>
-					<td>{{item.investigationResult}}</td>
-					<td>{{item.problemCategory is empty ? "uncategorized" : item.problemCategory.name }}</td>
-					<td>{{item.comment}}</td>
-					<td>{{item.credited? "Yes" : "No" }}</td>
-					<td>{{ item.rpoNum is empty ? "None" : item.rpoNum }}<br /><a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{item.rpoFilePath}}" target="_blank">See</a></td>
-					
-				      {% else %}
-					
-					<td>{{item.serialNum.shipmentBatch.num}}</td>
-					<td>{{item.serialNum.shipmentBatch.productName}}: in stock</td>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td>N/A</td>
-					<td>N/A</td>
-					<td>N/A</td>
-					<td>N/A</td>
-					<td>N/A</td>
-					
-				      {% endif %}
-				      
-				    {% else %}
-
-				      <td>N/A</td>
-				      <td>N/A</td>
-				      <td></td>
-				      <td></td>
-				      <td></td>
-				      <td>N/A</td>
-				      <td>N/A</td>
-				      <td>N/A</td>
-				      <td>N/A</td>
-				      <td>N/A</td>
-					
-				    {% endif %}
-				    
-				</tr>
-				{% else %}
-				<tr>
-					No match!
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-		{% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %}
-	</p>
+<p>
+  <table id="sortable" class="table table-bordered table-hover tablesorter">
+    <thead>
+      <tr>
+	<th>RMA #</th>
+	<th>S/N</th>
+	<th>Cust. Rev.</th>
+	<th>Original Ship. date</th>
+	<th>on PO #</th>
+	<th>Rel. #</th>
+	<th>Line #</th>
+	<th>Returned for</th>
+	<th>Cust. doc</th>
+	<th>Repair Center</th>
+	<th>Date received</th>
+	<th>Date sent back</th>
+	<th>Rma status</th>
+	<th>Investigation result</th>
+	<th>Problem category</th>
+	<th>Comment</th>
+	<th>Credited to Cust.</th>
+	<th>Repair PO</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in rmas %}
+	<tr>
+	  <td>{{item.num}}</td>
+	  <td>{{item.serialNum.serialNumber}}<br /><a href="{{ path('ach_po_manager_search_serial_number', {'sn': item.serialNum.serialNumber}) }}" target="_blank">(see S/N details)</a></td>
+	  <td>
+	    {{item.serialNum.shipmentBatch.shipmentItem.poItem.revision.revisionCust}}
+	    <br />
+	    <a href="{{ path('ach_po_manager_search_revision_pn', {'pn': item.serialNum.shipmentBatch.shipmentItem.poItem.revision.product.pn} ) }}" target="_blank">(see all rev.)</a>
+	  </td>
+	  <td>{{item.serialNum.shipmentBatch.shipmentItem.shipment.shippingDate is empty ? "unknown" : item.serialNum.shipmentBatch.shipmentItem.shipment.shippingDate|date('Y-m-d')}} <br /> <a href="{{ path('ach_po_manager_search_shipmentitem_tracking', {'tracking': item.serialNum.shipmentBatch.shipmentItem.shipment.trackingNum} ) }}">(See shipment details)</a></td>
+	  <td>{{item.serialNum.shipmentBatch.shipmentItem.poItem.po.num}}</td>
+	  <td>{{item.serialNum.shipmentBatch.shipmentItem.poItem.po.relNum}}</td>
+	  <td>{{item.serialNum.shipmentBatch.shipmentItem.poItem.lineNum}}</td>
+	  <td>{{item.problemDescription}}</td>
+	  {% if item.custFilePath is empty %}
+	    <td>None</td>
+	  {% else %}
+	    <td><a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{item.custFilePath}}" target="_blank">See cust. doc</a></td>
+	  {% endif %}
+	  <td>{{item.repairLocation.name}}</td>
+	  <td>{{item.receptionDate is empty ? "N/A" : item.receptionDate|date('Y-m-d')}}</td>
+	  <td>{{item.shippedBackDate is empty ? "N/A" : item.shippedBackDate|date('Y-m-d')}}</td>
+	  <td>{{item.repairStatus.name}}</td>
+	  <td>{{item.investigationResult}}</td>
+	  <td>{{item.problemCategory is empty ? "uncategorized" : item.problemCategory.name }}</td>
+	  <td>{{item.comment}}</td>
+	  <td>{{item.credited? "Yes" : "No" }}</td>
+	  {% if item.rpoNum is empty %}
+	    <td>None</td>
+	  {% else %}
+	    <td>{{ item.rpoNum }}<br /><a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{item.rpoFilePath}}" target="_blank">See</a></td>
+	  {% endif %}
+	</tr>
+      {% else %}
+	<tr>
+	  No match!
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% include "AchPoManagerBundle:PoManager:generateXlsButton.html.twig" %}
+</p>
 
 <script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
 <script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>

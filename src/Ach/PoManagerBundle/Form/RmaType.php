@@ -19,6 +19,7 @@ class RmaType extends AbstractType
             ->add('contactEmail', 'email', array('required' => true))
             ->add('rpoFile', 'file', array('required' => false))
             ->add('custFile', 'file', array('required' => false))
+            ->add('credited', 'checkbox', array('required'=>false))
         ;
     }
 
