@@ -38,6 +38,13 @@ class PoManagerProcessRmaController extends Controller
             $rmaInstance->setContactEmail($request->query->get('contactemail'));
         }
 
+        if($request->query->has('failureDesc')) {
+            $rmaInstance->setProblemDescription($request->query->get('failureDesc'));
+        }
+
+        if($request->query->has('credited')) {
+            $rmaInstance->setCredited(true);
+        }
 
         $formRma = $this->createForm(new RmaType, $rmaInstance);
         
@@ -205,7 +212,8 @@ class PoManagerProcessRmaController extends Controller
             //return new Response("Could not fine any RMA to be repaired with this S/N at this location");
         }
 
-        $rmaInstance->setSerialNumF($sn);
+        /* $rmaInstance->setSerialNumF($sn); */
+        $rmaInstance->setSerialNumF($rmaInstance->getSerialNum()->getSerialNumber());
 
         //get product that is concerned by RMA
         $productInstance=$rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct();
@@ -423,6 +431,12 @@ class PoManagerProcessRmaController extends Controller
                     // create a new notification with category "RMA SHIPPED BACK"
                     $notification = $this->get('ach_po_manager.notification_creator')->createNotification($rmaInstance, "RMA SHIPPED BACK");
                     $em->persist($notification);
+
+                    // if the RMA was credited, create a notification for the billing manager
+                    if($rmaInstance->getCredited()) {
+                        $notificationBilling = $this->get('ach_po_manager.notification_creator')->createNotification($rmaInstance, "CREDITED RMA SHIPPED BACK");
+                        $em->persist($notificationBilling);
+                    }
                     
                     $em->flush();
 

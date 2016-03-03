@@ -58,7 +58,7 @@ class AchSendNotification
 		return $email_array;
 	}
 
-	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, $po_files_path, $bpo_files_path, $invoice_files_path)
+	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path)
 	{
 		$this->mailer = $mailer;
 		$this->router = $router;
@@ -67,6 +67,7 @@ class AchSendNotification
 		$this->po_files_path = $po_files_path;
 		$this->bpo_files_path = $bpo_files_path;
 		$this->invoice_files_path = $invoice_files_path;
+        $this->rma_files_path = $rma_files_path;
 		$this->swiftmailer_transport_real = $swiftmailer_transport_real;
 	}
 
@@ -386,7 +387,10 @@ class AchSendNotification
                     'repairPo'                    => $notification->getRma()->getRpoNum(),
                     'trackingNum'				  => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getTrackingNum() : "",
 					'carrierName'				  => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getName() : "",
-                    'carrierLink'                 => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getLink() : ""
+                    'carrierLink'                 => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getLink() : "",
+                    'BillingManagerName'          => (null !== $notification->getRma()->getSerialNum()->getShipmentBatch()) ? $notification->getRma()->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getBillingManager()->getName() : "",
+                    'BillingManagerEmail'         => (null !== $notification->getRma()->getSerialNum()->getShipmentBatch()) ? $notification->getRma()->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getBillingManager()->getName() : "",
+                    'rpoFileLink'                 => "http://" . $this->router->getContext()->getHost() . $this->rma_files_path . "/" . $notification->getRma()->getRpoFilePath()
 
                 );
 
