@@ -60,7 +60,11 @@
 	  {% if item.rpoNum is empty %}
 	    <td>None</td>
 	  {% else %}
-	    <td>{{ item.rpoNum }}<br /><a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{item.rpoFilePath}}" target="_blank">See</a></td>
+	    <td>{{ item.rpoNum }}
+	      {% if item.rpoFilePath is not empty %}
+		<br /><a class="btn btn-primary btn-large" href="{{ rma_files_path }}/{{item.rpoFilePath}}" target="_blank">See RPO</a>
+	      {% endif %}
+	    </td>
 	  {% endif %}
 	</tr>
       {% else %}
