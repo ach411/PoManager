@@ -249,9 +249,13 @@ ach_po_manager_manage_problem_category:
     pattern: /manage/problemcategory/{pn}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:manageProblemCategory }
 
-ach_po_manager_process_rma_view:
+ach_po_manager_process_rma_view_by_sn:
     pattern: /view/rma/
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:viewRmaBySn }
+
+ach_po_manager_process_rma_status:
+    pattern: /view/rma/sn/{sn}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessRma:viewRmaStatusBySn }
     
 # Others Section
 

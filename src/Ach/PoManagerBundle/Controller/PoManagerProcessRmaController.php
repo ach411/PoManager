@@ -479,14 +479,53 @@ class PoManagerProcessRmaController extends Controller
         if($request->getMethod() == 'POST') {
             $formRetrieveRma->bind($request);
             if ($formRetrieveRma->isValid()) {
-                $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
-                $rmaInstances = $repoRma->findBySn($rmaRetrieve->getSerialNumF());
-                return $this->render('AchPoManagerBundle:PoManager:displayListRmaStatus.html.twig', array('rmas' => $rmaInstances) );
+                return $this->redirect($this->generateUrl('ach_po_manager_process_rma_status', array('sn' => $rmaRetrieve->getSerialNumF())));
             }
         }
 
         return $this->render('AchPoManagerBundle:PoManager:retrieveRma.html.twig', array('form' => $formRetrieveRma->createView(), 'message' => 'View status of RMA' ));
-    }   
+    }
+
+    public function viewRmaStatusBySnAction($sn)
+    {
+        $repoRma = $this->getDoctrine()->getRepository('AchPoManagerBundle:Rma');
+        $rmaInstances = $repoRma->findBySn($sn);
+
+        $request = $this->get('request');
+        if($request->query->get('return') == 'xls') {
+            if(empty($rmaInstances)) {
+                $response = new Response;
+                $response->setContent('Query has no match');
+                $response->setStatusCode(404);
+                return $response;
+            }
+            foreach ($rmaInstances as $key=>$rmaInstance) {
+                $data[$key]["RMA #"] = $rmaInstance->getNum();
+                $data[$key]["S/N"] = $rmaInstance->getSerialNum()->getSerialNumber();
+                $data[$key]["Cust. Rev."] = $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getRevisionCust();
+                $data[$key]["Original Ship. date"] = (null != $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getShipment()->getShippingDate() ? $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getShipment()->getShippingDate()->format("d-M-Y") : "unknown");
+                $data[$key]["on PO #"] = $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getPo()->getNum();
+                $data[$key]["Rel. #"] = $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getPo()->getRelNum();
+                $data[$key]["Line #"] = $rmaInstance->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getLineNum();
+                $data[$key]["Returned for"] = $rmaInstance->getProblemDescription();
+                $data[$key]["Repair Center"] = $rmaInstance->getRepairLocation()->getName();
+                $data[$key]["Date received"] = ( null != $rmaInstance->getReceptionDate() ? $rmaInstance->getReceptionDate()->format("d-M-Y") : "N/A" );
+                $data[$key]["Date sent back"] = ( null != $rmaInstance->getShippedBackDate() ? $rmaInstance->getShippedBackDate()->format("d-M-Y") : "N/A" );
+                $data[$key]["Rma status"] = $rmaInstance->getRepairStatus()->getName();
+                $data[$key]["Investigation result"] = $rmaInstance->getInvestigationResult();
+                $data[$key]["Problem category"] = ( null != $rmaInstance->getProblemCategory() ? $rmaInstance->getProblemCategory()->getName() : "uncategorized" );
+                $data[$key]["Comment"] = $rmaInstance->getComment();
+                $data[$key]["Credited to Cust."] = ( $rmaInstance->getCredited() ? "Yes" : "No" );
+                $data[$key]["Repair PO"] = ( null != $rmaInstance->getRpoNum() ? "None" : $rmaInstance->getRpoNum());
+            }
+
+            //call GenerateXlsResponse service and generate Response
+            return $this->get('ach_po_manager.generate_xls_response')->generate($data, 'PoManager_Export', 'RmaList');
+        }
+        else {    
+            return $this->render('AchPoManagerBundle:PoManager:displayListRmaStatus.html.twig', array('rmas' => $rmaInstances) );
+        }
+    }
     
     private function computeMd5OverRma($rmaInstance)
     {
