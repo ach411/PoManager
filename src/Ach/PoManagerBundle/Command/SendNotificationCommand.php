@@ -46,6 +46,7 @@ class SendNotificationCommand extends ContainerAwareCommand
 			$log = $this->getContainer()->get('ach_po_manager.send_notification')->sendNotification($notification, $files_root_path);
 			$output->writeln($log);
 			$em->remove($notification);
+            $em->flush();
 		}
 		
 		/* $transport = $this->getContainer()->get('mailer')->getTransport(); */
@@ -60,7 +61,6 @@ class SendNotificationCommand extends ContainerAwareCommand
 		
 		/* $spool->flushQueue($this->getContainer()->get('swiftmailer.transport.real'));	 */
 		
-		$em->flush();
 		
 		//$output->writeln('SendNotification executed: ' . $log);
     }
