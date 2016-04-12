@@ -31,7 +31,7 @@ To install them:
 
 Also make sure that GNU-Barcode and the small genbarcode utitity is installed as explained in [barcodeBundle][4]
 
-Go to your web server root document folder (e.g. /var/www) and create the following 4 folders:
+Go to your web server root document folder (e.g. /var/www) and create the following 6 folders:
 
     mkdir po_files bpo_files invoice_files revision_files zip_files rma_files
 
@@ -121,9 +121,15 @@ Create the tables, in PoManager folder type:
 
     php app/console doctrine:schema:update --force
 
-To have notifications sent automatically, configure crontab to run:
+To have email notifications sent automatically and periodically, configure crontab to run:
 
-    php /var/www/PoManager/app/console SendNotification <server_ip_address>
+    php /var/www/PoManager/app/console SendNotification <server_ip_address> --env=prod
+
+This application can log notification info using 'local1' syslog facility. Your syslog service needs to be configured accordingly.
+For example with rsyslog in ubuntu, add the following line into /etc/rsyslog.d/50-default.conf:
+
+    local1.*                        -/var/log/pomanager.log
+
 
 Quick Symfony memo
 --------------------------------

@@ -548,28 +548,32 @@ class AchSendNotification
             }
 		
             //echo getcwd();
-
-		
-            $this->mailer->send($email);
-            
-            $transport = $this->mailer->getTransport();
-            if (!$transport instanceof \Swift_Transport_SpoolTransport) {
-                return;
+            try {
+                $this->mailer->send($email);
+           
+                $transport = $this->mailer->getTransport();
+                if (!$transport instanceof \Swift_Transport_SpoolTransport) {
+                    return;
+                }
+                
+                $spool = $transport->getSpool();
+                if (!$spool instanceof \Swift_MemorySpool) {
+                    return;
+                }
+                
+                $spool->flushQueue($this->swiftmailer_transport_real);
             }
-            
-            $spool = $transport->getSpool();
-			if (!$spool instanceof \Swift_MemorySpool) {
-                return;
+            catch(\Exception $e) {
+                throw new \Exception($notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " Error when sending email: ". $e->getMessage());
             }
-            
-            $spool->flushQueue($this->swiftmailer_transport_real);
             
             // delete temp file
             if(isset($ftemp))
                 unlink($ftemp);
             
-            $nowDate = new \DateTime('NOW');
-            $log .= $nowDate->format('Y-m-d H:i:s') . " : " . $notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " sent successfully";
+            //$nowDate = new \DateTime('NOW');
+            //$log .= $nowDate->format('Y-m-d H:i:s') . " : " . $notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " sent successfully";
+            $log .= $notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " sent successfully";
             /* $log = $nowDate->format('Y-m-d H:i:s') . " ---EMAIL SENT TO " . $emailFields['sendTo']; */
             /* // $log = "---EMAIL SENT TO " . $emailFields['sendTo']; */
             /* // $log .= "\n---CC TO: " . $emailFields['ccTo']; */

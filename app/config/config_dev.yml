@@ -21,6 +21,10 @@ monolog:
         chromephp:
             type:  chromephp
             level: info
+        syslog:
+            type:  syslog
+            level: info
+            facility: local1
 
 assetic:
     use_controller: true
