@@ -514,6 +514,15 @@ class PoManagerProcessRmaController extends Controller
                 $data[$key]["Rma status"] = $rmaInstance->getRepairStatus()->getName();
                 $data[$key]["Investigation result"] = $rmaInstance->getInvestigationResult();
                 $data[$key]["Problem category"] = ( null != $rmaInstance->getProblemCategory() ? $rmaInstance->getProblemCategory()->getName() : "uncategorized" );
+                $swapString = "";
+                $index = 0;
+                foreach ($rmaInstance->getPartReplacements() as $partReplacement) {
+                    if (null != $partReplacement->getProduct()) {
+                        $index++;
+                        $swapString .= "\n" . $index . "- " . $partReplacement->getProduct()->getShortDescription();
+                    }
+                }
+                $data[$key]["Part(s) Replaced"] = $swapString;
                 $data[$key]["Comment"] = $rmaInstance->getComment();
                 $data[$key]["Credited to Cust."] = ( $rmaInstance->getCredited() ? "Yes" : "No" );
                 $data[$key]["Repair PO"] = ( null != $rmaInstance->getRpoNum() ? "None" : $rmaInstance->getRpoNum());

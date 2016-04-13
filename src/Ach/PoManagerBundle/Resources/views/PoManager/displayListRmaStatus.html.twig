@@ -24,6 +24,7 @@
 	<th>Rma status</th>
 	<th>Investigation result</th>
 	<th>Problem category</th>
+	<th>Part(s) replaced</th>
 	<th>Comment</th>
 	<th>Credited to Cust.</th>
 	<th>Repair PO</th>
@@ -54,7 +55,8 @@
 	  <td>{{item.shippedBackDate is empty ? "N/A" : item.shippedBackDate|date('Y-m-d')}}</td>
 	  <td>{{item.repairStatus.name}}</td>
 	  <td>{{item.investigationResult}}</td>
-	  <td>{{item.problemCategory is empty ? "uncategorized" : item.problemCategory.name }}</td>
+	  <td>{% if item.problemCategory is empty %} uncategorized {% else %} <span title="{{item.problemCategory.description}}">{{ item.problemCategory.name }}</span> {% endif %} </td>
+	  <td>{% for swap in item.partReplacements %}<li>{{swap.product is not empty ? swap.product.shortDescription}}</li>{% endfor %}</td>
 	  <td>{{item.comment}}</td>
 	  <td>{{item.credited? "Yes" : "No" }}</td>
 	  {% if item.rpoNum is empty %}
