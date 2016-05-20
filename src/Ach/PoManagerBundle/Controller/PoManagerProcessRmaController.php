@@ -418,6 +418,7 @@ class PoManagerProcessRmaController extends Controller
                     $repoRepairStatus = $this->getDoctrine()->getRepository('AchPoManagerBundle:RepairStatus');
                     $repairStatusInstance = $repoRepairStatus->findOneByName('Returned_to_Customer');
                     $rmaInstance->setRepairStatus($repairStatusInstance);
+                    $rmaInstance->setShippedBackDate(new \Datetime());
 
                     $em = $this->getDoctrine()->getManager();
 
@@ -525,7 +526,7 @@ class PoManagerProcessRmaController extends Controller
                 $data[$key]["Part(s) Replaced"] = $swapString;
                 $data[$key]["Comment"] = $rmaInstance->getComment();
                 $data[$key]["Credited to Cust."] = ( $rmaInstance->getCredited() ? "Yes" : "No" );
-                $data[$key]["Repair PO"] = ( null != $rmaInstance->getRpoNum() ? "None" : $rmaInstance->getRpoNum());
+                $data[$key]["Repair PO"] = ( null != $rmaInstance->getRpoNum() ? $rmaInstance->getRpoNum() : "None");
             }
 
             //call GenerateXlsResponse service and generate Response
