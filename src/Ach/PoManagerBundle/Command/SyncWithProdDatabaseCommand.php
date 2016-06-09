@@ -75,61 +75,73 @@ class SyncWithProdDatabaseCommand extends ContainerAwareCommand
         if($req->execute()) {
             // fetch the result
             $results = $req->fetchall();
+
             // close the request
             $req->closeCursor();
 
-            //1. check that the number of units per lot/pallet is correct 
-            foreach ($results as $result) {
-                $output->writeln($result['lot_num'] . ' - ' . $result['lot_unit_count'] . ' - ' . $result['sn']);
-                if ($result['lot_unit_count'] != $unit_per_lot) {
-                    $output->writeln('Error: in production database, number of units in lot/pallet ' . $result['lot_num'] . ' is equal to ' . $result['lot_unit_count'] . ', it should be equal to ' . $unit_per_lot );
-                    return 4;
-                }
-            }
-
-            // display the count of S/N to be synchronized
-            $output->writeln(count($results) . ' S/N to be synchronized are detected...');
-
-            $tabBatch = array();
-            $i = 0;
-            foreach ($results as $result) {
-                if($i % $unit_per_lot == 0) {
-                    $tabBatch[$i / $unit_per_lot] = new ShipmentBatch();
-                    $tabBatch[$i / $unit_per_lot]->setNum($result['lot_num']);
-                    $tabBatch[$i / $unit_per_lot]->setProductName($input->getArgument('systemName'));
-                    $tabBatch[$i / $unit_per_lot]->setComment('auto-imported from the production database');
-                }
-                $snInstance = new SerialNumber($result['sn'], null,'auto-imported from production database');
-                $em->persist($snInstance);
-                $tabBatch[$i / $unit_per_lot]->addSerialNumber($snInstance);
-                $em->persist($tabBatch[$i / $unit_per_lot]);
-                $i++;
-            }
-
-            $em->flush();
-
-            $output->writeln('End of Synchro');
+            // if there is something to synchronize, then continue
+            if (!empty($results)) {
             
-
-            /*
-            foreach ($results as $result) {
-                $output->writeln($result['lot_num'] . ' - ' . $result['unit_count']);
-                if($result['unit_count'] != $unit_per_lot) {
-                    $output->writeln('Error: in production database, number of units in lot/pallet ' . $result['lot_num'] . ' is equal to ' . $result['unit_count'] . ', it should be equal to ' . $unit_per_lot );
-                    return 4;
-                }
-                else {
-                    $req = $bdd->prepare('SELECT System_SN as sn FROM Palettes WHERE Synchro_BDD_PO = 0 AND Num_palette = :lot_num');
-                    if($req->execute(array(':lot_num' => $result['lot_num']))) {
-
-                        
-                        addSerialNumber
-                        
+                //1. check that the number of units per lot/pallet is correct 
+                foreach ($results as $result) {
+                    //$output->writeln($result['lot_num'] . ' - ' . $result['lot_unit_count'] . ' - ' . $result['sn']);
+                    $output->writeln($result['lot_num'] . ' - ' . $result['sn']);
+                    if ($result['lot_unit_count'] != $unit_per_lot) {
+                        $output->writeln('Error: in production database, number of units in lot/pallet ' . $result['lot_num'] . ' is equal to ' . $result['lot_unit_count'] . ', it should be equal to ' . $unit_per_lot );
+                        return 4;
                     }
                 }
+                // display the count of S/N to be synchronized
+                $output->writeln(count($results) . ' S/N to be synchronized have been detected');
+                
+                //2. Fill in the locale database
+                $output->writeln('Copying to PoManager Datebase...');
+                $tabBatch = array();
+                $tabLotNum = array();
+                $i = 0;
+                foreach ($results as $result) {
+                    if($i % $unit_per_lot == 0) {
+                        $tabBatch[$i / $unit_per_lot] = new ShipmentBatch();
+                        $tabBatch[$i / $unit_per_lot]->setNum($result['lot_num']);
+                        $tabBatch[$i / $unit_per_lot]->setProductName($input->getArgument('systemName'));
+                        $tabBatch[$i / $unit_per_lot]->setComment('auto-imported from the production database');
+                        $tabLotNum[] = strval($result['lot_num']);
+                    }
+                    $snInstance = new SerialNumber($result['sn'], null,'auto-imported from production database');
+                    $em->persist($snInstance);
+                    $tabBatch[$i / $unit_per_lot]->addSerialNumber($snInstance);
+                    $em->persist($tabBatch[$i / $unit_per_lot]);
+                    $i++;
+                }
+                $em->flush();
+                
+                //3. Mark the copied entries as being synchronized
+                // prepare the query
+                $tabLotNumString = implode(',',$tabLotNum);
+                $external_sql_query = 'UPDATE Palettes SET Synchro_BDD_PO = 1 WHERE Num_palette IN (' . $tabLotNumString . ')';
+                $req = $bdd->prepare($external_sql_query);
+                
+                // execute the request
+                if($req->execute()) {
+                    $output->writeln('End of Synchro');
+                }
+                else {
+                    $output->writeln('Error: Fail to execute query');
+                }
+                // close the request
+                $req->closeCursor();
             }
-            */
+            else {
+                $output->writeln('Nothing to synchronize');
+            }
+
         }
+        else {
+            $output->writeln('Error: Fail to execute query');
+        }
+
+        // close the request
+        $req->closeCursor();
 
     }
 }
