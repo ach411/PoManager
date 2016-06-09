@@ -636,10 +636,11 @@ class PoManagerCreateEntryController extends Controller
                             $iniFiles[$i]['macAddress'] = $macAddress; 
                             //echo "S/N: " . $sn . "\n";
                             $iniFiles[$i]['sn'] = $sn; 
-                            $serialNumber = new SerialNumber($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('zip_files_path'));
-                            $serialNumber->setSerialNumber($sn);
-                            $serialNumber->setMacAddress(preg_replace("/-/", "", $macAddress));
+                            //$serialNumber = new SerialNumber($this->get('kernel')->getRootDir() . '/../..' . $this->container->getParameter('zip_files_path'));
+                            //$serialNumber->setSerialNumber($sn);
+                            //$serialNumber->setMacAddress(preg_replace("/-/", "", $macAddress));
                             //$serialNumber->setShipmentBatch($shipmentBatch);
+                            $serialNumber = new SerialNumber($sn, preg_replace("/-/", "", $macAddress));
                             $serialNumber->setCertificateFileName($iniName);
                             $serialNumber->setComment($iniContent);
                             $shipmentBatch->addSerialNumber($serialNumber);
@@ -700,7 +701,7 @@ class PoManagerCreateEntryController extends Controller
 			//echo "Product SK P/N " . $poIt->getCustPnF() . " with Revision " . $poIt->getRevisionF() . " invalid";
 			return true;
 		}
-		
+	
 		
 		$poIt->setRevision($revision);
 	    

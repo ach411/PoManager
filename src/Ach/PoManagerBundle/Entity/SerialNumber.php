@@ -328,10 +328,14 @@ class SerialNumber
     /**
      * Constructor
      */
-     public function __construct($rootPath = null)
+    public function __construct($sn=null, $mac=null, $comment=null)
     {
-        $this->rootPath = $rootPath;
+        $this->serialNumber = $sn;
+        $this->macAddress = $mac;
+        $this->comment = $comment;
+        //$this->rootPath = $rootPath;
 		//echo $this->rootPath;
+        
     }
     
 }
