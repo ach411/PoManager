@@ -388,7 +388,7 @@ class PoManagerProcessPoItemController extends Controller
                 $lotNumber = count($shipmentBatchInstances);
                 if(empty($shipmentBatchInstances))
                     return new Response("Error: No lot is currently selected for shipment, please select lot(s) for removal first");
-                if(count($shipmentBatchInstances) * intval($this->container->getParameter('lot_' . $prodName)) != $shippedQty)
+                if(count($shipmentBatchInstances) * intval($this->container->getParameter('lot')[$prodName]) != $shippedQty)
                     return new Response("Error: the $lotNumber $prodName lot(s) previously selected for that shipment do not match with entered quantity of $shippedQty!");
                 foreach($shipmentBatchInstances as $shipmentBatchInstance)
                 {

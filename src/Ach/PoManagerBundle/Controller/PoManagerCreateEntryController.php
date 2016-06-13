@@ -580,7 +580,7 @@ class PoManagerCreateEntryController extends Controller
                         return $this->renderErrorPage("File name $filename invalid, are you sure it's a regular zip lot file?");
                     }
 
-                    $product = $output_array[2];
+                    $product = strtoupper($output_array[2]);
                     $lotNum =  $output_array[1];
 
                     // verify if this lot number for very same product has not been recorded already
@@ -607,7 +607,7 @@ class PoManagerCreateEntryController extends Controller
                     ////echo "comment: " . $za->comment . "\n";
 
                     //verify if number of file in the archive is normal
-                    $correctNumFile = $this->container->getParameter('lot_' . $product);
+                    $correctNumFile = $this->container->getParameter('lot')[$product];
                     $numFiles = $za->numFiles;
                     if($numFiles != $correctNumFile)
                         return $this->renderErrorPage("$filename contains $za->numFiles ini files, $product zip should contain $correctNumFile files!");

@@ -107,6 +107,10 @@ ach_po_manager_process_shipmentbatch:
     pattern:  /process/lot/product/{productName}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessShipmentBatch:ProcessShipmentBatchShow }
 
+ach_po_manager_process_shipmentbatch_update:
+    pattern:  /process/lotupdate/product/{productName}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessShipmentBatch:ProcessShipmentBatchUpdate }
+
 ach_po_manager_process_select_waitforremoval:
     pattern: /process/lot/select/shipmentbatch/id/{id}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessShipmentBatch:ProcessShipmentBatchSelect }

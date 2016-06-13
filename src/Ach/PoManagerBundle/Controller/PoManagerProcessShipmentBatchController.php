@@ -21,12 +21,21 @@ class PoManagerProcessShipmentBatchController extends Controller
 		//$lots = $repositoryLot->findByWaitingForRemoval(false);
         $lots = $repositoryLot->findAvailableByProductName($productName);
 
-        $unitsPerLot = $this->container->getParameter('lot_' . $productName);
+        $unitsPerLot = $this->container->getParameter('lot')[strtoupper($productName)];
 
 		//$this->addReleaseQty($bpos);
 		
-		return $this->generateResponse($request, $lots, $unitsPerLot);
+		return $this->generateResponse($request, $lots, $unitsPerLot, $productName);
 	}
+
+    public function ProcessShipmentBatchUpdateAction($productName)
+    {
+        // call service to synchronize with production database
+        $log = $this->container->get('ach_po_manager.sync_prod_database')->syncShipmentBatch($productName);
+
+        // redirect to main page
+        return $this->redirect($this->generateUrl('ach_po_manager_process_shipmentbatch', array('productName' => $productName) ));
+    }
 
     public function ProcessShipmentBatchSelectAction(ShipmentBatch $lot)
     {
@@ -134,7 +143,7 @@ class PoManagerProcessShipmentBatchController extends Controller
 
 
     /* Generate response depending on the option */
-    private function generateResponse($request, $lots, $unitsPerLot)
+    private function generateResponse($request, $lots, $unitsPerLot, $productName)
     {
 	if($request->query->get('return') == 'xls')
 	{
@@ -146,7 +155,7 @@ class PoManagerProcessShipmentBatchController extends Controller
 	}
 	else
 	{
-	    return $this->render('AchPoManagerBundle:PoManager:displayListShipmentBatch.html.twig', array('lots' => $lots, 'unitsPerLot' => $unitsPerLot));
+	    return $this->render('AchPoManagerBundle:PoManager:displayListShipmentBatch.html.twig', array('lots' => $lots, 'unitsPerLot' => $unitsPerLot, 'productName' => $productName));
 	}
     }
 

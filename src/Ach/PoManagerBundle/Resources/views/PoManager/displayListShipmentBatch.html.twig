@@ -4,7 +4,7 @@
 
 {% block body %}
 
-<h2>List of lots available:</h2>
+<h2>Current stock of lots available for {{ productName }}:</h2>
 <p>
   <table id="sortable" class="table table-bordered table-hover tablesorter">
     <thead>
@@ -51,6 +51,9 @@
 {# <p id="recap"></p>  #}
 
 <textarea id="recap" rows="22" cols="30" readonly="readonly"></textarea> 
+<br />
+<br />
+<a class="btn btn-primary btn-large" href="{{ path( 'ach_po_manager_process_shipmentbatch_update', {'productName': productName } ) }}">Sync up with Production Database</a>
 
 <script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
 <script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
