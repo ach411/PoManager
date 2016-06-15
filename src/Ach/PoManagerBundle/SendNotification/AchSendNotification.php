@@ -12,6 +12,7 @@ class AchSendNotification
 	protected $bpo_files_path;
 	protected $invoice_files_path;
     protected $swiftmailer_transport_real;
+    protected $from_emails;
 	
 	// take string(s) in message_pattern
 	// and resolve variable %var% by their value define in replace_string_array
@@ -58,7 +59,7 @@ class AchSendNotification
 		return $email_array;
 	}
 
-	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path)
+	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path, $from_emails)
 	{
 		$this->mailer = $mailer;
 		$this->router = $router;
@@ -69,6 +70,7 @@ class AchSendNotification
 		$this->invoice_files_path = $invoice_files_path;
         $this->rma_files_path = $rma_files_path;
 		$this->swiftmailer_transport_real = $swiftmailer_transport_real;
+        $this->from_emails = $from_emails;
 	}
 
 	/**
@@ -424,9 +426,8 @@ class AchSendNotification
 		}
 		$email = \Swift_Message::newInstance()
 			->setSubject($emailFields['subject'])
-			//->setFrom('noreply@vitec.com')
-			// ->setFrom(array('noreply@vitec.com' => 'VITEC PO Manager'))
-			->setFrom(array('noreply@vitec.com' => 'The VITEC team'))
+//			->setFrom(array('noreply@example.com' => 'The Example team'))
+			->setFrom($this->from_emails['notification'])
 //			->setBody($emailFields['message']);
 			->setBody($this->template->render('AchPoManagerBundle:PoManager:email_pattern.html.twig', array('message' => $emailFields['message'])), 'text/html');
 		if(!empty($emailFields['sendTo']))

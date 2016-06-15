@@ -17,7 +17,7 @@ services:
         class: Ach\PoManagerBundle\VariableSubstitute\AchVariableSubstitute
     ach_po_manager.send_notification:
         class: Ach\PoManagerBundle\SendNotification\AchSendNotification
-        arguments: [@mailer, @swiftmailer.transport.real, @router, @templating, @phpexcel ,%po_files_path%, %bpo_files_path%, %invoice_files_path%, %rma_files_path%]
+        arguments: [@mailer, @swiftmailer.transport.real, @router, @templating, @phpexcel ,%po_files_path%, %bpo_files_path%, %invoice_files_path%, %rma_files_path%, %from_emails%]
 #        scope: request
     ach_po_manager.generate_xls_response:
         class: Ach\PoManagerBundle\GenerateXlsResponse\AchGenerateXlsResponse
