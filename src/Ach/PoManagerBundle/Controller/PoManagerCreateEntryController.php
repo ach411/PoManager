@@ -607,7 +607,8 @@ class PoManagerCreateEntryController extends Controller
                     ////echo "comment: " . $za->comment . "\n";
 
                     //verify if number of file in the archive is normal
-                    $correctNumFile = $this->container->getParameter('lot')[$product];
+                    $lotParam = $this->container->getParameter('lot');
+                    $correctNumFile = $lotParam[$product]; 
                     $numFiles = $za->numFiles;
                     if($numFiles != $correctNumFile)
                         return $this->renderErrorPage("$filename contains $za->numFiles ini files, $product zip should contain $correctNumFile files!");

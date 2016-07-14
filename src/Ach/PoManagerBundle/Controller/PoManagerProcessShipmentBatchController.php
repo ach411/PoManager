@@ -21,11 +21,12 @@ class PoManagerProcessShipmentBatchController extends Controller
 		//$lots = $repositoryLot->findByWaitingForRemoval(false);
         $lots = $repositoryLot->findAvailableByProductName($productName);
 
-        $unitsPerLot = $this->container->getParameter('lot')[strtoupper($productName)];
+        $productNameUpper = strtoupper($productName);
+        $unitsPerLot = $this->container->getParameter('lot');
 
 		//$this->addReleaseQty($bpos);
 		
-		return $this->generateResponse($request, $lots, $unitsPerLot, $productName);
+		return $this->generateResponse($request, $lots, $unitsPerLot[$productNameUpper], $productName);
 	}
 
     public function ProcessShipmentBatchUpdateAction($productName)

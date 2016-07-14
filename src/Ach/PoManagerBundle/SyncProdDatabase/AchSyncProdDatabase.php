@@ -107,7 +107,8 @@ class AchSyncProdDatabase
                         $tabLotNum[] = strval($result['lot_num']);
                     }
                     // check if S/N already exists in the database
-                    if(!empty($repositorySerialNumber->findBySerialNumber($result['sn'], true))) {
+		    $sameSn = $repositorySerialNumber->findBySerialNumber($result['sn'], true);
+                    if(!empty($sameSn)) {
                         $log .= 'Error: S/N ' . $result['sn'] . " already exists in the PO database... Synchro Aborted\n";
                         return $log;
                     }

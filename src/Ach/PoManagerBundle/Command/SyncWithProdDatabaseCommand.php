@@ -40,11 +40,11 @@ class SyncWithProdDatabaseCommand extends ContainerAwareCommand
     private function sendEmailAdmin($errorlog, $output)
     {
         $adminEmails = $this->getContainer()->getParameter('admin_emails');
-        $fromEmails = $this->getContainer()->getParameter('from_emails')['core'];
+        $fromEmails = $this->getContainer()->getParameter('from_emails');
         
         $message = \Swift_Message::newInstance()
         ->setSubject('Prod Database Sync Error')
-        ->setFrom($fromEmails)
+        ->setFrom($fromEmails['core'])
         ->setTo($adminEmails)
         ->setBody(
             /* $this->renderView( */
