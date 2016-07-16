@@ -3,6 +3,7 @@
 namespace Ach\PoManagerBundle\SyncProdDatabase;
 
 use Doctrine\ORM\EntityManager;
+use Ach\PoManagerBundle\ConnectProdDatabase\AchConnectProdDatabase;
 use Ach\PoManagerBundle\Entity\ShipmentBatch;
 use Ach\PoManagerBundle\Entity\SerialNumber;
 
@@ -10,27 +11,29 @@ use Ach\PoManagerBundle\Entity\SerialNumber;
 class AchSyncProdDatabase
 {
 	protected $em;
-    protected $external_sql;
-    protected $external_sql_host; 
-	protected $external_sql_port; 
-    protected $external_sql_db_name;
-    protected $external_sql_user;
-    protected $external_sql_pass;
+    /* protected $external_sql; */
+    /* protected $external_sql_host;  */
+	/* protected $external_sql_port;  */
+    /* protected $external_sql_db_name; */
+    /* protected $external_sql_user; */
+    /* protected $external_sql_pass; */
     protected $lot;
+    protected $connectProdDB;
 
     // query to remote production database string
     protected $external_sql_query = 'SELECT lot_num, lot_unit_count, System_SN as sn FROM Palettes INNER JOIN (SELECT Num_palette as lot_num, COUNT(System_SN) as lot_unit_count FROM Palettes WHERE Synchro_BDD_PO = 0 GROUP BY lot_num) as Counttab on Palettes.Num_palette = Counttab.lot_num WHERE Synchro_BDD_PO=0 ORDER BY lot_num ASC, sn';
 
-    public function __construct(EntityManager $entityManager, $external_sql, $lot)
+    public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $lot)
 	{
 		$this->em = $entityManager;
         // get the parameters to access the remote production database
-        $this->external_sql_host    = $external_sql['host'];
-        $this->external_sql_port    = $external_sql['port'];
-		$this->external_sql_db_name = $external_sql['db_name'];
-		$this->external_sql_user	= $external_sql['user'];
-		$this->external_sql_pass	= $external_sql['pass'];
+        /* $this->external_sql_host    = $external_sql['host']; */
+        /* $this->external_sql_port    = $external_sql['port']; */
+		/* $this->external_sql_db_name = $external_sql['db_name']; */
+		/* $this->external_sql_user	= $external_sql['user']; */
+		/* $this->external_sql_pass	= $external_sql['pass']; */
         $this->lot                  = $lot;
+        $this->connectProdDB        = $connectProdDB;
 
 	}
 	
@@ -61,8 +64,15 @@ class AchSyncProdDatabase
         }
 
         // connect to the database
+        /* try { */
+        /*     $bdd = new \PDO('mysql:host='.$this->external_sql_host.';port='.$this->external_sql_port.';dbname='.$this->external_sql_db_name, $this->external_sql_user, $this->external_sql_pass); */
+        /* } */
+        /* catch(\Exception $e) { */
+        /*     $log .= 'Error: '.$e->getMessage()."\n"; */
+        /*     return $log; */
+        /* } */
         try {
-            $bdd = new \PDO('mysql:host='.$this->external_sql_host.';port='.$this->external_sql_port.';dbname='.$this->external_sql_db_name, $this->external_sql_user, $this->external_sql_pass);
+            $bdd = $this->connectProdDB->getPDO();
         }
         catch(\Exception $e) {
             $log .= 'Error: '.$e->getMessage()."\n";

@@ -25,7 +25,13 @@ services:
     ach_po_manager.notification_creator:
         class: Ach\PoManagerBundle\NotificationCreator\AchNotificationCreator
         arguments: [@doctrine.orm.entity_manager]
+    ach_po_manager.connect_prod_database:
+        class: Ach\PoManagerBundle\ConnectProdDatabase\AchConnectProdDatabase
+        arguments: [%external_sql%]
     ach_po_manager.sync_prod_database:
         class: Ach\PoManagerBundle\SyncProdDatabase\AchSyncProdDatabase
-        arguments: [@doctrine.orm.entity_manager, %external_sql%, %lot%]
-        
+        arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database, %lot%]
+    ach_po_manager.upload_elifesheet:
+        class: Ach\PoManagerBundle\UploadElifesheet\AchUploadElifesheet
+        arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database]
+
