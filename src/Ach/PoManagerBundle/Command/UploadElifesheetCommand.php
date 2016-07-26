@@ -21,6 +21,8 @@ class UploadElifesheetCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $logger = $this->getContainer()->get('logger');
+
         $shipmentItemId = $input->getArgument('shipmentItemId');
 
         $repositoryShipmentItem = $this->getContainer()->get('doctrine')
@@ -29,7 +31,7 @@ class UploadElifesheetCommand extends ContainerAwareCommand
 
         $shipmentItemInstance = $repositoryShipmentItem->find(intval($shipmentItemId));
 
-        $output->writeln("Number of system elifesheet to upload:" . $shipmentItemInstance->getQty());
+        $output->writeln("Number of system e-lifesheet to upload: " . $shipmentItemInstance->getQty());
 
         $log = $this->getContainer()->get('ach_po_manager.upload_elifesheet')->uploadElifeSheet($shipmentItemInstance);
 

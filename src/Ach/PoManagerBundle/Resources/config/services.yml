@@ -33,5 +33,5 @@ services:
         arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database, %lot%]
     ach_po_manager.upload_elifesheet:
         class: Ach\PoManagerBundle\UploadElifesheet\AchUploadElifesheet
-        arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database]
+        arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database, %ftp_parameters%]
 
