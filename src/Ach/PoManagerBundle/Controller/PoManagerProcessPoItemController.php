@@ -12,7 +12,7 @@ use Ach\PoManagerBundle\Entity\Notification;
 use Ach\PoManagerBundle\Entity\Shipment;
 use Ach\PoManagerBundle\Entity\ShipmentItem;
 use Ach\PoManagerBundle\Entity\PoItem;
-use Ach\PoManagerBubdle\Entity\ShipmentBatch;
+use Ach\PoManagerBundle\Entity\UploadElifesheetPending;
 
 class PoManagerProcessPoItemController extends Controller
 {
@@ -397,7 +397,14 @@ class PoManagerProcessPoItemController extends Controller
                     $shipmentItem->addShipmentBatch($shipmentBatchInstance);
                 }
             }
-                
+
+            // add entry in UploadElifesheetPending table for later upload by background task of all the elifesheet of the units within the shipmentItem
+            if($poItem->getRevision()->getProduct()->getElifesheet())
+            {
+                $uploadElifesheetPendingInstance = new UploadElifesheetPending();
+                $uploadElifesheetPendingInstance->setShipmentItem($shipmentItem);
+                $em->persist($uploadElifesheetPendingInstance);
+            }
 			
 			//persist shipmentItem
 			//$em->persist($poItem);

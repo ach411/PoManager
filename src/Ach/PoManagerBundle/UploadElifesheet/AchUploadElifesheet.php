@@ -19,7 +19,7 @@ class AchUploadElifesheet
     protected $ftp_remote_path;
 
     // query to remote production database string
-    protected $external_sql_query = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN FROM SK38 WHERE System_SN like ';
+    protected $sql_query_pattern = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN FROM SK38 WHERE System_SN like ';
 
     public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $ftp_parameters)
 	{
@@ -53,12 +53,14 @@ class AchUploadElifesheet
             $serialNumberInstances = $shipmentBatchInstance->getSerialNumbers();
             foreach($serialNumberInstances as $sn) {
                 $snArray[] = "'" . $sn->getSerialNumber() . "'";
+                //$log.= "'" . $sn->getSerialNumber() . "'";
             }
         }
 
-        $this->external_sql_query .= implode(" OR System_SN like ",$snArray) . " ORDER BY id ASC;";
+        //$this->external_sql_query .= implode(" OR System_SN like ",$snArray) . " ORDER BY id ASC;";
+        $sql_query = $this->sql_query_pattern . implode(" OR System_SN like ",$snArray) . " ORDER BY id ASC;";
 
-        //$log .= $this->external_sql_query;
+        //$log .= $sql_query;
 
         // connect to the database
         try {
@@ -69,7 +71,7 @@ class AchUploadElifesheet
             return $log;
         }
 
-        $req = $bdd->prepare($this->external_sql_query);
+        $req = $bdd->prepare($sql_query);
 
         // execute the request
         if($req->execute()) {
@@ -119,7 +121,7 @@ class AchUploadElifesheet
                     fclose($tempFileHandle);
 
                     //push file onto FTP site
-                    $remote_file = $this->ftp_remote_path . $snRegex[1];
+                    $remote_file = $this->ftp_remote_path . $snRegex[1] . ".csv";
                     if (ftp_put($conn_id, $remote_file, $this->ftp_temp_file, FTP_ASCII)) {
                         $log .= "successfully uploaded $remote_file\n";
                     } else {
@@ -136,7 +138,7 @@ class AchUploadElifesheet
                 
             }
             else {
-                $log .= "Error: prod database query does not return right number of systems\n";
+                $log .= "Error: prod database query does not return right number of systems (" . count($results) . ")\n" . $sql_query . "\n";
                 return $log;
                 
             }

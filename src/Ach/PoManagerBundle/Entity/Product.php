@@ -130,6 +130,13 @@ class Product
     private $spareParts;
 
     /**
+     * @var boolean
+     *
+     * @ORM\Column(name="elifesheet", type="boolean")
+     */
+    private $elifesheet;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -494,5 +501,84 @@ class Product
     public function getShortDescription()
     {
         return (str_pad($this->pn, 5, '0', STR_PAD_LEFT) . ' - ' . $this->custPn . ' - ' . $this->description);
+    }
+
+    /**
+     * Set elifesheet
+     *
+     * @param boolean $elifesheet
+     * @return Product
+     */
+    public function setElifesheet($elifesheet)
+    {
+        $this->elifesheet = $elifesheet;
+    
+        return $this;
+    }
+
+    /**
+     * Get elifesheet
+     *
+     * @return boolean 
+     */
+    public function getElifesheet()
+    {
+        return $this->elifesheet;
+    }
+
+    /**
+     * Add partOfProducts
+     *
+     * @param \Ach\PoManagerBundle\Entity\Product $partOfProducts
+     * @return Product
+     */
+    public function addPartOfProduct(\Ach\PoManagerBundle\Entity\Product $partOfProducts)
+    {
+        $this->partOfProducts[] = $partOfProducts;
+    
+        return $this;
+    }
+
+    /**
+     * Remove partOfProducts
+     *
+     * @param \Ach\PoManagerBundle\Entity\Product $partOfProducts
+     */
+    public function removePartOfProduct(\Ach\PoManagerBundle\Entity\Product $partOfProducts)
+    {
+        $this->partOfProducts->removeElement($partOfProducts);
+    }
+
+    /**
+     * Get partOfProducts
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getPartOfProducts()
+    {
+        return $this->partOfProducts;
+    }
+
+    /**
+     * Add spareParts
+     *
+     * @param \Ach\PoManagerBundle\Entity\Product $spareParts
+     * @return Product
+     */
+    public function addSparePart(\Ach\PoManagerBundle\Entity\Product $spareParts)
+    {
+        $this->spareParts[] = $spareParts;
+    
+        return $this;
+    }
+
+    /**
+     * Remove spareParts
+     *
+     * @param \Ach\PoManagerBundle\Entity\Product $spareParts
+     */
+    public function removeSparePart(\Ach\PoManagerBundle\Entity\Product $spareParts)
+    {
+        $this->spareParts->removeElement($spareParts);
     }
 }

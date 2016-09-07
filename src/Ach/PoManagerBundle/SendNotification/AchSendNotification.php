@@ -391,7 +391,7 @@ class AchSendNotification
 					'carrierName'				  => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getName() : "",
                     'carrierLink'                 => (null !== $notification->getRma()->getShipment() ) ? $notification->getRma()->getShipment()->getCarrier()->getLink() : "",
                     'BillingManagerName'          => (null !== $notification->getRma()->getSerialNum()->getShipmentBatch()) ? $notification->getRma()->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getBillingManager()->getName() : "",
-                    'BillingManagerEmail'         => (null !== $notification->getRma()->getSerialNum()->getShipmentBatch()) ? $notification->getRma()->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getBillingManager()->getName() : "",
+                    'BillingManagerEmail'         => (null !== $notification->getRma()->getSerialNum()->getShipmentBatch()) ? $notification->getRma()->getSerialNum()->getShipmentBatch()->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getBillingManager()->getEmail() : "",
                     'rpoFileLink'                 => "http://" . $this->router->getContext()->getHost() . $this->rma_files_path . "/" . $notification->getRma()->getRpoFilePath()
 
                 );

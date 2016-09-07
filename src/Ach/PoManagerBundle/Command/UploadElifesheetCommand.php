@@ -14,7 +14,7 @@ class UploadElifesheetCommand extends ContainerAwareCommand
     {
         $this
             ->setName('UploadElifesheet')
-            ->addArgument('shipmentItemId')
+//            ->addArgument('shipmentItemId')
             ->setDescription('Generate and Upload elifesheet of a shipment item')
         ;
     }
@@ -22,26 +22,42 @@ class UploadElifesheetCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $logger = $this->getContainer()->get('logger');
+        $em = $this->getContainer()->get('doctrine')->getManager();
 
-        $shipmentItemId = $input->getArgument('shipmentItemId');
+        /* $shipmentItemId = $input->getArgument('shipmentItemId'); */
 
-        $repositoryShipmentItem = $this->getContainer()->get('doctrine')
+        /* $repositoryShipmentItem = $this->getContainer()->get('doctrine') */
+		/*     ->getManager() */
+		/*     ->getRepository('AchPoManagerBundle:ShipmentItem'); */
+
+        //$shipmentItemInstance = $repositoryShipmentItem->find(intval($shipmentItemId));
+
+        $repositoryUploadElifesheetPending = $this->getContainer()->get('doctrine')
 		    ->getManager()
-		    ->getRepository('AchPoManagerBundle:ShipmentItem');
+		    ->getRepository('AchPoManagerBundle:UploadElifesheetPending');
 
-        $shipmentItemInstance = $repositoryShipmentItem->find(intval($shipmentItemId));
+        $uploadElifesheetPendingInstances = $repositoryUploadElifesheetPending->findAll();
 
-        $output->writeln("Number of system e-lifesheet to upload: " . $shipmentItemInstance->getQty());
+        foreach($uploadElifesheetPendingInstances as $uploadElifesheetPendingInstance) {
+            $shipmentItemInstance = $uploadElifesheetPendingInstance->getShipmentItem();
+            $log = "Processing elifesheet related to shipmentItem #" . $shipmentItemInstance->getId() . "\n";
+            $log .= "Number of system e-lifesheet to upload: " . $shipmentItemInstance->getQty() . "\n";
+            $log .= $this->getContainer()->get('ach_po_manager.upload_elifesheet')->uploadElifeSheet($shipmentItemInstance);
 
-        $log = $this->getContainer()->get('ach_po_manager.upload_elifesheet')->uploadElifeSheet($shipmentItemInstance);
-
-        // if error is detected during sync process then log into syslog and send email to webpage admin(s)
-        if(stripos($log, "error") !== false) {
-            $logger->error($log);
-            $this->sendEmailAdmin($log, $output);
+            // if error is detected during sync process then log into syslog and send email to webpage admin(s)
+            if(stripos($log, "error") !== false) {
+                $logger->error($log);
+                $this->sendEmailAdmin($log, $output);
+            }
+            else {
+                $em->remove($uploadElifesheetPendingInstance);
+            }
+            
+            $output->writeln($log . "\n...end of upload\n\n");
         }
 
-        $output->writeln($log . "end of upload");
+        $em->flush();
+
 
     }
     
@@ -59,7 +75,7 @@ class UploadElifesheetCommand extends ContainerAwareCommand
             /*     'HelloBundle:Hello:email.txt.twig', */
             /*     array('name' => $name) */
             /* ) */
-            "An error ocurred when PoManager attempted to sync with the Prod Database\nSee following description:\n".$errorlog
+            "An error ocurred when PoManager attempted to create and upload the e-lifesheet\nSee following description:\n".$errorlog
         )
             ;
 
