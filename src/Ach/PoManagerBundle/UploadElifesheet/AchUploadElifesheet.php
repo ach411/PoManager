@@ -17,11 +17,12 @@ class AchUploadElifesheet
 	protected $ftp_user_pass; 
 	protected $ftp_temp_file;
     protected $ftp_remote_path;
+    protected $elifesheet_files_path;
 
     // query to remote production database string
     protected $sql_query_pattern = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN FROM SK38 WHERE System_SN like ';
 
-    public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $ftp_parameters)
+    public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $ftp_parameters, $elifesheet_files_path)
 	{
 		$this->em                   = $entityManager;
         $this->connectProdDB        = $connectProdDB;
@@ -29,7 +30,8 @@ class AchUploadElifesheet
         $this->ftp_user_name        = $ftp_parameters['user_name']; 
         $this->ftp_user_pass        = $ftp_parameters['user_pass']; 
         $this->ftp_temp_file        = $ftp_parameters['temp_file'];
-        $this->ftp_remote_path      = $ftp_parameters['remote_path'];;
+        $this->ftp_remote_path      = $ftp_parameters['remote_path'];
+        $this->elifesheet_files_path = $elifesheet_files_path;
 	}
 	
 	public function UploadElifesheet($shipmentItemInstance)
@@ -85,6 +87,7 @@ class AchUploadElifesheet
             if (count($results) == $shipmentItemInstance->getQty()) {
 
                 //$log .= var_dump($results);
+                //$log .= "\n" . getcwd() . "\n";
 
                 // connect to FTP site
                 $conn_id = ftp_connect($this->ftp_server);
@@ -126,7 +129,9 @@ class AchUploadElifesheet
                         $log .= "successfully uploaded $remote_file\n";
                     } else {
                         $log .= "Error: There was a problem while uploading $remote_file\n";
-                    } 
+                    }
+
+                    copy($this->ftp_temp_file, ".." . $this->elifesheet_files_path . "/SK38-SYS_" . $snRegex[1] . ".csv");
 
                 }
                 

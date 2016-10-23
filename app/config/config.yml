@@ -31,6 +31,7 @@ twig:
         revision_files_path: %revision_files_path%
         zip_files_path: %zip_files_path%
         rma_files_path: %rma_files_path%
+        elifesheet_files_path: %elifesheet_files_path%
         pn_header: %pn_header%
         cust_pn_header: %cust_pn_header%
         desc_header: %desc_header%
