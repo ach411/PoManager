@@ -1,0 +1,152 @@
+{% extends "AchPoManagerBundle:PoManager:layout.html.twig" %}
+
+{% block title %}{{ parent() }} - pending prepared shipment{% endblock %}
+
+{% block body %}
+
+  {% if pendingShipments is empty %}
+    <h2 {{ salesAdmin.name }}, there is no prepared shipments pending</h2>
+  {% else %}
+  <div class="container">
+    
+    <h2>{{ salesAdmin.name }}, these items have been prepared, please confirm and give tracking number</h2>
+
+    <ul class="nav nav-pills">
+      {% set ind = 0 %}
+      {% for pendingShipment in pendingShipments %}
+	{% set ind = ind + 1 %}
+	{% if ind == 1 %}
+	  <li class="active"><a data-toggle="pill" href="#home">{{pendingShipment.shippingDate|date('Y-m-d')}} ({{pendingShipment.id}})</a></li>
+	{% else %}
+	  <li><a data-toggle="pill" href="#menu{{ind}}">{{pendingShipment.shippingDate|date('Y-m-d')}} ({{pendingShipment.id}})</a></li>
+	{% endif %}
+      {% endfor %}
+      
+    </ul>
+
+    <div class="tab-content">
+
+      {% set ind = 0 %}
+      {% for pendingShipment in pendingShipments %}
+	{% set ind = ind + 1 %}
+	{% if ind == 1 %}
+	  <div id="home" class="tab-pane fade in active">
+	{% else %}
+	  <div id="menu{{ind}}" class="tab-pane fade">
+	{% endif %}
+	<table id="sortable" class="table table-bordered table-hover tablesorter">
+	  <thead>
+	    <tr>
+	      <th>PO #</th>
+	      <th>Release #</th>
+	      <th>Line #</th>
+	      <th>Product P/N</th>
+	      <th>Product Cust. P/N</th>
+	      <th>Description</th>
+	      <th>Qty prepared / Qty on PO</th>
+	      <th>PO due date</th>
+		  
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for item in pendingShipment.shipmentItems %}
+	      <tr>
+		<td>{{item.poItem.po.num}}</td>
+		<td>{{item.poItem.po.relNum}}</td>
+		<td>{{item.poItem.lineNum}}</td>
+		<td>{{item.poItem.revision.product.pn}}</td>
+		<td>{{item.poItem.revision.product.custPn}}</td>
+		<td>{{item.poItem.revision.product.description}}</td>
+		<td>{{item.qty}} / {{ item.poItem.qty}}
+		<td>{{item.poItem.dueDate|date('Y-m-d')}}</td>
+	      </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+	  </div>
+	  
+	{% endfor %}
+    </div>
+		<div class="form-inline" role="form"> 
+			<input class="form-control" type="text" id="tracking-id-global" placeholder="Enter tracking # here"> 
+			<input class="form-control" type="text" id="shippingDate-id-global" placeholder="Enter depart. date here"> 
+			<select id="carrier-id-global" class="form-control">{% for carrier in carriers %}<option value="{{carrier.id}}">{{carrier.name}}</option>{% endfor %} 
+			<input id="ship-id-global" type="button" value="Ship selected item(s)" class="btn btn-success"> 
+		</div> 
+	
+	{# <p> #}
+	{# 	<form action="{{ path('ach_po_manager_generate_xls_poItem_recap') }}" method="get"> #}
+	{# 		<table id="sortable" class="table table-bordered table-hover tablesorter"> #}
+	{# 			<thead> #}
+	{# 				<tr> #}
+	{# 					<th id="select-all"></th> #}
+	{# 					<th>Po #</th> #}
+	{# 					<th>Release #</th> #}
+	{# 					<th>Line #</th> #}
+	{# 					<th>VITEC P/N</th> #}
+	{# 					<th>Customer P/N</th> #}
+	{# 					<th>Description</th> #}
+	{# 					<th>Quantity</th> #}
+	{# 					<th>Unit Price</th> #}
+	{# 					<th>Amount</th> #}
+	{# 					<th>Currency</th> #}
+	{# 					<th>Due date</th> #}
+	{# 					<th>Comments</th> #}
+	{# 					<th>PO file</th> #}
+	{# 					<!-- <th>Tracking #</th> --> #}
+	{# 					<!-- <th>Validate shipment</th> --> #}
+	{# 				</tr> #}
+	{# 			</thead> #}
+	{# 			<tbody> #}
+	{# 			  {% for item in poItems %} #}
+	{# 			    {% set isDisabled = false %} #}
+	{# 			    {% for cat in item.revision.product.category %} {% if cat.name == disabledCategory %} {% set isDisabled = true %} {% endif %} {% endfor %} #}
+	{# 				<tr id="row-id-{{ item.id }}"> #}
+	{# 				  <td id="excel-id-{{ item.id }}" #}
+	{# 				      {% if date(item.dueDate) < date() %} class = "color_background_emergency" {% elseif date(item.dueDate) < date('+15days') %} class = "color_background_warning" {% else %} class = "color_background_normal" {% endif %}> #}
+	{# 				      <input type="checkbox" class="{{ item.dueDate|date('Y-m-d') }}" name="excel_recap_{{ item.id }}" value="{{ item.id }}" {% if isDisabled %} disabled="disabled" {% endif %}></td> #}
+        {#                                         <td id="po-id-{{ item.id }}">{{ item.po.num }} </td> #}
+	{# 					<td id="rel-id-{{ item.id }}">{{ item.po.relNum }}</td> #}
+	{# 					<td id="line-id-{{ item.id }}">{{ item.lineNum }}</td> #}
+	{# 					<td id="pn-id-{{ item.id }}">{{ item.revision.product.pn }}</td> #}
+	{# 					<td>{{ item.revision.product.custPn }}</td> #}
+	{# 					<td> {% if isDisabled %} * {% endif %} {{ item.description }}</td> #}
+	{# 					<td id="qty-id-{{ item.id }}"><input type="hidden" id="origin-qty-id-{{ item.id }}" value="{{item.qty - item.shippedQty}}"><select {% if isDisabled %}disabled="disabled" {% endif %} name="qty_id_{{ item.id }}">{% for i in (item.qty - item.shippedQty)..1 %}<option value="{{ i }}">{{ i }}</option>{% endfor %}</select> / {{item.qty}}</td> #}
+	{# 					<td>{{ item.price.price }}</td> #}
+	{# 					<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td> #}
+	{# 					<td>{{ item.price.currency.tla }}</td> #}
+	{# 					<td id="date-id-{{ item.id }}" class="{% if isDisabled %}*{% endif %}{{ item.dueDate|date('Y-m-d') }}">{{ item.dueDate is empty ? "unknown" : item.dueDate|date('Y-m-d') }} </td> #}
+	{# 					<!-- <td><div class="form-inline"><div class="form-group"><input type="text" class="form-control" value="{{ item.comment }}"><button class="btn btn-default" type="button">Update</button></div></div></td> --> #}
+	{# 					<td class="input-group col-lg-3"><div class="input-group"> #}
+	{# 						<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}"> #}
+	{# 							<span class="input-group-btn"> #}
+	{# 								<button id="update-comment-id-{{ item.id }}" class="btn btn-default " type="button"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button> #}
+	{# 							</span> #}
+	{# 						</div> #}
+	{# 					</td> #}
+						
+	{# 					<td><a href="{{ po_files_path }}/{{ item.po.filePath }}">{{ item.po.filePath }}</a></td> #}
+	{# 					<!-- <td><input type="text" id="tracking-id-{{ item.id }}" name="tracking-id-{{ item.id }}" placeholder="Enter tracking # here"></td> --> #}
+	{# 					<!-- <td><button id="ship-{{item.id}}" type="button" class="btn btn-success">Ship item!</button></td> --> #}
+	{# 				</tr> #}
+	{# 				{% else %} #}
+	{# 				Currently no pending orders! #}
+	{# 				{% endfor %} #}
+	{# 			</tbody> #}
+	{# 		</table> #}
+	{# 		<input type="submit" value="Generate Excel recap for selected item(s)" class="btn btn-primary"> #}
+	{# 	</form> #}
+	{# 	<br /> #}
+	{# </p> #}
+
+</div>
+    
+{% endif %}
+  
+<script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ asset('js/jquery.tablesorter.min.js') }}"></script>
+<script src="{{ asset('js/bootstrap-datepicker.js') }}"></script>
+{# <script src="{{ asset('js/processPoItemShip.js') }}"></script> #}
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+
+{% endblock %}

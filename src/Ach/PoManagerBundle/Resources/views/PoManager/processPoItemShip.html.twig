@@ -28,23 +28,24 @@
 					</tr>
 				</thead>
 				<tbody>
-					{% for item in poItems %}
+				  {% for item in poItems %}
+				    {% set isDisabled = false %}
+				    {% for cat in item.revision.product.category %} {% if cat.name == disabledCategory %} {% set isDisabled = true %} {% endif %} {% endfor %}
 					<tr id="row-id-{{ item.id }}">
-						<td id="excel-id-{{ item.id }}"
-							{% if date(item.dueDate) < date() %} class = "color_background_emergency" {% elseif date(item.dueDate) < date('+15days') %} class = "color_background_warning" {% else %} class = "color_background_normal" {% endif %}>
-							<input type="checkbox" class = "{{ item.dueDate|date('Y-m-d') }}" name="excel_recap_{{ item.id }}" value="{{ item.id }}">
-						</td>
-						<td id="po-id-{{ item.id }}">{{ item.po.num }}</td>
+					  <td id="excel-id-{{ item.id }}"
+					      {% if date(item.dueDate) < date() %} class = "color_background_emergency" {% elseif date(item.dueDate) < date('+15days') %} class = "color_background_warning" {% else %} class = "color_background_normal" {% endif %}>
+					      <input type="checkbox" class="{{ item.dueDate|date('Y-m-d') }}" name="excel_recap_{{ item.id }}" value="{{ item.id }}" {% if isDisabled %} disabled="disabled" {% endif %}></td>
+                                                <td id="po-id-{{ item.id }}">{{ item.po.num }} </td>
 						<td id="rel-id-{{ item.id }}">{{ item.po.relNum }}</td>
 						<td id="line-id-{{ item.id }}">{{ item.lineNum }}</td>
 						<td id="pn-id-{{ item.id }}">{{ item.revision.product.pn }}</td>
 						<td>{{ item.revision.product.custPn }}</td>
-						<td>{{ item.description }}</td>
-						<td id="qty-id-{{ item.id }}"><input type="hidden" id="origin-qty-id-{{ item.id }}" value="{{item.qty - item.shippedQty}}"><select name="qty_id_{{ item.id }}">{% for i in (item.qty - item.shippedQty)..1 %}<option value="{{ i }}">{{ i }}</option>{% endfor %}</select> / {{item.qty}}</td>
+						<td> {% if isDisabled %} * {% endif %} {{ item.description }}</td>
+						<td id="qty-id-{{ item.id }}"><input type="hidden" id="origin-qty-id-{{ item.id }}" value="{{item.qty - item.shippedQty}}"><select {% if isDisabled %}disabled="disabled" {% endif %} name="qty_id_{{ item.id }}">{% for i in (item.qty - item.shippedQty)..1 %}<option value="{{ i }}">{{ i }}</option>{% endfor %}</select> / {{item.qty}}</td>
 						<td>{{ item.price.price }}</td>
 						<td>{{ (item.price.price*item.qty)|number_format(2, '.', ',')  }}</td>
 						<td>{{ item.price.currency.tla }}</td>
-						<td id="date-id-{{ item.id }}" class = "{{ item.dueDate|date('Y-m-d') }}">{{ item.dueDate is empty ? "unknown" : item.dueDate|date('Y-m-d') }}</td>
+						<td id="date-id-{{ item.id }}" class="{% if isDisabled %}*{% endif %}{{ item.dueDate|date('Y-m-d') }}">{{ item.dueDate is empty ? "unknown" : item.dueDate|date('Y-m-d') }} </td>
 						<!-- <td><div class="form-inline"><div class="form-group"><input type="text" class="form-control" value="{{ item.comment }}"><button class="btn btn-default" type="button">Update</button></div></div></td> -->
 						<td class="input-group col-lg-3"><div class="input-group">
 							<input id="comment-text-id-{{ item.id }}" type="text" class="form-control" value="{{ item.comment }}">

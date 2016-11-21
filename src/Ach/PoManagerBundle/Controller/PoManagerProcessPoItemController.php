@@ -152,10 +152,55 @@ class PoManagerProcessPoItemController extends Controller
 	    		->getRepository('AchPoManagerBundle:Carrier');
 	$carriers = $repositoryCarrier->findAll();
 	
-	return $this->render('AchPoManagerBundle:PoManager:processPoItemShip.html.twig', array('poItems' => $poItems, 'salesAdmin' => $shippingManager, 'carriers' => $carriers));
+	return $this->render('AchPoManagerBundle:PoManager:processPoItemShip.html.twig', array('poItems' => $poItems, 'salesAdmin' => $shippingManager, 'carriers' => $carriers, 'disabledCategory' => 'Spare Part'));
 
     }
 
+    /* Manage the PoItem that have already been prepared in the prod */
+    public function processPoItemPreparedAction($shippingManagerId)
+    {
+
+        // get all the prepared shipment not shipped yet
+        $repositoryShipment = $this->getDoctrine()
+                                 ->getManager()
+                                 ->getRepository('AchPoManagerBundle:Shipment');
+
+        $pendingShipments = $repositoryShipment->findByTrackingNum(null);
+        
+        // get all the shipment items that depends on specified ShippingManager
+        $repositoryShipmentItem = $this->getDoctrine()
+                                 ->getManager()
+                                 ->getRepository('AchPoManagerBundle:ShipmentItem');
+        
+        $shipmentItems = $repositoryShipmentItem->findTrackingNullByCategoryByShipManager($shippingManagerId, "Spare Part");
+	
+        // $poItems = array_merge($poItemsApproved, $poItemsPartiallyShipped);
+	
+        $repositoryShippingManager = $this->getDoctrine()
+                                          ->getManager()
+                                          ->getRepository('AchPoManagerBundle:ShippingManager');
+        $shippingManager = $repositoryShippingManager->find($shippingManagerId);
+
+        // get the list of possible carrier
+        $repositoryCarrier = $this->getDoctrine()
+                                  ->getManager()
+                                  ->getRepository('AchPoManagerBundle:Carrier');
+        $carriers = $repositoryCarrier->findAll();
+
+        $res = "";
+        foreach ($pendingShipments as $pendingShipment) {
+            $res .= $pendingShipment->getId();
+        }
+        $res .= "\n-----------------\n<br />";
+        foreach ($shipmentItems as $shipmentItem) {
+            $res .= $shipmentItem->getId() . "\n";
+        }
+
+        //return new Response($res);
+        return $this->render('AchPoManagerBundle:PoManager:processPreparedShip.html.twig', array('pendingShipments' => $pendingShipments, 'salesAdmin' => $shippingManager, 'carriers' => $carriers));
+//return $this->render('AchPoManagerBundle:PoManager:processPreparedShip.html.twig', array('poItems' => $poItems, 'salesAdmin' => $shippingManager, 'carriers' => $carriers, 'disabledCategory' => 'Spare Part'));
+    }
+    
 
     /* Generate an Excel spreadsheet that recap the PO Item selected in ship process */
     public function processPoItemGenerateXlsShipRecapAction()

@@ -4,312 +4,345 @@
 
 {% block body %}
 
-<h3>Search Product(s):</h3>
 
-<div class="well">
-  <form method="post" {{ form_enctype(formPn) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formPn.pn, "VITEC P/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formPn.pn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formPn.pn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formPn, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
+<div class="container">
+  <h2>PO Manager home page</h2>
+  <ul class="nav nav-pills">
+    <li class="active"><a data-toggle="pill" href="#home">Create PO</a></li>
+    <li><a data-toggle="pill" href="#menu1">Search Product</a></li>
+    <li><a data-toggle="pill" href="#menu2">Add lot file</a></li>
+    <li><a data-toggle="pill" href="#menu3">Search PO item</a></li>
+    <li><a data-toggle="pill" href="#menu4">Search Shipment item</a></li>
+    <li><a data-toggle="pill" href="#menu5">Search Serial Number</a></li>
+    <li><a data-toggle="pill" href="#menu6">Search BPO</a></li>
+  </ul>
+
+  <div class="tab-content">
+
+    <div id="home" class="tab-pane fade in active">
+      <h3>Create PO from scratch:</h3>
+      <div class="well">
+	{% include "AchPoManagerBundle:PoManager:generateCreatePoButton.html.twig" %}
+      </div>
+      
+      <h3>Parse PDF file to create PO:</h3>
+      <div class="well">
+	<form action="{{ path('ach_po_manager_create_po') }}"  method="post" {{ form_enctype(formParsePo) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-2">
+	      {{ form_widget(formParsePo, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="Parse PO file"/>
+	    </div>
+	  </div>
+	</form>
+      </div>
+      
     </div>
-	</div>
-  </form>
 
-  <form method="post" {{ form_enctype(formCustPn) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formCustPn.custPn, "Customer P/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formCustPn, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
+    
+    <div id="menu1" class="tab-pane fade">
+      <h3>Search Product</h3>
+      <div class="well">
+	<form method="post" {{ form_enctype(formPn) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formPn.pn, "VITEC P/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formPn.pn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formPn.pn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formPn, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	
+	<form method="post" {{ form_enctype(formCustPn) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formCustPn.custPn, "Customer P/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formCustPn, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	
+	<form method="post" {{ form_enctype(formDesc) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formDesc.description, "Product Description", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formDesc.description, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formDesc.description, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formDesc, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+      </div>    
     </div>
-  </form>
-
-  <form method="post" {{ form_enctype(formDesc) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formDesc.description, "Product Description", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formDesc.description, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formDesc.description, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formDesc, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
+    
+    <div id="menu2" class="tab-pane fade">
+      <h3>Parse a lot file (ZIP):</h3>
+      <div class="well">
+	<form action="{{ path('ach_po_manager_create_shipmentbatch') }}" method="post" {{ form_enctype(formParsePo) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-3">
+	      {{ form_widget(formParseShipmentBatch.file, {'attr': {'class': 'form-control'}}) }}
+	      <!-- </div> -->
+	      <!-- <div class="col-lg-2"> -->
+	      {{ form_label(formParseShipmentBatch.comment, "comment (optionnal)", {'attr': {'class': 'control-label'}}) }}
+	      {{ form_widget(formParseShipmentBatch.comment, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formParseShipmentBatch) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="Import lot file"/>
+	    </div>
+	  </div>
+	</form>
+      </div>
     </div>
-  </form>
-</div>
+    
+    <div id="menu3" class="tab-pane fade">
+      <h3>Search PO item(s):</h3>
+      <div class="well">
+	<form method="post" {{ form_enctype(formPoItemNum) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formPoItemNum.num, "PO #", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formPoItemNum.num, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formPoItemNum.num, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formPoItemNum, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formPoItemPn) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formPoItemPn.pn, "VITEC P/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formPoItemPn.pn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formPoItemPn.pn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formPoItemPn, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formPoItemCustPn) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formPoItemCustPn.custPn, "Customer P/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formPoItemCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formPoItemCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formPoItemCustPn, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formPoItemDesc) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formPoItemDesc.description, "Product Description") }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formPoItemDesc.description, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formPoItemDesc.description, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formPoItemDesc, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	
+      </div>
+    </div>
+    
+    <div id="menu4" class="tab-pane fade">
+      <h3>Search Shipment item(s):</h3>
+      <div class="well">
+	<form method="post" {{ form_enctype(formShipmentItemTrackingNum) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formShipmentItemTrackingNum.trackingNum, "Tracking #", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formShipmentItemTrackingNum.trackingNum, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formShipmentItemTrackingNum.trackingNum, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formShipmentItemTrackingNum, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formShipmentItemShippingDate) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formShipmentItemShippingDate.shippingDateF, "Shipping Date", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formShipmentItemShippingDate.shippingDateF, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formShipmentItemShippingDate.shippingDateF, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formShipmentItemShippingDate, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formShipmentItemInvoice) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formShipmentItemInvoice.num, "Invoice #", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formShipmentItemInvoice.num, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formShipmentItemInvoice.num, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formShipmentItemInvoice, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+      </div>
+    </div>
+    
+    <div id="menu5" class="tab-pane fade">
+      <h3>Search Serial Number(s):</h3>
+      <div class="well">
+	<form method="post" {{ form_enctype(formSerialNumber) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formSerialNumber.serialNumber, "S/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formSerialNumber.serialNumber, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formSerialNumber.serialNumber, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formSerialNumber, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formSerialNumberMac) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formSerialNumberMac.macAddress, "MAC address", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formSerialNumberMac.macAddress, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formSerialNumberMac.macAddress, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formSerialNumberMac, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+      </div>
+    </div>
 
-
-<h3>Create PO from scratch:</h3>
-<div class="well">
-{% include "AchPoManagerBundle:PoManager:generateCreatePoButton.html.twig" %}
-</div>
-
-<h3>Parse a PO PDF file:</h3>
-<div class="well">
-  <form action="{{ path('ach_po_manager_create_po') }}"  method="post" {{ form_enctype(formParsePo) }}>
-  <div class="row form-group" >
-  <div class="col-lg-2">
-    {{ form_widget(formParsePo, {'attr': {'class': 'form-control'}}) }}
+    <div id="menu6" class="tab-pane fade">
+      <h3>Search BPO(s):</h3>
+      <div class="well">
+	<form method="post" {{ form_enctype(formBpoNum) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formBpoNum.num, "BPO #", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formBpoNum.num, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formBpoNum.num, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formBpoNum, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formBpoPn) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formBpoPn.pn, "VITEC P/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formBpoPn.pn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formBpoPn.pn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formBpoPn, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formBpoCustPn) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formBpoCustPn.custPn, "Customer P/N", {'attr': {'class': 'control-label'}}) }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formBpoCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formBpoCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formBpoCustPn, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+	<form method="post" {{ form_enctype(formBpoDesc) }}>
+	  <div class="row form-group" >
+	    <div class="col-lg-1">
+	      {{ form_label(formBpoDesc.description, "Product Description") }}
+	    </div>
+	    <div class="col-lg-2">
+	      {{ form_errors(formBpoDesc.description, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_widget(formBpoDesc.description, {'attr': {'class': 'form-control'}}) }}
+	      {{ form_rest(formBpoDesc, {'attr': {'class': 'form-control'}}) }}
+	    </div>
+	    <div class="col-lg-1">
+	      <input type="submit" class="btn btn-primary" value="search" />
+	    </div>
+	  </div>
+	</form>
+      </div>
+    </div>
   </div>
-  <div class="col-lg-1">
-    <input type="submit" class="btn btn-primary" value="Parse PO file"/>
-  </div>
-  </form>
-  </div>
 </div>
-
-<h3>Parse a lot file (ZIP):</h3>
-<div class="well">
-  <form action="{{ path('ach_po_manager_create_shipmentbatch') }}" method="post" {{ form_enctype(formParsePo) }}>
-  <div class="row form-group" >
-    <div class="col-lg-2">
-      {{ form_widget(formParseShipmentBatch.file, {'attr': {'class': 'form-control'}}) }}
-    <!-- </div> -->
-    <!-- <div class="col-lg-2"> -->
-    {{ form_label(formParseShipmentBatch.comment, "comment (optionnal)", {'attr': {'class': 'control-label'}}) }}
-    {{ form_widget(formParseShipmentBatch.comment, {'attr': {'class': 'form-control'}}) }}
-    {{ form_rest(formParseShipmentBatch) }}
-    </div>
-  <div class="col-lg-1">
-    <input type="submit" class="btn btn-primary" value="Import lot file"/>
-  </div>
-  </form>
-  </div>
-</div>
-
-<h3>Search PO item(s):</h3>
-<div class="well">
-  <form method="post" {{ form_enctype(formPoItemNum) }}>
-	<div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formPoItemNum.num, "PO #", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formPoItemNum.num, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formPoItemNum.num, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formPoItemNum, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formPoItemPn) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formPoItemPn.pn, "VITEC P/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formPoItemPn.pn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formPoItemPn.pn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formPoItemPn, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formPoItemCustPn) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formPoItemCustPn.custPn, "Customer P/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formPoItemCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formPoItemCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formPoItemCustPn, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-    </div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formPoItemDesc) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formPoItemDesc.description, "Product Description") }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formPoItemDesc.description, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formPoItemDesc.description, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formPoItemDesc, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-    </div>
-    </div>
-  </form>
-
-</div>
-
-<h3>Search Shipment item(s):</h3>
-<div class="well">
-  <form method="post" {{ form_enctype(formShipmentItemTrackingNum) }}>
-	<div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formShipmentItemTrackingNum.trackingNum, "Tracking #", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formShipmentItemTrackingNum.trackingNum, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formShipmentItemTrackingNum.trackingNum, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formShipmentItemTrackingNum, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formShipmentItemShippingDate) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formShipmentItemShippingDate.shippingDateF, "Shipping Date", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formShipmentItemShippingDate.shippingDateF, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formShipmentItemShippingDate.shippingDateF, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formShipmentItemShippingDate, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formShipmentItemInvoice) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formShipmentItemInvoice.num, "Invoice #", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formShipmentItemInvoice.num, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formShipmentItemInvoice.num, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formShipmentItemInvoice, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-</div>
-
-<h3>Search Serial Number(s):</h3>
-<div class="well">
-  <form method="post" {{ form_enctype(formSerialNumber) }}>
-	<div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formSerialNumber.serialNumber, "S/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formSerialNumber.serialNumber, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formSerialNumber.serialNumber, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formSerialNumber, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formSerialNumberMac) }}>
-	<div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formSerialNumberMac.macAddress, "MAC address", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formSerialNumberMac.macAddress, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formSerialNumberMac.macAddress, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formSerialNumberMac, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-</div>
-
-
-<h3>Search BPO(s):</h3>
-<div class="well">
-  <form method="post" {{ form_enctype(formBpoNum) }}>
-	<div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formBpoNum.num, "BPO #", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formBpoNum.num, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formBpoNum.num, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formBpoNum, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formBpoPn) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formBpoPn.pn, "VITEC P/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formBpoPn.pn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formBpoPn.pn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formBpoPn, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-	</div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formBpoCustPn) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formBpoCustPn.custPn, "Customer P/N", {'attr': {'class': 'control-label'}}) }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formBpoCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formBpoCustPn.custPn, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formBpoCustPn, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-    </div>
-    </div>
-  </form>
-  <form method="post" {{ form_enctype(formBpoDesc) }}>
-    <div class="row form-group" >
-	<div class="col-lg-1">
-      {{ form_label(formBpoDesc.description, "Product Description") }}
-	</div>
-	<div class="col-lg-2">
-      {{ form_errors(formBpoDesc.description, {'attr': {'class': 'form-control'}}) }}
-      {{ form_widget(formBpoDesc.description, {'attr': {'class': 'form-control'}}) }}
-      {{ form_rest(formBpoDesc, {'attr': {'class': 'form-control'}}) }}
-	</div>
-	<div class="col-lg-1">
-      <input type="submit" class="btn btn-primary" value="search" />
-    </div>
-    </div>
-  </form>
-</div>
-
+  
 <script src="{{ asset('js/jquery-1.11.1.min.js') }}"></script>
 <script src="{{ asset('js/bootstrap-datepicker.js') }}"></script>
 <script src="{{ asset('js/index.js') }}"></script>
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+
+{# <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> #}
 
 {% endblock %}

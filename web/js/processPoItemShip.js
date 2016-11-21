@@ -154,7 +154,7 @@ $(function() {
 		//alert(classDate);
 		// $("input."+classDate+":checkbox").attr('checked', true);
 		// $("input[name="+selectBox+"]").attr('checked', true);
-		$("input."+classDate+":checkbox").prop('checked', !($("input[name="+selectBox+"]").prop("checked")));
+		$("input."+classDate+":checkbox:enabled").prop('checked', !($("input[name="+selectBox+"]").prop("checked")));
 	});
 	
 	//update comment

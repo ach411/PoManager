@@ -207,6 +207,10 @@ ach_po_manager_process_poitem_update_comment:
     pattern: /process/update/poitem/{id}
     defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemUpdateComment }
 
+ach_po_manager_process_poitem_already_prepared:
+    pattern: /process/poitem/prepared/{shippingManagerId}
+    defaults: { _controller: AchPoManagerBundle:PoManagerProcessPoItem:processPoItemPrepared }
+
 # Process Rma section
 
 ach_po_manager_process_rma_create:

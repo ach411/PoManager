@@ -19,6 +19,7 @@ class ShipmentItemRepository extends EntityRepository
 	const JOIN_POITEM_REV_PRODUCT_SHIPMENT = 'JOIN s.poItem i JOIN i.revision r JOIN r.product p JOIN s.shipment h ';
 	const JOIN_SHIPMENT = 'JOIN s.shipment h ';
 	const JOIN_INVOICE = 'JOIN s.invoice v ';
+    const JOIN_POITEM_REV_PRODUCT_CATEGORY_SHIPMANAGER_SHIPMENT = 'JOIN s.poItem i JOIN i.revision r JOIN r.product p JOIN s.shipment h JOIN p.category c JOIN p.shippingManager m ';
 	
 	const DATE_FILTER_ORDER = 'h.shippingDate >= :earliest AND h.shippingDate <= :latest ORDER BY h.shippingDate DESC';
 	const INVOICE_DATE_FILTER_ORDER = 'v.invoiceDate >= :earliest AND v.invoiceDate <= :latest ORDER BY v.invoiceDate DESC';
@@ -50,7 +51,7 @@ class ShipmentItemRepository extends EntityRepository
 
 	public function findNotInvoicedByBillingManager($billingManagerId)
 	{
-		$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_POITEM_REV_PRODUCT_SHIPMENT . 'JOIN p.billingManager b WHERE b.id = :billingManagerId AND s.invoice is null ' . self::ORDER_BY_SHIPPING_DATE);
+		$query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_POITEM_REV_PRODUCT_SHIPMENT . 'JOIN p.billingManager b WHERE b.id = :billingManagerId AND s.invoice is null AND h.trackingNum is not null ' . self::ORDER_BY_SHIPPING_DATE);
 		$query->setParameter('billingManagerId', $billingManagerId);
 		return $query->getResult();
 	}
@@ -121,4 +122,14 @@ class ShipmentItemRepository extends EntityRepository
 		
 		return $query->getResult();
 	}
+
+    public function findTrackingNullByCategoryByShipManager($shippingManagerId, $category)
+    {
+        $query = $this->_em->createQuery(self::SELECT_ALL . self::JOIN_POITEM_REV_PRODUCT_CATEGORY_SHIPMANAGER_SHIPMENT . 'WHERE h.trackingNum is null and c.name like :category and m.id = :shippingManagerId');
+
+        $query->setParameter('category', $category);
+        $query->setParameter('shippingManagerId', $shippingManagerId);
+
+        return $query->getResult();
+    }
 }
