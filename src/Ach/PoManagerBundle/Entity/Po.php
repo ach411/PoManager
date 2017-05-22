@@ -472,92 +472,58 @@ class Po
 	// get text version of PDF
 	$po_text = $pdf->getText();
 
+	// insert special charactere when end of item
+	$po_text = preg_replace("/EACH([0-9])+(\.[0-9])?([0-9])?/", "$0NEWLineENDItem", $po_text);
+
 	// remove all unpredictable space characters
 	$subject = preg_replace('/\s+/', '', $po_text);
-	//print_r($po_text);
-	//echo '<br>';
-	//echo '<br>';
 
 	// determine if PO or BPO release
 	if (preg_match('/\ABlanket Release/', $po_text))
 	{
-		//echo 'BPO release <br>';
 		$this->setIsBpo(true);
-	    //preg_match('/^BPO Number-Release Number \d{+} - (\d{+})/', $po_text, $releaseNumber);
 	    preg_match('/BPO Number-Release Number (\w+) - (\d+)/', $po_text, $infoNumber);
 	    $this->num = $infoNumber[1];
 	    $this->relNum = $infoNumber[2];
-	    //print_r($infoNumber);
 	}
 	else
 	{
 	    if(preg_match('/\APurchase Order/', $po_text))
 	    {
-		//echo 'Purchase Order <br>';
-		$this->setIsBpo(false);
-		//print_r($po_text);
-		//preg_match('/PO Number (\w+)/', $po_text, $infoNumber);
-		preg_match('/PO Number (.+)PO Revision/', $po_text, $infoNumber);
-		//$this->num = $infoNumber[1];
-		$this->num = preg_replace('/\s+/', '', $infoNumber[1]);
-		$this->relNum = "N/A";
-		
-		//print_r($infoNumber);
+            $this->setIsBpo(false);
+            preg_match('/PO Number (.+)PO Revision/', $po_text, $infoNumber);
+			$this->num = preg_replace('/\s+/', '', $infoNumber[1]);
+            $this->relNum = "N/A";
 	    }
 	}
-	//echo '<br>';
 
 	// extract buyer email address
-	//preg_match('/Buyer.Name:(.+)\,(.+)Buyer.Email:(.+@STRYKER.COM)/U', $po_text, $buyerInfo);
 	if (preg_match('/BuyerEmail:(.+@STRYKER.COM)/U', $subject, $buyerInfo))
 	{
-	    //print_r($buyerInfo);
 	    $this->buyerEmail = $buyerInfo[1];
 	}
-	//print_r($this->buyerEmail);
-	//echo '<br>';
 
 	// extract total amount and currency of PO
 	if (preg_match('/TOTAL:?([A-Z]{3})([0-9]+[\.0-9]*)Entered/', $subject, $totalAmountInfo))
 	{
-	    //echo '<br>';
-	    //print_r($totalAmountInfo);
 	    $this->totalAmount = $totalAmountInfo[2];
 	    $this->currency = $totalAmountInfo[1];
 	}	
 
 	// extract items
-	$pattern = "#([0-9]{10}|P[0-9]{5})(SERVICE|ACCESSORIES|VIDEO|ICTS)(.*?)NOTE:([A-Z]+)([0-9]+?)([0-9]{2}-[A-Z]{3}-[0-9]{2}){1,2}([0-9.]+?)EACH#s";
+	$pattern = "#[0-9]([0-9]{10}|P[0-9]{5})(.*?)NOTE:(.*?)([A-Z]+)([0-9]+?)([0-9]{2}-[A-Z]{3}-[0-9]{2}){1,2}([0-9.]+?)EACH(.+?)NEWLineENDItem#";
         preg_match_all($pattern, $subject, $matches);
-	//print_r($matches);
+
 	$shopping_list = array(array());
 
 	for($iteration=0; $iteration<sizeof($matches[0]); $iteration++)
 	{
-//		$poItem_it = new \Ach\PoManagerBundle\Entity\PoItem();
-
 		$shopping_list[$iteration]['SKPN'] = $matches[1][$iteration];
 		$shopping_list[$iteration]['SKREV'] = $matches[4][$iteration];
 		$shopping_list[$iteration]['DESC'] = $matches[3][$iteration];
 		$shopping_list[$iteration]['QTY'] = $matches[5][$iteration];
-		//$shopping_list[$iteration]['NBD'] = $matches[6][$iteration];
 		$shopping_list[$iteration]['NBD'] = date('Y-m-d', strtotime($matches[6][$iteration]));
 		$shopping_list[$iteration]['PRICE'] = $matches[7][$iteration];
-/*
-		$repository = $this->getDoctrine()
-	                   ->getManager()
-			   ->getRepository('AchPoManagerBundle:Product');
-
-		$product = $repository->findOneBy(array('custPn' => $shopping_list[$iteration]['SKPN']));
-
-		$poItem_it
-			->setLineNum($iteration+1)
-			->setDescription($shopping_list[$iteration]['DESC'])
-			->setQty($shopping_list[$iteration]['QTY'])
-			->setDueDate(new \DateTime($shopping_list[$iteration]['NBD']))
-		;
-		$this->addPoItem($poItem_it);
-*/		
 	}
 	// print_r($shopping_list);
 	return($shopping_list);
