@@ -1,8 +1,8 @@
 # Index Section
 
 ach_po_manager_index:
-    pattern:  /index
-    defaults: { _controller: AchPoManagerBundle:PoManager:index }
+    pattern:  /index/{tab}
+    defaults: { _controller: AchPoManagerBundle:PoManager:index, tab: home }
 
 
 # Search Product Section

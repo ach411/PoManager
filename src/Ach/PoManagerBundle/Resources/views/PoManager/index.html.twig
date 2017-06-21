@@ -3,23 +3,25 @@
 {% block title %}{{ parent() }} - index{% endblock %}
 
 {% block body %}
-
-
+  
+  
 <div class="container">
   <h2>PO Manager home page</h2>
   <ul class="nav nav-pills">
-    <li class="active"><a data-toggle="pill" href="#home">Create PO</a></li>
-    <li><a data-toggle="pill" href="#menu1">Search Product</a></li>
-    <li><a data-toggle="pill" href="#menu2">Add lot file</a></li>
-    <li><a data-toggle="pill" href="#menu3">Search PO item</a></li>
-    <li><a data-toggle="pill" href="#menu4">Search Shipment item</a></li>
-    <li><a data-toggle="pill" href="#menu5">Search Serial Number</a></li>
-    <li><a data-toggle="pill" href="#menu6">Search BPO</a></li>
+    {# <li class="active"><a data-toggle="pill" href="#home">Create PO</a></li> #}
+    <li{{ activeTab == 'home' ? ' class="active"'}}><a data-toggle="pill" href="#home">Create PO</a></li>
+    <li{{ activeTab == 'menu1' ? ' class="active"'}}><a data-toggle="pill" href="#menu1">Search Product</a></li>
+    <li{{ activeTab == 'menu2' ? ' class="active"'}}><a data-toggle="pill" href="#menu2">Add lot file</a></li>
+    <li{{ activeTab == 'menu3' ? ' class="active"'}}><a data-toggle="pill" href="#menu3">Search PO item</a></li>
+    <li{{ activeTab == 'menu4' ? ' class="active"'}}><a data-toggle="pill" href="#menu4">Search Shipment item</a></li>
+    <li{{ activeTab == 'menu5' ? ' class="active"'}}><a data-toggle="pill" href="#menu5">Search Serial Number</a></li>
+    <li{{ activeTab == 'menu6' ? ' class="active"'}}><a data-toggle="pill" href="#menu6">Search BPO</a></li>
   </ul>
 
   <div class="tab-content">
 
-    <div id="home" class="tab-pane fade in active">
+    {# <div id="home" class="tab-pane fade in active"> #}
+    <div id="home" {{ activeTab == 'home' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Create PO from scratch:</h3>
       <div class="well">
 	{% include "AchPoManagerBundle:PoManager:generateCreatePoButton.html.twig" %}
@@ -42,7 +44,8 @@
     </div>
 
     
-    <div id="menu1" class="tab-pane fade">
+    {# <div id="menu1" class="tab-pane fade in active"> #}
+    <div id="menu1" {{ activeTab == 'menu1' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Search Product</h3>
       <div class="well">
 	<form method="post" {{ form_enctype(formPn) }}>
@@ -95,7 +98,7 @@
       </div>    
     </div>
     
-    <div id="menu2" class="tab-pane fade">
+    <div id="menu2" {{ activeTab == 'menu2' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Parse a lot file (ZIP):</h3>
       <div class="well">
 	<form action="{{ path('ach_po_manager_create_shipmentbatch') }}" method="post" {{ form_enctype(formParsePo) }}>
@@ -116,7 +119,7 @@
       </div>
     </div>
     
-    <div id="menu3" class="tab-pane fade">
+    <div id="menu3" {{ activeTab == 'menu3' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Search PO item(s):</h3>
       <div class="well">
 	<form method="post" {{ form_enctype(formPoItemNum) }}>
@@ -183,7 +186,7 @@
       </div>
     </div>
     
-    <div id="menu4" class="tab-pane fade">
+    <div id="menu4" {{ activeTab == 'menu4' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Search Shipment item(s):</h3>
       <div class="well">
 	<form method="post" {{ form_enctype(formShipmentItemTrackingNum) }}>
@@ -234,7 +237,7 @@
       </div>
     </div>
     
-    <div id="menu5" class="tab-pane fade">
+    <div id="menu5" {{ activeTab == 'menu5' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Search Serial Number(s):</h3>
       <div class="well">
 	<form method="post" {{ form_enctype(formSerialNumber) }}>
@@ -270,7 +273,7 @@
       </div>
     </div>
 
-    <div id="menu6" class="tab-pane fade">
+    <div id="menu6" {{ activeTab == 'menu6' ? 'class="tab-pane fade in active"' : 'class="tab-pane fade"'}}>
       <h3>Search BPO(s):</h3>
       <div class="well">
 	<form method="post" {{ form_enctype(formBpoNum) }}>

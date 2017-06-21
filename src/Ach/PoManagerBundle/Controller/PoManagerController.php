@@ -42,8 +42,12 @@ use Ach\PoManagerBundle\Form\SerialNumberSearchMacAddressType;
 
 class PoManagerController extends Controller
 {
-    public function indexAction()
+    public function indexAction($tab)
     {
+	//check if $tab is valid
+	if($tab != 'home' and $tab != 'menu1' and $tab != 'menu2' and $tab != 'menu3' and $tab != 'menu4' and $tab != 'menu5' and $tab != 'menu6')
+		$tab = 'home';
+
 	$product = new Product();
 	$po = new Po();
 	$shipment = new Shipment();
@@ -233,7 +237,8 @@ class PoManagerController extends Controller
 		   'formBpoNum' => $formBpoNum->createView(),
 		   'formBpoPn' => $formBpoPn->createView(),
 		   'formBpoCustPn' => $formBpoCustPn->createView(),
-		   'formBpoDesc' => $formBpoDesc->createView()
+		   'formBpoDesc' => $formBpoDesc->createView(),
+           'activeTab' => $tab
 	       ));
     }
 
