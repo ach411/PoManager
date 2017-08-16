@@ -10,6 +10,7 @@
     <thead>
       <tr>
 	<th>Lot number</th>
+	<th>unit(s) per lot</th>
 	<th>File</th>
 	<th>Date recorded</th>
 	<th>Comment</th>
@@ -21,6 +22,7 @@
       {% for item in lots %}
       <tr>
 	<td id="lot-num-{{item.id}}">{{ item.num }}</td>
+	<td id="snCount-{{item.id}}">{{ item.SerialNumbers.count }}</td>
 	<td>{{ item.filePath }}</td>
 	<td>{{ item.createdDate is empty ? "unknown" : item.createdDate|date('Y-m-d') }}</td>
 	<td>{{ item.comment }}</td>

@@ -64,13 +64,6 @@ class AchSyncProdDatabase
         }
 
         // connect to the database
-        /* try { */
-        /*     $bdd = new \PDO('mysql:host='.$this->external_sql_host.';port='.$this->external_sql_port.';dbname='.$this->external_sql_db_name, $this->external_sql_user, $this->external_sql_pass); */
-        /* } */
-        /* catch(\Exception $e) { */
-        /*     $log .= 'Error: '.$e->getMessage()."\n"; */
-        /*     return $log; */
-        /* } */
         try {
             $bdd = $this->connectProdDB->getPDO();
         }
@@ -96,8 +89,8 @@ class AchSyncProdDatabase
                 foreach ($results as $result) {
                     $log .= $result['lot_num'] . ' - ' . $result['sn'] . "\n";
                     if ($result['lot_unit_count'] != $unit_per_lot) {
-                        $log .= 'Error: in production database, number of units in lot/pallet ' . $result['lot_num'] . ' is equal to ' . $result['lot_unit_count'] . ', it should be equal to ' . $unit_per_lot . "... Synchro Aborted\n";
-                        return $log;
+                        $log .= 'Warning: in production database, number of units in lot/pallet ' . $result['lot_num'] . ' is equal to ' . $result['lot_unit_count'] . ', it should normally be equal to ' . $unit_per_lot . "...\n";
+                        //return $log;
                     }
                 }
                 // display the count of S/N to be synchronized
@@ -107,13 +100,17 @@ class AchSyncProdDatabase
                 $log .= 'Copying to PoManager Datebase...' . "\n";
                 $tabBatch = array();
                 $tabLotNum = array();
-                $i = 0;
+                $i = 0; // index of the for loop
+		$j = -1; // index of the batch table
+		$k = 0; // contains value of i when new batch entry is needed
                 foreach ($results as $result) {
-                    if($i % $unit_per_lot == 0) {
-                        $tabBatch[$i / $unit_per_lot] = new ShipmentBatch();
-                        $tabBatch[$i / $unit_per_lot]->setNum($result['lot_num']);
-                        $tabBatch[$i / $unit_per_lot]->setProductName($systemName);
-                        $tabBatch[$i / $unit_per_lot]->setComment('auto-imported from the production database');
+                    if($i == $k) {
+		    	$k = $i + $result['lot_unit_count'];
+			$j++;
+                        $tabBatch[$j] = new ShipmentBatch();
+                        $tabBatch[$j]->setNum($result['lot_num']);
+                        $tabBatch[$j]->setProductName($systemName);
+                        $tabBatch[$j]->setComment('auto-imported from the production database v1.1');
                         $tabLotNum[] = strval($result['lot_num']);
                     }
                     // check if S/N already exists in the database
@@ -124,8 +121,8 @@ class AchSyncProdDatabase
                     }
                     $snInstance = new SerialNumber($result['sn'], null,'auto-imported from production database');
                     $this->em->persist($snInstance);
-                    $tabBatch[$i / $unit_per_lot]->addSerialNumber($snInstance);
-                    $this->em->persist($tabBatch[$i / $unit_per_lot]);
+                    $tabBatch[$j]->addSerialNumber($snInstance);
+                    $this->em->persist($tabBatch[$j]);
                     $i++;
                 }
                 $this->em->flush();

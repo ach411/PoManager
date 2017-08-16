@@ -385,12 +385,15 @@ class PoManagerProcessPoItemController extends Controller
 						->getRepository('AchPoManagerBundle:ShipmentBatch');
                 
                 $shipmentBatchInstances = $repositoryShipmentBatch->findWaitingForRemovalByProductName($prodName);
-                $lotNumber = count($shipmentBatchInstances);
+		$WaitingForRemovalCount = 0;
                 if(empty($shipmentBatchInstances))
                     return new Response("Error: No lot is currently selected for shipment, please select lot(s) for removal first");
-                $lotParam = $this->container->getParameter('lot');
-                if(count($shipmentBatchInstances) * intval($lotParam[$prodName]) != $shippedQty)
-                    return new Response("Error: the $lotNumber $prodName lot(s) previously selected for that shipment do not match with entered quantity of $shippedQty!");
+		foreach($shipmentBatchInstances as $shipmentBatchInstance)
+		{
+		    $WaitingForRemovalCount += $shipmentBatchInstance->getSerialNumbers()->count();
+		}
+                if($WaitingForRemovalCount != $shippedQty)
+                    return new Response("Error: the $WaitingForRemovalCount $prodName (waiting for removal) previously selected for that shipment do not match with the entered quantity of $shippedQty!");
                 foreach($shipmentBatchInstances as $shipmentBatchInstance)
                 {
                     //$shipmentBatchInstance->setShipment($shipment);

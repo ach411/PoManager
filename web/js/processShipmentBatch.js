@@ -1,16 +1,18 @@
 function updateCount()
 {
-    var unitsPerLot = parseInt($('#unitsPerLot').html());
+    //var unitsPerLot = parseInt($('#unitsPerLot').html());
     var total = 0;
     var available = 0;
     $('[id*="check-removal-"]').each(function(){
-	available += unitsPerLot;
+	var re = /\d+/ig;
+	var result = re.exec($(this).attr('id'));
+	var index = result[0];
+	//available += unitsPerLot;
+	available += parseInt($('#snCount-'+index).html());
 	if($(this).hasClass("glyphicon-ok"))
 	{
-	    total += unitsPerLot;
-	    var re = /\d+/ig;
-	    var result = re.exec($(this).attr('id'));
-	    var index = result[0];
+	    //total += unitsPerLot;
+	    total += parseInt($('#snCount-'+index).html());
 	    $('#recap').append($('#lot-num-'+index).html());
 	    $('#recap').append("\n");
 	}
