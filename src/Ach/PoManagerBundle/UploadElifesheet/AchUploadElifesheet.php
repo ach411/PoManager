@@ -19,7 +19,7 @@ class AchUploadElifesheet
     protected $ftp_remote_path;
 
     // query to remote production database string
-    protected $sql_query_pattern = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN FROM SK38 WHERE System_SN like ';
+    protected $sql_query_pattern = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN, SATADOM_SN, CARD_USB3_SN FROM SK38 WHERE System_SN like ';
 
     public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $ftp_parameters)
 	{
@@ -107,17 +107,19 @@ class AchUploadElifesheet
                     // write elifesheet in temp file
                     $tempFileHandle = fopen($this->ftp_temp_file,"w");
                     // write file
-                    fwrite($tempFileHandle, "System SK38 S/N;" . $result['System_SN']     . ";\n" );
-                    fwrite($tempFileHandle, "Assembly date;"   . $result['Assembly_date'] . ";\n" );
-                    fwrite($tempFileHandle, "PSU S/N;"         . $result['PSU_SN']        . ";\n" );
-                    fwrite($tempFileHandle, "Motherboard S/N;" . $result['PSU_SN']        . ";\n" );
-                    fwrite($tempFileHandle, "MAC ADDR 1;"      . $result['MACID1_MB']     . ";\n" );
-                    fwrite($tempFileHandle, "MAC ADDR 2;"      . $result['MACID2_MB']     . ";\n" );
-                    fwrite($tempFileHandle, "LCD S/N;"         . $result['LCD_SN']        . ";\n" );
-                    fwrite($tempFileHandle, "HDD S/N;"         . $result['HDD_SN']        . ";\n" );
-                    fwrite($tempFileHandle, "SK38-M S/N;"      . $result['SK38_M_SN']     . ";\n" );
-                    fwrite($tempFileHandle, "DDR1 S/N;"        . $result['DDR1_SN']       . ";\n" );
-                    fwrite($tempFileHandle, "DDR2 S/N;"        . $result['DDR2_SN']       . ";\n" );
+                    // fwrite($tempFileHandle, "System SK38 S/N;" . $result['System_SN']     . ";\n" );
+                    // fwrite($tempFileHandle, "Assembly date;"   . $result['Assembly_date'] . ";\n" );
+                    // fwrite($tempFileHandle, "PSU S/N;"         . $result['PSU_SN']        . ";\n" );
+                    // fwrite($tempFileHandle, "Motherboard S/N;" . $result['PSU_SN']        . ";\n" );
+                    // fwrite($tempFileHandle, "MAC ADDR 1;"      . $result['MACID1_MB']     . ";\n" );
+                    // fwrite($tempFileHandle, "MAC ADDR 2;"      . $result['MACID2_MB']     . ";\n" );
+                    // fwrite($tempFileHandle, "LCD S/N;"         . $result['LCD_SN']        . ";\n" );
+                    // fwrite($tempFileHandle, "HDD S/N;"         . $result['HDD_SN']        . ";\n" );
+                    // fwrite($tempFileHandle, "SK38-M S/N;"      . $result['SK38_M_SN']     . ";\n" );
+                    // fwrite($tempFileHandle, "DDR1 S/N;"        . $result['DDR1_SN']       . ";\n" );
+                    // fwrite($tempFileHandle, "DDR2 S/N;"        . $result['DDR2_SN']       . ";\n" );
+		    fwrite($tempFileHandle, "Assembly date,System S/N,Motherboard S/N,SK38-M S/N,DDR1 S/N,DDR2 S/N,PSU S/N,LCD S/N,MAC ADDR 1,MAC ADDR 2,HDD S/N,SATADOM S/N,CARD USB3 S/N\n");
+		    fwrite($tempFileHandle, $result['Assembly_date'] . "," . $result['System_SN'] . "," . $result['Motherboard_SN'] . "," . $result['SK38_M_SN'] . "," . $result['DDR1_SN'] . "," . $result['DDR2_SN'] . "," . $result['PSU_SN'] . "," . $result['LCD_SN'] . "," . $result['MACID1_MB'] . "," . $result['MACID2_MB'] . "," . $result['HDD_SN'] . "," . $result['SATADOM_SN'] . "," . $result['CARD_USB3_SN'] . "\n");
                     fclose($tempFileHandle);
 
                     //push file onto FTP site
