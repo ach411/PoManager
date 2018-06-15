@@ -75,7 +75,12 @@ class PoManagerCreateEntryController extends Controller
 						// if unit price does not match return error
 						if($revision->getProduct()->getPrice()->getPrice() != $shoppingItem['PRICE'])
 						{
-							return $this->renderErrorPage("Price are not matching with database for item P/N: " . $revision->getProduct()->getPn() . ", " . $revision->getProduct()->getDescription() . " - Please contact your account manager.");
+							return $this->renderErrorPage("Price is not matching with database for item P/N: " . $revision->getProduct()->getPn() . ", " . $revision->getProduct()->getDescription() . " - Please contact your account manager.");
+						}
+						// if currency does not match return error
+						if(strcasecmp($revision->getProduct()->getPrice()->getCurrency()->getTla(), $parsePo->getCurrency()) != 0)
+						{
+							return $this->renderErrorPage("Currency is not matching with database for item P/N: " . $revision->getProduct()->getPn() . ", " . $revision->getProduct()->getDescription() . ", Currency should be " . $revision->getProduct()->getPrice()->getCurrency()->getTla() . ", but PO says " . $parsePo->getCurrency() . " instead - Please contact your account manager.");
 						}
 						/*echo '<br />';
 						echo 'Price: ' . $revision->getProduct()->getPrice()->getPrice();

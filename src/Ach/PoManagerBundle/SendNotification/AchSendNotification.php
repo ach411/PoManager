@@ -2,6 +2,8 @@
 
 namespace Ach\PoManagerBundle\SendNotification;
 
+use Ach\PoManagerBundle\ConnectProdDatabase\AchConnectProdDatabase;
+
 class AchSendNotification
 {
 	protected $mailer;
@@ -13,6 +15,10 @@ class AchSendNotification
 	protected $invoice_files_path;
     protected $swiftmailer_transport_real;
     protected $from_emails;
+	protected $connectProdDB;
+	
+	// query to remote production database string
+    protected $sql_query_pattern = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN, SATADOM_SN, CARD_USB3_SN FROM SK38 WHERE System_SN like ';
 	
 	// take string(s) in message_pattern
 	// and resolve variable %var% by their value define in replace_string_array
@@ -59,7 +65,7 @@ class AchSendNotification
 		return $email_array;
 	}
 
-	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path, $from_emails)
+	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, AchConnectProdDatabase $connectProdDB, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path, $from_emails)
 	{
 		$this->mailer = $mailer;
 		$this->router = $router;
@@ -71,6 +77,7 @@ class AchSendNotification
         $this->rma_files_path = $rma_files_path;
 		$this->swiftmailer_transport_real = $swiftmailer_transport_real;
         $this->from_emails = $from_emails;
+		$this->connectProdDB = $connectProdDB;
 	}
 
 	/**
@@ -465,11 +472,24 @@ class AchSendNotification
                 $phpExcelObject->getProperties()->setCreator("ACH")
                                ->setLastModifiedBy("ACH")
                                ->setTitle("detail_shipment_$shipmentId");
-
-                $phpExcelObject->getActiveSheet()->getColumnDimension('A')->setWidth(25);
-                $phpExcelObject->getActiveSheet()->getColumnDimension('B')->setWidth(25);
-                $phpExcelObject->getActiveSheet()->getColumnDimension('C')->setWidth(25);
-                $phpExcelObject->getActiveSheet()->getColumnDimension('D')->setWidth(35);
+				
+                $phpExcelObject->getActiveSheet()->getColumnDimension('A')->setWidth(18);
+                $phpExcelObject->getActiveSheet()->getColumnDimension('B')->setWidth(20);
+                $phpExcelObject->getActiveSheet()->getColumnDimension('C')->setWidth(10);
+                $phpExcelObject->getActiveSheet()->getColumnDimension('D')->setWidth(11);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('E')->setWidth(11);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('F')->setWidth(16);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('G')->setWidth(12);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('H')->setWidth(16);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('I')->setWidth(18);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('J')->setWidth(18);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('K')->setWidth(10);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('L')->setWidth(17);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('M')->setWidth(13);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('N')->setWidth(13);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('O')->setWidth(14);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('P')->setWidth(18);
+				$phpExcelObject->getActiveSheet()->getColumnDimension('Q')->setWidth(14);
 
                 $phpExcelObject->getActiveSheet()->getStyle('A1:A4')->getFont()->setBold(true);
                 
@@ -484,15 +504,33 @@ class AchSendNotification
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B2', $carrier); 
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B3', $tracking); 
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B4', $dateShip);
+				
+				$phpExcelObject->getActiveSheet()->getStyle('C6')->getFont()->setBold(true);
+				
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('C6', 'Product Lifesheet');
 
-                $phpExcelObject->getActiveSheet()->getStyle('A6:D6')->getFont()->setBold(true);
+                $phpExcelObject->getActiveSheet()->getStyle('A8:Q8')->getFont()->setBold(true);
 
-                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A6', 'LOT');
-                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('B6', 'S/N');
-                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('C6', 'MAC Address');
-                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('D6', 'Comments');
-
-                $index = 7;
+		                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A8', 'LOT');
+                		$phpExcelObject->setActiveSheetIndex(0)->setCellValue('B8', 'S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('C8', 'Mfg. P/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('D8', 'Stryker P/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('E8', 'Stryker Rev.');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('F8', 'Assembly date');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('G8', 'Motherboard S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('H8', 'SK38-M S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('I8', 'DDR1 S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('J8', 'DDR2 S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('K8', 'PSU S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('L8', 'LCD S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('M8', 'MAC ADDR 1');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('N8', 'MAC ADDR 2');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('O8', 'HDD S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('P8', 'SATADOM S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('Q8', 'CARD USB3 S/N');
+				
+				
+                $index = 9;
                 foreach($shipmentBatches as $lot)
                     {
                         $phpExcelObject->setActiveSheetIndex(0)->setCellValue('A' . $index, $lot->getProductName() . ' lot #' . $lot->getNum());
@@ -504,14 +542,86 @@ class AchSendNotification
                         foreach($sns as $sn)
                             {
                                 $phpExcelObject->setActiveSheetIndex(0)->setCellValue('B' . $index, $sn->getSerialNumber());
-                                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('C' . $index, $sn->getMacAddress());
-                                $phpExcelObject->setActiveSheetIndex(0)->setCellValue('D' . $index, $sn->getComment());
+								$phpExcelObject->getActiveSheet()
+									->getStyle('C' . $index)
+									->getNumberFormat()
+									->setFormatCode(
+										\PHPExcel_Style_NumberFormat::FORMAT_TEXT
+									);
+									
+								$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('C' . $index, $lot->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getPn(), \PHPExcel_Cell_DataType::TYPE_STRING);
+								$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('D' . $index, $lot->getShipmentItem()->getPoItem()->getRevision()->getProduct()->getCustPn(), \PHPExcel_Cell_DataType::TYPE_STRING);
+								$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('E' . $index, 'Rev ' . $lot->getShipmentItem()->getPoItem()->getRevision()->getRevisionCust(), \PHPExcel_Cell_DataType::TYPE_STRING);
+								
+								//hard-coded for now...
+								if($lot->getProductName() == "SK38")
+								{
+									try {
+									// connect to the database
+										$bdd = $this->connectProdDB->getPDO();
+									}
+									catch(\Exception $e) {
+										throw new \Exception($notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " Error when trying to connect to prod database: ". $e->getMessage());
+									}
+									
+									$sql_query = $this->sql_query_pattern . "'" . $sn->getSerialNumber() ."';";
+									
+									$req = $bdd->prepare($sql_query);
+									
+									if($req->execute()) {
+										$results = $req->fetchall();
+										$req->closeCursor();
+										if (count($results) > 1)
+										{
+											throw new \Exception($notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " Error when processing query on S/N " . $sn->getSerialNumber() . ", did return more than one instance");
+										}
+										if (count($results) == 0)
+										{
+											throw new \Exception($notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " Error when processing query on S/N " . $sn->getSerialNumber() . ", did not return any instance");
+										}
+										$result = $results[0];
+										
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('F' . $index, $result['Assembly_date'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('G' . $index, $result['Motherboard_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('H' . $index, $result['SK38_M_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('I' . $index, $result['DDR1_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('J' . $index, $result['DDR2_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('K' . $index, $result['PSU_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('L' . $index, $result['LCD_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('M' . $index, $result['MACID1_MB'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('N' . $index, $result['MACID2_MB'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('O' . $index, $result['HDD_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('P' . $index, $result['SATADOM_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('Q' . $index, $result['CARD_USB3_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										
+									}
+									else
+									{
+										throw new \Exception($notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " Error: Fail to execute query on prod database on S/N " . $sn->getSerialNumber() . $sql_query);
+									}
+								}
+								else
+								{
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('M' . $index, $sn->getMacAddress(), \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('F' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('G' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('H' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('I' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('J' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('K' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('L' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('N' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('O' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('P' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('Q' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+									
+								}
 
                                 $index++;
                             }
                     }
 
-                $phpExcelObject->getActiveSheet()->getStyle('D7:D' . ($index-1))->getAlignment()->setWrapText(true);
+                //$phpExcelObject->getActiveSheet()->getStyle('D7:D' . ($index-1))->getAlignment()->setWrapText(true);
 
                 $styleArray = array(
                     'borders' => array(
@@ -525,11 +635,19 @@ class AchSendNotification
                     )
                 );
 
-                $phpExcelObject->getActiveSheet()->getStyle('A6:D' . ($index-1))->applyFromArray($styleArray);
+                $phpExcelObject->getActiveSheet()->getStyle('A8:Q' . ($index-1))->applyFromArray($styleArray);
 
                 $phpExcelObject->getActiveSheet()->setTitle('shipment details');
                 // Set active sheet index to the first sheet, so Excel opens this as the first sheet
                 $phpExcelObject->setActiveSheetIndex(0);
+				
+				
+				$phpExcelObject->getSecurity()->setLockWindows(true);
+				$phpExcelObject->getSecurity()->setLockStructure(true);
+				$phpExcelObject->getSecurity()->setWorkbookPassword("12345");
+				$phpExcelObject->getActiveSheet()->getProtection()->setSheet(true);
+				$phpExcelObject->getActiveSheet()->getProtection()->setPassword("12345");
+
 
                 // create the writer
                 // $writer = $this->get('phpexcel')->createWriter($phpExcelObject, 'Excel5');
