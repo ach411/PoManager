@@ -18,7 +18,7 @@ class AchSendNotification
 	protected $connectProdDB;
 	
 	// query to remote production database string
-    protected $sql_query_pattern = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN, SATADOM_SN, CARD_USB3_SN FROM SK38 WHERE System_SN like ';
+    protected $sql_query_pattern; // = 'SELECT System_SN, Assembly_date, PSU_SN, Motherboard_SN, SK38_M_SN, LCD_SN, DDR1_SN, DDR2_SN, MACID1_MB, MACID2_MB, HDD_SN, SATADOM_SN, CARD_USB3_SN FROM SK38 WHERE System_SN like ';
 	
 	// take string(s) in message_pattern
 	// and resolve variable %var% by their value define in replace_string_array
@@ -65,7 +65,7 @@ class AchSendNotification
 		return $email_array;
 	}
 
-	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, AchConnectProdDatabase $connectProdDB, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path, $from_emails)
+	public function __construct(\Swift_Mailer $mailer, \Swift_Transport_EsmtpTransport $swiftmailer_transport_real, \Symfony\Bundle\FrameworkBundle\Routing\Router $router, \Symfony\Bundle\TwigBundle\TwigEngine $templating, \Liuggio\ExcelBundle\Factory $phpexcel, AchConnectProdDatabase $connectProdDB, $po_files_path, $bpo_files_path, $invoice_files_path, $rma_files_path, $from_emails, $external_lifesheet_select_query)
 	{
 		$this->mailer = $mailer;
 		$this->router = $router;
@@ -78,6 +78,7 @@ class AchSendNotification
 		$this->swiftmailer_transport_real = $swiftmailer_transport_real;
         $this->from_emails = $from_emails;
 		$this->connectProdDB = $connectProdDB;
+                $this->sql_query_pattern = $external_lifesheet_select_query;
 	}
 
 	/**
@@ -507,7 +508,7 @@ class AchSendNotification
 				
 				$phpExcelObject->getActiveSheet()->getStyle('C6')->getFont()->setBold(true);
 				
-				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('C6', 'Product Lifesheet');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('C6', 'VITEC hereby certifies that the products listed below have been manufactured and tested in accordance with applicable specifications, drawings and standards and in conformance with the requirements of the purchase order relative to this shipment');
 
                 $phpExcelObject->getActiveSheet()->getStyle('A8:Q8')->getFont()->setBold(true);
 
@@ -518,7 +519,7 @@ class AchSendNotification
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('E8', 'Stryker Rev.');
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('F8', 'Assembly date');
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('G8', 'Motherboard S/N');
-				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('H8', 'SK38-M S/N');
+				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('H8', 'Capture card S/N');
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('I8', 'DDR1 S/N');
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('J8', 'DDR2 S/N');
 				$phpExcelObject->setActiveSheetIndex(0)->setCellValue('K8', 'PSU S/N');
@@ -554,7 +555,7 @@ class AchSendNotification
 								$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('E' . $index, 'Rev ' . $lot->getShipmentItem()->getPoItem()->getRevision()->getRevisionCust(), \PHPExcel_Cell_DataType::TYPE_STRING);
 								
 								//hard-coded for now...
-								if($lot->getProductName() == "SK38")
+								if($lot->getProductName() == "SK38" or $lot->getProductName() == "SR8")
 								{
 									try {
 									// connect to the database
@@ -564,7 +565,7 @@ class AchSendNotification
 										throw new \Exception($notification->getNotificationCategory()->getName() . " on ID# ".$notification->getSourceId() . " Error when trying to connect to prod database: ". $e->getMessage());
 									}
 									
-									$sql_query = $this->sql_query_pattern . "'" . $sn->getSerialNumber() ."';";
+									$sql_query = $this->sql_query_pattern[$lot->getProductName()] . "'" . $sn->getSerialNumber() ."';";
 									
 									$req = $bdd->prepare($sql_query);
 									
@@ -583,7 +584,12 @@ class AchSendNotification
 										
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('F' . $index, $result['Assembly_date'], \PHPExcel_Cell_DataType::TYPE_STRING);
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('G' . $index, $result['Motherboard_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
-										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('H' . $index, $result['SK38_M_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										if($lot->getProductName() == "SK38") {
+											$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('H' . $index, $result['SK38_M_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										}
+										else {
+											$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('H' . $index, $result['SR8_M_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										}
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('I' . $index, $result['DDR1_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('J' . $index, $result['DDR2_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('K' . $index, $result['PSU_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
@@ -591,7 +597,12 @@ class AchSendNotification
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('M' . $index, $result['MACID1_MB'], \PHPExcel_Cell_DataType::TYPE_STRING);
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('N' . $index, $result['MACID2_MB'], \PHPExcel_Cell_DataType::TYPE_STRING);
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('O' . $index, $result['HDD_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
-										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('P' . $index, $result['SATADOM_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										if($lot->getProductName() == "SK38") {
+											$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('P' . $index, $result['SATADOM_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
+										}
+										else {
+											$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('P' . $index, 'N/A', \PHPExcel_Cell_DataType::TYPE_STRING);
+										}
 										$phpExcelObject->setActiveSheetIndex(0)->setCellValueExplicit('Q' . $index, $result['CARD_USB3_SN'], \PHPExcel_Cell_DataType::TYPE_STRING);
 										
 									}
@@ -662,7 +673,7 @@ class AchSendNotification
                 $writer->save($ftemp);
                 
                 // attach the temp file
-                $email->attach(\Swift_Attachment::fromPath($ftemp)->setFilename("Details_shipment_$shipmentId.xlsx"));
+                $email->attach(\Swift_Attachment::fromPath($ftemp)->setFilename("Lifesheet_CoC_$shipmentId.xlsx"));
                 
             }
 		

@@ -19,11 +19,13 @@ class AchSyncProdDatabase
     /* protected $external_sql_pass; */
     protected $lot;
     protected $connectProdDB;
+    protected $external_select_query;
+    protected $external_update_query;
 
     // query to remote production database string
-    protected $external_sql_query = 'SELECT lot_num, lot_unit_count, System_SN as sn FROM Palettes INNER JOIN (SELECT Num_palette as lot_num, COUNT(System_SN) as lot_unit_count FROM Palettes WHERE Synchro_BDD_PO = 0 GROUP BY lot_num) as Counttab on Palettes.Num_palette = Counttab.lot_num WHERE Synchro_BDD_PO=0 ORDER BY lot_num ASC, sn';
+    protected $external_sql_query; // = 'SELECT lot_num, lot_unit_count, System_SN as sn FROM Palettes INNER JOIN (SELECT Num_palette as lot_num, COUNT(System_SN) as lot_unit_count FROM Palettes WHERE Synchro_BDD_PO = 0 GROUP BY lot_num) as Counttab on Palettes.Num_palette = Counttab.lot_num WHERE Synchro_BDD_PO=0 ORDER BY lot_num ASC, sn';
 
-    public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $lot)
+    public function __construct(EntityManager $entityManager, AchConnectProdDatabase $connectProdDB, $lot, $external_select_query, $external_update_query)
 	{
 		$this->em = $entityManager;
         // get the parameters to access the remote production database
@@ -34,6 +36,8 @@ class AchSyncProdDatabase
 		/* $this->external_sql_pass	= $external_sql['pass']; */
         $this->lot                  = $lot;
         $this->connectProdDB        = $connectProdDB;
+        $this->external_select_query = $external_select_query;
+        $this->external_update_query = $external_update_query;
 
 	}
 	
@@ -46,17 +50,19 @@ class AchSyncProdDatabase
         $systemName=strtoupper($systemName);
 
         // force it to SK38 for now: to be changed in future
-        if($systemName != "SK38") {
+        /* if($systemName != "SK38") {
             $log .= "Warning: only SK38 is supported for now... Synchro aborted\n";
             return $log;
-        }
+        } */
         // get the shipment batch repository
    		$repositoryShipmentBatch = $this->em->getRepository('AchPoManagerBundle:ShipmentBatch');
         $repositorySerialNumber = $this->em->getRepository('AchPoManagerBundle:SerialNumber');
                 
         // get the production lot configuration: how many units per lot/pallet
-        if(array_key_exists($systemName, $this->lot)) {
+        if(array_key_exists($systemName, $this->lot) and array_key_exists($systemName, $this->external_select_query)) {
             $unit_per_lot = $this->lot[$systemName];
+            $this->external_sql_query = $this->external_select_query[$systemName];
+            $log .= $this->external_sql_query . "\n";
         }
         else {
             $log .= 'Error: System ' . $systemName . ' has not been set up' . "... Synchro Aborted\n";
@@ -130,7 +136,8 @@ class AchSyncProdDatabase
                 //3. Mark the copied entries as being synchronized
                 // prepare the query
                 $tabLotNumString = implode(',',$tabLotNum);
-                $this->external_sql_query = 'UPDATE Palettes SET Synchro_BDD_PO = 1 WHERE Num_palette IN (' . $tabLotNumString . ')';
+                // $this->external_sql_query = 'UPDATE Palettes SET Synchro_BDD_PO = 1 WHERE Num_palette IN (' . $tabLotNumString . ')';
+		$this->external_sql_query = $this->external_update_query[$systemName] . $tabLotNumString . ')';
                 $req2 = $bdd->prepare($this->external_sql_query);
                 
                 // execute the request

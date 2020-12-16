@@ -20,7 +20,7 @@ services:
         arguments: [%external_sql%]
     ach_po_manager.send_notification:
         class: Ach\PoManagerBundle\SendNotification\AchSendNotification
-        arguments: [@mailer, @swiftmailer.transport.real, @router, @templating, @phpexcel, @ach_po_manager.connect_prod_database, %po_files_path%, %bpo_files_path%, %invoice_files_path%, %rma_files_path%, %from_emails%]
+        arguments: [@mailer, @swiftmailer.transport.real, @router, @templating, @phpexcel, @ach_po_manager.connect_prod_database, %po_files_path%, %bpo_files_path%, %invoice_files_path%, %rma_files_path%, %from_emails%, %external_lifesheet_select_query%]
 #        scope: request
     ach_po_manager.generate_xls_response:
         class: Ach\PoManagerBundle\GenerateXlsResponse\AchGenerateXlsResponse
@@ -30,8 +30,8 @@ services:
         arguments: [@doctrine.orm.entity_manager]
     ach_po_manager.sync_prod_database:
         class: Ach\PoManagerBundle\SyncProdDatabase\AchSyncProdDatabase
-        arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database, %lot%]
-    ach_po_manager.upload_elifesheet:
+        arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database, %lot%, %external_select_query%, %external_update_query%]
+    ach_po_managey.upload_elifesheet:
         class: Ach\PoManagerBundle\UploadElifesheet\AchUploadElifesheet
         arguments: [@doctrine.orm.entity_manager, @ach_po_manager.connect_prod_database, %ftp_parameters%]
 
